@@ -120,6 +120,7 @@ const bookingId = 'BK' + day + month + hours + minutes + seconds;
   return (
     <div className="appointment-form-container">
       <h2>Đăng Ký Hẹn Lịch Khám</h2>
+      <img src='https://petpro.com.vn/assets/booking_pet.fcf232f8.png' />
       <form className="appointment-form" onSubmit={handleSubmit}>
         <div>
           <label htmlFor="name">Tên:</label>

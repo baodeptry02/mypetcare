@@ -51,7 +51,7 @@ function Home() {
           </div>
           <div className="home-img">
             <img
-              src="https://scontent.fsgn5-10.fna.fbcdn.net/v/t39.30808-6/440942530_423620990437817_5689570377664203254_n.jpg?_nc_cat=110&ccb=1-7&_nc_sid=5f2048&_nc_eui2=AeGH7MPTf2dzUW3ThUsw3HmXDDoRkmzJd3IMOhGSbMl3cpvAmH2puahNUM-H3cX522nwwjSb-77rqIf3YpNqmHfJ&_nc_ohc=pRyaLPx__BYQ7kNvgG7oi2O&_nc_ht=scontent.fsgn5-10.fna&oh=00_AYDPeV8x1QY0gBNXtPfoYvwmWEMuIc2fqy9FS_Mg1FVQiA&oe=664E6D92"
+              src="https://www.google.com/url?sa=i&url=https%3A%2F%2Fwww.dan47.info%2F2020%2F08%2Fbo-tranh-ho-map-u-gay-cuoi-tren-mang-xa-hoi.html&psig=AOvVaw3iIlrT26g2wgDaF9dzR5uP&ust=1716512659780000&source=images&cd=vfe&opi=89978449&ved=0CBIQjRxqFwoTCLjtv9_JooYDFQAAAAAdAAAAABAE"
               alt=""
             />
           </div>

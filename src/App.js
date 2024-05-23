@@ -21,6 +21,7 @@ import Book from "../src/view/booking/Book";
 import QrCodePage from "../src/view/qr/QrCodePage";
 import Transaction from "../src/Components/transaction/TransactionHistory";
 import { TransactionProvider } from "../src/Components/context/TransactionContext";
+import ForgotPassword from "./Components/googleSignIn/ForgotPassword";
 
 function MainContent() {
   const location = useLocation();
@@ -49,6 +50,7 @@ function MainContent() {
         <Route path="/book" element={<Book />} />
         <Route path="/qr" element={<QrCodePage />} />
         <Route path="/transaction-history" element={<Transaction />} />
+        <Route path="/reset" element = {<ForgotPassword />} />
       </Routes>
     </div>
   );

@@ -26,4 +26,4 @@ const provider = new GoogleAuthProvider();
 const database = getDatabase(app);
 const imageDb = getStorage(app)
 
-export {auth, provider, imageDb};
+export {auth, provider, imageDb, database};

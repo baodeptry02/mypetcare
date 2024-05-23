@@ -846,3 +846,18 @@ td:nth-child(5) {
     background-color: #45a049;
   }
   
+  .forgotPassword {
+    margin-top: 150px;
+    font-size: 25px;
+  }
+
+  .ipemail {
+    padding: 15px;
+    width: 500px;
+    margin-top: 20px;
+    margin-bottom: 20px;
+  }
+  #rsPassword{
+    padding: 7px;
+    font-size: 25px;
+  }

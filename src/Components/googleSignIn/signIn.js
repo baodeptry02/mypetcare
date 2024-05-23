@@ -244,6 +244,9 @@ function SignIn() {
     setUserEmail(storedEmail);
   }, []); // Empty dependency array ensures it runs only once
 
+  const handleReset = () => {
+    navigate('/reset');
+  }
   return (
     <div>
       {!userEmail && ( // Only show login options if not logged in
@@ -349,7 +352,7 @@ function SignIn() {
                   onChange={handleChange}
                   required
                 />
-                <a href="#">Forget Your Password?</a>
+                <a href="" onClick={handleReset}>Forget Your Password?</a>
                 <button>Sign In</button>
               </form>
             </div>
