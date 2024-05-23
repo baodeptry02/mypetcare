@@ -11,6 +11,7 @@ function Update() {
   const [phone, setPhone] = useState("");
   const [address, setAddress] = useState("");
   const [userId, setUserId] = useState("");
+  const [fullname, setFullname] = useState("");
   const [loading, setLoading] = useState(true);
   const [userUpdated, setUserUpdated] = useState(false); // State để theo dõi cập nhật của người dùng
   const navigate = useNavigate();
@@ -62,6 +63,9 @@ function Update() {
     if (address) {
       updates.address = address;
     }
+    if (fullname) {
+      updates.fullname = fullname;
+    }
 
     if (Object.keys(updates).length > 0) {
       const user = auth.currentUser;
@@ -70,7 +74,8 @@ function Update() {
           await updateProfile(user, {
             displayName: username,
             phone: phone,
-            address: address
+            address: address,
+            fullname: fullname
           });
 
           await update(ref(getDatabase(), "users/" + userId), updates);
@@ -100,6 +105,18 @@ function Update() {
       <div className="account">
         <h3 className="account-title">Update Account</h3>
         <form onSubmit={handleSubmit}>
+          <label>Full Name</label>
+          <input
+            id="fullname"
+            type="fullname"
+            autoComplete="off"
+            value={fullname}
+            placeholder="Enter your full name"
+            onChange={(e) => {
+              setFullname(e.target.value);
+            }}
+            className="w-full mt-2 px-3 py-2 text-gray-500 bg-transparent outline-none border focus:indigo-600 shadow-sm rounded-lg transition duration-300"
+          />
           <label>Email</label>
           <input
             id="email"
@@ -148,6 +165,7 @@ function Update() {
             onChange={(e) => {
               setUsername(e.target.value);
             }}
+            disabled
             className="w-full mt-2 px-3 py-2 text-gray-500 bg-transparent outline-none border focus:indigo-600 shadow-sm rounded-lg transition duration-300"
           />
           <button type="submit">Update</button>

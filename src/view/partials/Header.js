@@ -13,6 +13,7 @@ function Header() {
   const [isLoading, setIsLoading] = useState(false); 
   const [userId, setUserId] = useState("");
   const [username, setUsername] = useState("");
+  const [fullname, setfullname] = useState("");
   const user = auth.currentUser;
   const toggleDropdown = () => {
     setDropdownOpen(!dropdownOpen);
@@ -49,6 +50,7 @@ function Header() {
         const data = snapshot.val();
         if (data) {
           const username = setUsername(data.username);
+          const fullname = setfullname(data.fullname);
         }
       });
     }
@@ -110,7 +112,7 @@ function Header() {
         <a href="#contact">Contact</a>
         {user ? (
           <div className="dropdown">
-            <span onClick={toggleDropdown} className="username">{user.displayName || username}</span>
+            <span onClick={toggleDropdown} className="username">{user.displayName || username || fullname}</span>
             <div className={`dropdown-content ${dropdownOpen ? 'show' : ''}`}>
               <div onClick={updateAccount}>Account</div>
               <div onClick={pet}>Pet</div>

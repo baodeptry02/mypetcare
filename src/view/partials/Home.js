@@ -5,6 +5,11 @@ import {Typed} from "react-typed";
 
 function Home() {
   const typedElement = useRef(null);
+  const navigate = useNavigate();
+
+  const book = () => {
+    navigate("/book")
+  }
 
   useEffect(() => {
     const options = {
@@ -14,6 +19,7 @@ function Home() {
       backDelay: 400,
       loop: true,
     };
+
 
     const typed = new Typed(typedElement.current, options);
 
@@ -39,7 +45,7 @@ function Home() {
               training and daycare, we're here to support you and your furry
               friends.
             </p>
-            <a href="#" className="btn">
+            <a onClick={book} className="btn">
               Book now
             </a>
           </div>

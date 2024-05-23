@@ -7,7 +7,7 @@ import { useNavigate } from "react-router-dom";
 import { fetchSignInMethodsForEmail, updateProfile } from "firebase/auth";
 import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
-import { getDatabase, ref, set, onValue } from "firebase/database";
+import { getDatabase, ref, set, onValue, get } from "firebase/database";
 
 function SignIn() {
   const [email, setEmail] = useState("");
@@ -34,12 +34,15 @@ function SignIn() {
     });
   }
 
+
+
   const handleGoogleLogin = async () => {
     try {
       const data = await signInWithPopup(auth, provider); // Replace 'provider' with your Google Sign-in provider
       console.log(data);
       const userEmail = data.user.email;
-      const userName = data.user.displayName;
+      const userNamePart = userEmail.split('@')[0]; // Lấy phần trước @ của email
+    const userName = 'gg' + userNamePart; // Tạo username mới với tiền tố "gg"
       const userId = data.user.uid;
       setUsername(userName);
       setUserEmail(userEmail);
@@ -63,6 +66,9 @@ function SignIn() {
       if (!userRole) {
         addDataBase(userId, userEmail, userName, userRole);
       }
+
+        addDataBase(userId, userEmail, userName, userRole);
+
   
       switch (userRole) {
         case 'user':
@@ -80,6 +86,7 @@ function SignIn() {
         default:
           navigate("/");
       }
+      console.log(userName)
       toast.success("Login successfully. Wish you enjoy our best experiment");
     } catch (error) {
       setError(error.message);
@@ -93,6 +100,24 @@ function SignIn() {
       toast.error("Password not match, please try again!");
       return; // Prevent form submission
     }
+
+    const isUsernameTaken = async (username) => {
+      const db = getDatabase();
+      const usersRef = ref(db, 'users');
+      const snapshot = await get(usersRef);
+      const users = snapshot.val();
+      for(let userId in users) {
+        if(users[userId].username === username) {
+          return true;
+        }
+      }
+      return false;
+    };
+  
+    if(await isUsernameTaken(username)) {
+      toast.error("Username is already taken, please try another!");
+      return; // Prevent form submission
+    }  
 
     const expression = /^[^@]+@\w+(\.\w+)+\w$/;
     if (!expression.test(email)) {

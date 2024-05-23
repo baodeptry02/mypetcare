@@ -1,40 +1,63 @@
 import { auth } from "../../Components/firebase/firebase";
 import React, { useState } from 'react';
-import { getDatabase, ref, set, push } from "firebase/database";
+import { getDatabase, ref, set, push, get } from "firebase/database";
 import { ToastContainer, toast } from 'react-toastify';
 import { getStorage, ref as storageRef, uploadBytes, getDownloadURL } from "firebase/storage";
 import { v4 } from "uuid";
 
 const AddPet = () => {
-  const user = auth.currentUser;
   const [petName, setPetName] = useState("");
   const [petAge, setPetAge] = useState("");
   const [petGender, setPetGender] = useState("");
   const [petSize, setPetSize] = useState("");
   const [petColor, setPetColor] = useState("");
   const [petVacinated, setPetVacinated] = useState("");
-  const [image, setImage] = useState(null); // Ensure the initial state is null
+  const [image, setImage] = useState(null); // State for single image
+  const [images, setImages] = useState([]); // State for multiple images
   const [loading, setLoading] = useState(false);
 
   const handleImageChange = (e) => {
-    if (e.target.files[0]) {
-      setImage(e.target.files[0]);
+    if (e.target.files.length === 1) {
+      setImage(e.target.files[0]); // For single image
+    } else {
+      setImages(e.target.files); // For multiple images
     }
   };
 
-  const addDataBase = (userId, imageUrl) => {
+  const generatePetId = async (userId) => {
+    const db = getDatabase();
+    const petRef = ref(db, 'users/' + userId + '/pets');
+    const snapshot = await get(petRef);
+    const count = snapshot.exists() ? snapshot.size : 0;
+    const newCount = count + 1;
+    const petId = `PE${String(newCount).padStart(6, '0')}`;
+    return petId;
+  };
+
+  const uploadImages = async (userId) => {
+    const storage = getStorage();
+    const uploadPromises = Array.from(images).map((image) => {
+      const storageReference = storageRef(storage, `images/${userId}/${v4()}`);
+      return uploadBytes(storageReference, image)
+        .then((snapshot) => getDownloadURL(snapshot.ref));
+    });
+    return Promise.all(uploadPromises);
+  };
+
+  const addDataBase = async (userId, imageUrls) => {
     try {
+      const petId = await generatePetId(userId);
       const db = getDatabase();
-      const petRef = ref(db, 'users/' + userId + '/pets');
-      const newPetRef = push(petRef);
+      const newPetRef = push(ref(db, 'users/' + userId + '/pets'));
       set(newPetRef, {
+        id: petId,
         name: petName,
         age: petAge,
         gender: petGender,
         size: petSize,
         color: petColor,
         vacinated: petVacinated,
-        imageUrl: imageUrl
+        imageUrls: imageUrls // Store all image URLs
       });
       toast.success('Pet added successfully. You can view your pet in your collection!');
     } catch (error) {
@@ -47,13 +70,22 @@ const AddPet = () => {
     setLoading(true);
     const user = auth.currentUser;
     if (user) {
-      if (image) {
-        // Upload image to Firebase Storage
+      if (images.length > 0) {
+        // Upload multiple images to Firebase Storage
+        uploadImages(user.uid).then((imageUrls) => {
+          addDataBase(user.uid, imageUrls);
+          setLoading(false);
+        }).catch((error) => {
+          console.error('Error uploading images:', error);
+          setLoading(false);
+        });
+      } else if (image) {
+        // Upload single image to Firebase Storage
         const storage = getStorage();
         const storageReference = storageRef(storage, `images/${user.uid}/${v4()}`);
         uploadBytes(storageReference, image).then((snapshot) => {
           getDownloadURL(snapshot.ref).then((url) => {
-            addDataBase(user.uid, url); // Gọi hàm thêm vào database với URL của ảnh
+            addDataBase(user.uid, [url]); // Call add to database with the URL of the image
             setLoading(false);
           }).catch((error) => {
             console.error('Error getting download URL:', error);
@@ -64,7 +96,7 @@ const AddPet = () => {
           setLoading(false);
         });
       } else {
-        addDataBase(user.uid, ""); // Nếu không có ảnh thì vẫn thêm vào database
+        addDataBase(user.uid, []); // If no image, still add to database
         setLoading(false);
       }
     } else {
@@ -80,6 +112,7 @@ const AddPet = () => {
         <form onSubmit={handleSubmit}>
           <label>Pet Name</label>
           <input
+            required
             id="petname"
             type="text"
             autoComplete="off"
@@ -90,6 +123,7 @@ const AddPet = () => {
           />
           <label>Pet Gender</label>
           <input
+            required
             id="petgender"
             type="text"
             autoComplete="off"
@@ -110,10 +144,10 @@ const AddPet = () => {
           />
           <label>Pet Size</label>
           <input
+            required
             id="petsize"
             type="text"
             autoComplete="off"
-            required
             value={petSize}
             placeholder="Enter your pet size"
             onChange={(e) => setPetSize(e.target.value)}
@@ -141,11 +175,13 @@ const AddPet = () => {
             onChange={(e) => setPetVacinated(e.target.value)}
             className="w-full mt-2 px-3 py-2 text-gray-500 bg-transparent outline-none border focus:indigo-600 shadow-sm rounded-lg transition duration-300"
           />
-          <label>Pet Image</label>
+          <label>Pet Images</label>
           <input
+            required
             id="petimage"
             type="file"
             accept="image/*"
+            multiple
             onChange={handleImageChange}
             className="w-full mt-2 px-3 py-2 text-gray-500 bg-transparent outline-none border focus:indigo-600 shadow-sm rounded-lg transition duration-300"
           />
