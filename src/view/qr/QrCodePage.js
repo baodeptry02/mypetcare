@@ -1,6 +1,6 @@
 import React, { useEffect, useContext, useState } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
-import { getDatabase, ref, get } from 'firebase/database';
+import { getDatabase, ref, get, update } from 'firebase/database';
 import { auth } from '../../Components/firebase/firebase';
 import { TransactionContext } from '../../Components/context/TransactionContext';
 import { ToastContainer, toast } from 'react-toastify';
@@ -45,60 +45,69 @@ const QrCodePage = () => {
 
     fetchUserData();
   }, []);
+
   useEffect(() => {
     const user = auth.currentUser;
     console.log("bookingId:", bookingId);
-    console.log("user.uid:", user?.uid); // Sử dụng user?.uid để tránh lỗi nếu user là undefined
+    console.log("user.uid:", user?.uid); // Use user?.uid to avoid error if user is undefined
   
     if (!username || !bookingId) return;
   
     const intervalId = setInterval(async () => {
       try {
-        const { descriptions } = await fetchTransactions(); // Lấy lịch sử giao dịch
+        const { descriptions } = await fetchTransactions(); // Fetch transaction history
         const contentTransfer = `thanhtoan ${bookingId}`;
         console.log('Checking for payment description:', contentTransfer);
         console.log('Transaction descriptions:', descriptions);
         const isPaymentSuccessful = descriptions.some(description => {
           return description.includes(contentTransfer);
-        });        
-        console.log('isPaymentSuccessful:', isPaymentSuccessful); // Log giá trị của isPaymentSuccessful
+        });
+  
+        console.log('isPaymentSuccessful:', isPaymentSuccessful); // Log the value of isPaymentSuccessful
   
         if (isPaymentSuccessful) {
-          toast.success('Thanh toán thành công! Vui lòng kiểm tra email để xem thông tin cuộc hẹn của bạn');
+          // Update booking status to paid
+          const user = auth.currentUser;
+          console.log('Current user:', user);
+          const db = getDatabase();
+          const bookingRef = ref(db, `users/${user.uid}/bookings`);
+          console.log('Booking ref:', bookingRef);
+          const bookingSnapshot = await get(bookingRef);
+          console.log("BookingSnapshot:",bookingSnapshot)
+          const bookingData = bookingSnapshot.val();
+          const bookingKeys = Object.keys(bookingData);
+          let bookingKeyToUpdate;
+
+          // Find the correct booking key
+          for (const key of bookingKeys) {
+            if (bookingData[key].bookingId === bookingId) {
+              bookingKeyToUpdate = key;
+              break;
+            }
+          }
+          console.log(bookingKeyToUpdate)
+
+          if (bookingKeyToUpdate) {
+            // Update the paid status of the booking
+            const updateRef = ref(db, `users/${user.uid}/bookings/${bookingKeyToUpdate}`);
+            await update(updateRef, { paid: true });
+
+            toast.success('Payment success! Please check your email to see your appointment information');
+          } else {
+            console.log('No booking data found for this bookingId');
+          }
+          toast.success('Payment success! Please check your email to see your appoitment information');
           clearInterval(intervalId);
           navigate('/');
         } else {
-          console.log('Không tìm thấy thanh toán trong lịch sử giao dịch');
+          console.log('Payment not found in transaction history');
         }
       } catch (error) {
-        console.error('Lỗi khi lấy lịch sử giao dịch:', error);
+        console.error('Error fetching transaction history:', error);
       } finally {
-        setIsLoading(false);
+        setIsLoading(false); // Set isLoading to false after completing fetching data
       }
-    }, 10000); // Kiểm tra mỗi 10 giây
-  
-    // Cập nhật trạng thái thành 'paid' sau 20 giây
-    setTimeout(async () => {
-      try {
-        const user = auth.currentUser;
-        console.log('Current user:', user);
-        const db = getDatabase();
-        const bookingRef = ref(db, `users/${user.uid}/bookings`);
-        console.log('Booking ref:', bookingRef);
-        const bookingSnapshot = await get(bookingRef);
-        console.log("BookingSnapshot:", bookingSnapshot)
-        const bookingData = bookingSnapshot.val();
-        console.log('Current booking data:', bookingData);
-  
-        if (bookingSnapshot.exists() && bookingData) {
-          await updateProfile(bookingRef, { ...bookingData, paid: true });
-        } else {
-          console.log('Không tìm thấy dữ liệu đặt chỗ cho bookingId này');
-        }
-      } catch (error) {
-        console.error('Lỗi khi cập nhật trạng thái đặt chỗ:', error);
-      }
-    }, 20000); // Cập nhật sau 20 giây
+    }, 10000); // Check every 10 seconds
   
     return () => clearInterval(intervalId);
   }, [navigate, username, bookingId, fetchTransactions]);
