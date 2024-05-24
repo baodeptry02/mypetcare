@@ -21,9 +21,11 @@ import Book from "../src/view/booking/Book";
 import QrCodePage from "../src/view/qr/QrCodePage";
 import Transaction from "../src/Components/transaction/TransactionHistory";
 import { TransactionProvider } from "../src/Components/context/TransactionContext";
+import ForgotPassword from "./Components/googleSignIn/ForgotPassword";
 
 function MainContent() {
   const location = useLocation();
+
   const [user, setUser] = useState(null);
 
   useEffect(() => {
@@ -35,20 +37,20 @@ function MainContent() {
   }, []);
   return (
     <div className="App">
-      {/* {location.pathname !== "/signIn" && <Header user={user} />} Only show Header if not on login page */}
-      <Header user={user} />
-
+      {/* {location.pathname === "/" && <Header user={user} />} */}
+      { !location.pathname.startsWith("/admin/") && <Header user={user} />}
       <Routes>
         <Route path="/signIn" element={<SignIn />} />
         <Route path="/" element={<Home />} />
         <Route path="/account" element={<Update user={user} />} />
-        <Route path="/admin" element={<Admin />} />
+        <Route path="/admin/*" element={<Admin />} />
         <Route path="/manager" element={<Manager />} />
         <Route path="/pet" element={<Pet />} />
         <Route path="/pet/add" element={<AddPet />} />
         <Route path="/book" element={<Book />} />
         <Route path="/qr" element={<QrCodePage />} />
         <Route path="/transaction-history" element={<Transaction />} />
+        <Route path="/reset" element={<ForgotPassword />} />
       </Routes>
     </div>
   );

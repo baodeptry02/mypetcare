@@ -13,12 +13,14 @@
     top: 50%;
     left: 50%;
     transform: translate(-50%, -50%);
-    margin-top: 120px;
+    margin: 50px 0;
 }
+
 
 a {
     text-decoration: none
 }
+
 #root {
     height: 100%;
 }
@@ -46,20 +48,7 @@ body {
     background: linear-gradient(to right, #c9d6ff, #512da8);
 }
 
-.container {
-    background-color: #fff;
-    border-radius: 30px;
-    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.35);
-    position: relative;
-    overflow: hidden;
-    width: 768px;
-    max-width: 100%;
-    min-height: 480px;
-    position: absolute;
-    top: 390px;
-    left: 50%;
-    transform: translate(-50%, -50%);
-}
+
 
 .container p {
     font-size: 14px;
@@ -92,6 +81,7 @@ body {
     margin-top: 10px;
     cursor: pointer;
 }
+
 .parent-container button {
     margin: 20px 0;
 }
@@ -305,21 +295,21 @@ body {
 .navbar button {
     font-size: 20px;
     color: #fff;
-    /* Text color */
+
     background-color: var(--main-color);
-    /* Button color */
+
     border: none;
-    /* Remove border */
+
     padding: 10px 20px;
-    /* Padding around text */
+
     margin-left: 4rem;
-    /* Same as other links */
+
     cursor: pointer;
-    /* Change cursor to pointer on hover */
+
     transition: .3s;
-    /* Smooth transition */
+
     border-radius: 5px;
-    /* Rounded corners */
+
     text-align: center;
 }
 
@@ -420,7 +410,7 @@ section {
     background: var(--neon-color);
     border-radius: 4rem;
     box-shadow: 0 0 1rem var(--neon-color);
-    font-size: 1.6rem;
+    font-size: 2.6rem;
     color: white;
     letter-spacing: .1rem;
     font-weight: 600;
@@ -493,23 +483,25 @@ span {
 
 @media (min-width: 1785px) {
     .pet-manage {
-        padding-top: 0!important;
+        padding-top: 0 !important;
     }
 }
+
 @media (min-width: 991px) and (max-width: 1600px) {
     html {
         font-size: 55%;
     }
+
     .container {
-        margin-top: 20px;
+        margin-top: 100px;
     }
+
     .pet-manage {
         margin-top: 0 !important;
     }
-    .parent-container .container {
-        margin-top: 120px;
 
-    }
+
+
     .container-update {
         margin-top: 80px;
     }
@@ -519,6 +511,7 @@ span {
     .container {
         margin-top: 5%;
     }
+
     .header {
         padding: 2rem 3%;
     }
@@ -568,6 +561,7 @@ label {
 
 .container-update {
     min-height: 560px;
+    margin: 0 0;
 }
 
 .container-update input {
@@ -580,35 +574,13 @@ label {
     font-size: 16px;
 }
 
-.empty-pet img {
-    width: 35%;
-}
 .parent-container {
     display: flex;
-    justify-content: center; 
-    align-items: center; 
-    min-height: 100vh; 
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
     margin: 0 auto;
     width: 100vw;
-}
-
-.pet-manage h1 {
-    font-size: 4.5rem;
-    color: var(--neon-color);
-}
-
-.pet-manage p {
-    font-size: 2.5rem;
-    margin: 40px 0;
-    
-}
-
-.empty-pet {
-    background: #e4e4e4
-}
-
-.pet-manage span {
-    font-size: 2.5rem;
 }
 
 .pet-manage H3 {
@@ -619,8 +591,9 @@ label {
 .pet-manage .btn {
     cursor: pointer;
     padding: 1.6rem 2.8rem;
-    margin: 40px 0;
+    margin: 10px 0;
 }
+
 .container.pet-list .btn {
     cursor: pointer;
     padding: 1.6rem 2.8rem;
@@ -629,84 +602,115 @@ label {
 /* styles.css */
 .parent-container {
     padding: 20px 0;
-  }
-  
-  
-  .pet-manage {
+}
+
+
+.pet-manage {
     text-align: center;
-  }
-  
-  .empty-pet img {
+}
+
+.empty-pet img {
     max-width: 200px;
     margin: 20px auto;
-  }
-  
-  
-  .pet-list {
+    width: 35%;
+}
+
+.empty-pet {
+    background: #e4e4e4;
+}
+
+.empty-pet.container {
+    width: 560px;
+    height: 500px;
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    margin: 0 0;
+}
+
+.empty-pet-title {
+    background-color: #fff;
+    padding: 40px;
+}
+
+.empty-pet-title h1 {
+    font-size: 2.5rem;
+    color: #000;
+}
+
+.empty-pet-title span {
+    font-size: 2.5rem;
+}
+
+.pet-list {
     width: 100%;
     position: relative;
-  }
+    font-size: 2.5rem;
+}
 
-  .add-pet-button {
-    position: absolute;
-    top: 60px; 
+.add-pet-button {
+    position: relative;
+    top: 60px;
     right: 0;
-  }
-  
-  .grid-container {
+}
+
+.grid-container {
     display: flex;
     flex-wrap: wrap;
     gap: 30px;
     justify-content: space-around;
-  }
-  
-  .pet-card {
+}
+
+.pet-card {
     background: #f9f9f9;
     border: 1px solid #ddd;
     border-radius: 10px;
     overflow: hidden;
     width: 250px;
     text-align: left;
-  }
-  
-  .pet-card-image img {
+}
+
+
+.pet-card-image img {
     width: 100%;
     height: 150px;
     object-fit: cover;
-  }
-  
-  .pet-card-content {
+}
+
+.pet-card-content {
     padding: 10px;
-  }
-  
-  .pet-card-header {
+}
+
+.pet-card-header {
     display: flex;
     justify-content: space-between;
     margin-bottom: 10px;
-  }
-  
-  .pet-card-footer {
+}
+
+.pet-card-footer {
     display: flex;
     justify-content: space-between;
-  }
-  
-  .input-file, .input-text {
+}
+
+.input-file,
+.input-text {
     display: block;
     width: 100%;
     padding: 8px;
     margin-bottom: 10px;
-  }
-  
-  .horizontal-inputs {
+}
+
+.horizontal-inputs {
     display: flex;
     gap: 10px;
-  }
-  
-  .horizontal-inputs div {
+}
+
+.horizontal-inputs div {
     flex: 1;
-  }
-  
-  .pet-manage {
+}
+
+.pet-manage {
     width: 90%;
     margin: auto;
     display: flex;
@@ -714,132 +718,152 @@ label {
     justify-content: space-between;
     align-items: center;
     padding-top: 100px;
-  }
+}
 
-  .pagination {
+.pagination {
     margin-top: 60px;
-  list-style: none;
-  padding: 0;
-  display: flex;
-  justify-content: center;
+    list-style: none;
+    padding: 0;
+    display: flex;
+    justify-content: center;
 }
 
 .pagination li {
-  margin-right: 32px;
+    margin-right: 32px;
 }
 
 .pagination li:last-child {
-  margin-right: 0;
+    margin-right: 0;
 }
 
 .pagination li a {
     font-size: 20px;
-  text-decoration: none;
-  background-color: #7b2cbf;
-  color: #fff;
-  padding: 12px 20px;
-  border-radius: 4px;
-  border: 1px solid var(--neon-color);
-  transition: all 0.3s ease;
+    text-decoration: none;
+    background-color: #7b2cbf;
+    color: #fff;
+    padding: 12px 20px;
+    border-radius: 4px;
+    border: 1px solid var(--neon-color);
+    transition: all 0.3s ease;
 }
 
 .pagination li a:hover {
-  background-color: #f0f0f0;
-  border-color: #999;
-  color: #000;
+    background-color: #f0f0f0;
+    border-color: #999;
+    color: #000;
 }
 
 .table-container {
     width: 100%;
-    overflow-x: auto; /* Xử lý trường hợp bảng quá rộng */
-  }
-  
-  .table-container {
+    overflow-x: auto;
+}
+
+.table-container {
     margin-top: 20px;
-  }
-  
-  table {
+}
+
+table {
     width: 100%;
     border-collapse: collapse;
-    margin-top: 20px;
-  }
-  
-  table, th, td {
+}
+
+table,
+th,
+td {
     border: 1px solid black;
-  }
-  
-  th, td {
-    padding: 20px;
+}
+
+th,
+td {
+    padding: 10px;
     text-align: left;
-  }
-  
-  th {
-    background-color: #f2f2f2;
-  }
-  
-  tbody tr:nth-child(odd) {
-    background-color: #f9f9f9;
-  }
-  
-  tbody tr:nth-child(even) {
-    background-color: #ffffff;
-  }
-  .user-list {
+    font-size: 1.5rem;
+}
+
+
+.user-list {
     font-size: 2rem;
-  }
+}
 
-td:nth-child(5) { 
-    background-color: green; 
-  }
-  
-  td[data-status="Busy"] { 
-    background-color: red; 
-  }
-  .sweet-loading {
+
+td[data-status="Busy"] {
+    background-color: red;
+}
+
+.sweet-loading {
     height: 100vh;
-  line-height: 100vh;
-  }
+    line-height: 100vh;
+}
 
-  /* AppointmentForm.css */
+/* AppointmentForm.css */
+
+.appointment-form-container {
+    width: 1000px;
+    height: 500px;
+    margin: 140px auto;
+    padding: 20px;
+    background-color: #fff;
+    border-radius: 30px;
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+}
+
+.appointment-form-container h2 {
+    text-align: center;
+    margin-bottom: 30px;
+    font-size: 2.5rem;
+}
 
 .appointment-form {
-    max-width: 400px;
-    margin: 0 auto;
-    padding: 1rem;
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+}
+
+.appointment-form div {
+    display: flex;
+    gap: 20px;
+}
+
+.appointment-form div.full-width {
+    flex-direction: column;
+}
+
+.appointment-form label {
+    font-size: 16px;
+    width: 120px;
+}
+
+.appointment-form input,
+.appointment-form textarea {
+    flex: 1;
+    padding: 10px;
     border: 1px solid #ccc;
-    border-radius: 8px;
-    background-color: #f9f9f9;
-    padding-top: 100%;
-  }
-  
-  .appointment-form div {
-    margin-bottom: 1rem;
-  }
-  
-  .appointment-form label {
-    display: block;
-    margin-bottom: 0.5rem;
+    border-radius: 5px;
+    font-size: 16px;
+}
+
+
+.appointment-form textarea {
+    resize: none;
+    height: 100px;
+    padding: 40px;
+}
+
+.appointment-form label {
+    font-style: normal;
     font-weight: bold;
-  }
-  
-  .appointment-form input,
-  .appointment-form textarea {
-    width: 100%;
-    padding: 0.5rem;
-    border: 1px solid #ccc;
-    border-radius: 4px;
-    box-sizing: border-box;
-  }
-  
-  .appointment-form button {
-    width: 100%;
-    padding: 0.75rem;
+}
+
+.appointment-form button {
+    align-self: center;
+    background-color: #512da8;
+    color: #fff;
+    font-size: 16px;
+    padding: 10px 20px;
     border: none;
-    border-radius: 4px;
-    background-color: #4CAF50;
-    color: white;
-    font-size: 1rem;
+    border-radius: 5px;
     cursor: pointer;
+<<<<<<< HEAD
   }
   
   .appointment-form button:hover {
@@ -916,3 +940,164 @@ td:nth-child(5) {
     box-shadow: 0 0 1rem var(--main-color);
 }
 
+=======
+    transition: background-color 0.3s;
+}
+
+.appointment-form button:hover {
+    background-color: #7b2cbf;
+}
+
+.app {
+    display: flex;
+    position: relative;
+    /* margin-top: 290px; */
+}
+
+::-webkit-scrollbar {
+
+    width: 10px;
+}
+
+/* Track */
+::-webkit-scrollbar-track {
+    background: #e0e0e0;
+}
+
+/* Handle */
+::-webkit-scrollbar-thumb {
+    background: #888;
+}
+
+/* Handle on hover */
+::-webkit-scrollbar-thumb:hover {
+    background: #555;
+}
+
+
+
+svg.MuiSvgIcon-root.MuiSvgIcon-fontSizeMedium.css-havevq-MuiSvgIcon-root {
+    font-size: 2.5rem;
+    color: white;
+}
+
+p.css-17w9904-MuiTypography-root {
+    font-size: 1.5rem;
+    color: white;
+}
+
+.css-t89xny-MuiDataGrid-columnHeaderTitle {
+    text-overflow: ellipsis;
+    font-size: 17px;
+    overflow: hidden;
+    white-space: nowrap;
+    font-weight: var(--unstable_DataGrid-headWeight);
+}
+
+.css-ahcoh0-MuiDataGrid-root .MuiDataGrid-cell--textLeft {
+    text-align: left;
+    -webkit-box-pack: start;
+    -ms-flex-pack: start;
+    -webkit-justify-content: flex-start;
+    justify-content: flex-start;
+    font-size: 12px;
+}
+
+.css-bvbdia-MuiTablePagination-root .MuiTablePagination-selectLabel {
+    font-size: 1.5rem;
+    display: none;
+}
+
+.css-7ms3qr-MuiTablePagination-displayedRows {
+
+    font-size: 1.5rem;
+
+}
+
+.css-wywq3z-MuiSelect-select-MuiInputBase-input.css-wywq3z-MuiSelect-select-MuiInputBase-input.css-wywq3z-MuiSelect-select-MuiInputBase-input {
+    padding-right: 24px;
+    font-size: 1.5rem;
+    min-width: 16px;
+}
+
+p.css-7ms3qr-MuiTablePagination-displayedRows {
+    font-family: Source Sans Pro, sans-serif;
+    font-weight: 400;
+    font-size: 1.5rem;
+    line-height: 1.43;
+    -webkit-flex-shrink: 0;
+    -ms-flex-negative: 0;
+    flex-shrink: 0;
+}
+
+.css-bvbdia-MuiTablePagination-root .MuiTablePagination-input {
+    display: none;
+    font-size: 1.5rem;
+}
+
+li.css-1f0imsr-MuiButtonBase-root-MuiMenuItem-root-MuiTablePagination-menuItem {
+    font-size: 1.5rem;
+}
+
+input.css-1rv476z-MuiInputBase-input-MuiFilledInput-input {
+    background-color: black;
+}
+
+
+.css-1fuaiuw {
+    margin-top: 100px;
+}
+
+label.css-8w7i53-MuiFormLabel-root-MuiInputLabel-root {
+    font-size: 1.5rem;
+}
+
+button.css-wnx1cx-MuiButtonBase-root-MuiButton-root {
+    font-size: 1.5rem;
+}
+
+.fc .fc-toolbar.fc-header-toolbar {
+    margin-bottom: 1.5em;
+    font-size: 1.5rem;
+}
+
+span.css-47iiw-MuiTypography-root {
+    color: #000000;
+    font-size: 1.5rem;
+}
+
+.forgotPassword {
+    margin-top: 150px;
+    font-size: 25px;
+}
+
+.ipemail {
+    padding: 15px;
+    width: 500px;
+    margin-top: 20px;
+    margin-bottom: 20px;
+}
+
+#rsPassword {
+    padding: 7px;
+    font-size: 25px;
+}
+
+.css-ykcw1u {
+    width: 50rem;
+
+}
+
+input.css-156xqnd-MuiInputBase-input {
+    font-size: 2.5rem;
+}
+
+h6.css-1731sqo-MuiTypography-root {
+    color: black;
+    font-size: 2.5rem;
+}
+
+.dropdown-topbar .MuiMenuItem-root {
+    font-size: 1.5rem; /* Adjust the font size as needed */
+  }
+>>>>>>> 0863bb9ec12d5eb0b459cb4fe7364321edac34c0

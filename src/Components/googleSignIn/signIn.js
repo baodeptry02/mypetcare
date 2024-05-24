@@ -5,8 +5,8 @@ import { signInWithPopup, signInWithEmailAndPassword } from "firebase/auth";
 import Home from "../../view/partials/Home";
 import { useNavigate } from "react-router-dom";
 import { fetchSignInMethodsForEmail, updateProfile } from "firebase/auth";
-import { ToastContainer, toast } from 'react-toastify';
-import 'react-toastify/dist/ReactToastify.css';
+import { ToastContainer, toast } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 import { getDatabase, ref, set, onValue, get } from "firebase/database";
 
 function SignIn() {
@@ -21,22 +21,25 @@ function SignIn() {
 
   function addDataBase(userId, email, name, role) {
     const db = getDatabase();
-    set(ref(db, 'users/' + userId), {
-      email: email,
-      username: name,
-      role: role
-    }, function (error) {
-      if (error) {
-        alert('Lỗi');
-      } else {
-        alert('Thành Công !!!');
+    set(
+      ref(db, "users/" + userId),
+      {
+        email: email,
+        username: name,
+        role: role,
+      },
+      function (error) {
+        if (error) {
+          alert("Lỗi");
+        } else {
+          alert("Thành Công !!!");
+        }
       }
-    });
+    );
   }
 
-
-
   const handleGoogleLogin = async () => {
+<<<<<<< HEAD
   
     try {
       const data = await signInWithPopup(auth, provider);
@@ -50,6 +53,25 @@ function SignIn() {
   
       // Kiểm tra và lấy dữ liệu người dùng từ Firebase
       const userDataSnapshot = await new Promise((resolve) => {
+=======
+    try {
+      const data = await signInWithPopup(auth, provider); // Replace 'provider' with your Google Sign-in provider
+      console.log(data);
+      const userEmail = data.user.email;
+      const userNamePart = userEmail.split("@")[0]; // Lấy phần trước @ của email
+      const userName = "gg" + userNamePart; // Tạo username mới với tiền tố "gg"
+      const userId = data.user.uid;
+      setUsername(userName);
+      setUserEmail(userEmail);
+      localStorage.setItem("email", userEmail); // Consider secure storage in production
+
+      const db = getDatabase();
+      const userRef = ref(db, "users/" + userId);
+      let userRole = "user";
+
+      // Wait for data from Firebase
+      await new Promise((resolve) => {
+>>>>>>> 0863bb9ec12d5eb0b459cb4fe7364321edac34c0
         onValue(userRef, (snapshot) => {
           resolve(snapshot);
         });
@@ -76,35 +98,49 @@ function SignIn() {
           resolve(petData ? Object.values(petData) : []);
         });
       });
+<<<<<<< HEAD
   
       // Lưu dữ liệu thú cưng vào state hoặc localStorage nếu cần
       localStorage.setItem("pets", JSON.stringify(pets));
   
       // Điều hướng dựa trên vai trò của người dùng
+=======
+
+      if (!userRole) {
+        addDataBase(userId, userEmail, userName, userRole);
+      }
+
+      addDataBase(userId, userEmail, userName, userRole);
+
+>>>>>>> 0863bb9ec12d5eb0b459cb4fe7364321edac34c0
       switch (userRole) {
-        case 'user':
+        case "user":
           navigate("/");
           break;
-        case 'veterinarian':
+        case "veterinarian":
           navigate("/veterinarian");
           break;
-        case 'manager':
+        case "manager":
           navigate("/manager");
           break;
-        case 'admin':
-          navigate("/admin");
+        case "admin":
+          navigate("/admin/dashboard");
           break;
         default:
           navigate("/");
       }
+<<<<<<< HEAD
   
       toast.success("Login successfully. Wish you enjoy our best experience");
+=======
+      console.log(userName);
+      toast.success("Login successfully. Wish you enjoy our best experiment");
+>>>>>>> 0863bb9ec12d5eb0b459cb4fe7364321edac34c0
     } catch (error) {
       setError(error.message);
       toast.error("Login failed. Please try again.");
     }
   };
-  
 
   const onSubmit = async (e) => {
     e.preventDefault();
@@ -115,21 +151,21 @@ function SignIn() {
 
     const isUsernameTaken = async (username) => {
       const db = getDatabase();
-      const usersRef = ref(db, 'users');
+      const usersRef = ref(db, "users");
       const snapshot = await get(usersRef);
       const users = snapshot.val();
-      for(let userId in users) {
-        if(users[userId].username === username) {
+      for (let userId in users) {
+        if (users[userId].username === username) {
           return true;
         }
       }
       return false;
     };
-  
-    if(await isUsernameTaken(username)) {
+
+    if (await isUsernameTaken(username)) {
       toast.error("Username is already taken, please try another!");
       return; // Prevent form submission
-    }  
+    }
 
     const expression = /^[^@]+@\w+(\.\w+)+\w$/;
     if (!expression.test(email)) {
@@ -140,9 +176,7 @@ function SignIn() {
     const signInMethods = await fetchSignInMethodsForEmail(auth, email);
     if (signInMethods.length > 0) {
       setIsRegistering(false); // Allow user to edit registration info
-      toast.error(
-        "This email is used by another user, please try again!"
-      );
+      toast.error("This email is used by another user, please try again!");
       return; // Prevent form submission
     }
 
@@ -157,7 +191,7 @@ function SignIn() {
         const userId = userCredential.user.uid; // Use userCredential.user.uid for unique identifier
         await updateProfile(user, {
           displayName: username,
-          role: "user"
+          role: "user",
         });
         addDataBase(userId, email, username, "user"); // Omit password from user data
         navigate("/"); // Redirect to home page
@@ -187,12 +221,12 @@ function SignIn() {
   const handleEmailLogin = async (event) => {
     event.preventDefault(); // Prevent default form submission behavior
     setError(null); // Clear any previous errors
-  
+
     try {
       const userCredential = await signInWithEmailAndPassword(
         auth,
         email,
-        password,
+        password
       );
       const user = userCredential.user;
       const userEmail = user.email;
@@ -200,9 +234,9 @@ function SignIn() {
       localStorage.setItem("email", userEmail); // Consider secure storage in production
       const userId = user.uid;
       const db = getDatabase();
-      const userRef = ref(db, 'users/' + userId);
-      let userRole = 'user';
-  
+      const userRef = ref(db, "users/" + userId);
+      let userRole = "user";
+
       // Wait for data from Firebase
       await new Promise((resolve) => {
         onValue(userRef, (snapshot) => {
@@ -213,11 +247,12 @@ function SignIn() {
           resolve();
         });
       });
-  
+
       if (!userRole) {
         // If role is not defined in the database, add it
         addDataBase(userId, userEmail, user.displayName, userRole);
       }
+<<<<<<< HEAD
       const petRef = ref(db, "users/" + userId + "/pets");
       const pets = await new Promise((resolve) => {
         onValue(petRef, (snapshot) => {
@@ -229,17 +264,20 @@ function SignIn() {
       // Lưu dữ liệu thú cưng vào state hoặc localStorage nếu cần
       localStorage.setItem("pets", JSON.stringify(pets));
   
+=======
+
+>>>>>>> 0863bb9ec12d5eb0b459cb4fe7364321edac34c0
       switch (userRole) {
-        case 'user':
+        case "user":
           navigate("/");
           break;
-        case 'veterinarian':
+        case "veterinarian":
           navigate("/veterinarian");
           break;
-        case 'manager':
+        case "manager":
           navigate("/manager");
           break;
-        case 'admin':
+        case "admin":
           navigate("/admin");
           break;
         default:
@@ -247,10 +285,11 @@ function SignIn() {
       }
       toast.success("Login successfully. Wish you enjoy our best experiment");
     } catch (error) {
-      toast.error("Something went wrong. Please check your email or password and try again!");
+      toast.error(
+        "Something went wrong. Please check your email or password and try again!"
+      );
     }
   };
-  
 
   const handleClickButtonReg = async () => {
     const container = document.getElementById("container");
@@ -266,6 +305,9 @@ function SignIn() {
     setUserEmail(storedEmail);
   }, []); // Empty dependency array ensures it runs only once
 
+  const handleReset = () => {
+    navigate("/reset");
+  };
   return (
     <div>
       {!userEmail && ( // Only show login options if not logged in
@@ -275,37 +317,39 @@ function SignIn() {
               <form onSubmit={onSubmit}>
                 <h1>Create Account</h1>
                 <div className="social-icons">
-                  <button type="button" onClick={handleGoogleLogin}>Login with Google</button>
+                  <button type="button" onClick={handleGoogleLogin}>
+                    Login with Google
+                  </button>
                 </div>
                 <span>or use your email for registeration</span>
                 <input
-                id="username"
+                  id="username"
                   type="username"
                   autoComplete="off"
                   required
                   value={username}
-                  placeholder ="Input your username"
+                  placeholder="Input your username"
                   onChange={(e) => {
                     setUsername(e.target.value);
                   }}
                   className="w-full mt-2 px-3 py-2 text-gray-500 bg-transparent outline-none border focus:indigo-600 shadow-sm rounded-lg transition duration-300"
                 />
                 <input
-                id="email"
+                  id="email"
                   type="email"
                   autoComplete="off"
                   required
                   value={email}
-                  placeholder ="Input your email"
+                  placeholder="Input your email"
                   onChange={(e) => {
                     setEmail(e.target.value);
                   }}
                   className="w-full mt-2 px-3 py-2 text-gray-500 bg-transparent outline-none border focus:indigo-600 shadow-sm rounded-lg transition duration-300"
                 />
                 <input
-                id="password"
+                  id="password"
                   disabled={isRegistering}
-                  placeholder ="Input your password"
+                  placeholder="Input your password"
                   type="password"
                   autoComplete="off"
                   required
@@ -322,7 +366,7 @@ function SignIn() {
                   <input
                     disabled={isRegistering}
                     type="password"
-                  placeholder ="Confirm your password"
+                    placeholder="Confirm your password"
                     autoComplete="off"
                     required
                     value={confirmPassword}
@@ -349,29 +393,32 @@ function SignIn() {
               <form onSubmit={handleEmailLogin}>
                 <h1>Sign In</h1>
                 <div className="social-icons">
-                  <button type="button" onClick={handleGoogleLogin}>Login with Google</button>
+                  <button type="button" onClick={handleGoogleLogin}>
+                    Login with Google
+                  </button>
                 </div>
                 <span>or use your email password</span>
                 <input
                   type="email"
                   id="email"
                   name="email"
-                  placeholder ="Input your email"
+                  placeholder="Input your email"
                   value={email}
                   onChange={handleChange}
                   required
                 />
                 <input
                   type="password"
-                  placeholder ="Input your password"
-
+                  placeholder="Input your password"
                   id="password"
                   name="password"
                   value={password}
                   onChange={handleChange}
                   required
                 />
-                <a href="#">Forget Your Password?</a>
+                <a href="" onClick={handleReset}>
+                  Forget Your Password?
+                </a>
                 <button>Sign In</button>
               </form>
             </div>
