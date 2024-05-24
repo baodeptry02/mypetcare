@@ -20,24 +20,12 @@ function ForgotPassword() {
   };
 
   return (
-    <div class="form-container-reset">
-      <div class="logo-container">
-        Forgot Password
-      </div>
-
-      <form class="form" onSubmit={handleSubmit}>
-        <div class="form-group">
-          <label for="email">Email</label>
-          <input type="text" id="email" name="email" placeholder="Enter your email" required=""/>
-        </div>
-
-        <button class="form-submit-btn" type="submit">Send Email</button>
+    <div className="forgotPassword">
+      <h1>Forgot Password</h1>
+      <form onSubmit={handleSubmit}>
+        <input className="ipemail" name="email" placeholder="Enter your email" required /><br/>
+        <button id="rsPassword">Reset Password</button>
       </form>
-
-      <p class="signup-link">
-        Don't have an account?
-        <a href="/signIn" class="signup-link link"> Sign up now</a>
-      </p>
     </div>
   );
 }

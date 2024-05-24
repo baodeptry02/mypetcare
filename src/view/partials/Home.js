@@ -1,15 +1,15 @@
 import React, { useEffect, useState, useRef } from "react";
 import { auth } from "../../Components/firebase/firebase"; // Assuming you have a firebase config file
 import { useNavigate } from "react-router-dom";
-import {Typed} from "react-typed";
+import { Typed } from "react-typed";
 
 function Home() {
   const typedElement = useRef(null);
   const navigate = useNavigate();
 
   const book = () => {
-    navigate("/book")
-  }
+    navigate("/book");
+  };
 
   useEffect(() => {
     const options = {
@@ -19,7 +19,6 @@ function Home() {
       backDelay: 400,
       loop: true,
     };
-
 
     const typed = new Typed(typedElement.current, options);
 
@@ -66,6 +65,12 @@ function Home() {
           loading="lazy"
           referrerpolicy="no-referrer-when-downgrade"
         ></iframe>
+      </section>
+      <section className="services" id="services">
+        services
+      </section>
+      <section className="contact" id="contact">
+        contact
       </section>
     </div>
   );
