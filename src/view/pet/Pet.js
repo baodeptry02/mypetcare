@@ -95,16 +95,18 @@ const Pet = () => {
       <div className="pet-manage">
         {user ? (
           petCount === 0 ? (
-            <div>
-              <div className="empty-pet">
+            <div className="empty-pet container">
+              <div className="empty-pet-img">
                 <img src="./Remove-bg.ai_1716049467772.png" alt="No pets" />
               </div>
-              <h1>
-                Look like you <span>DON'T HAVE</span> any pet in our system.
-              </h1>
-              <h3>Must add your boss before you proceed to booking</h3>
-              <div onClick={addPet} className="btn">
-                <FontAwesomeIcon icon={faPaw} /> Add boss!
+              <div className="empty-pet-title">
+                <h1>
+                  Look like you <span>DON'T HAVE</span> any pet in our system.
+                </h1>
+                <h3>Must add your boss before you proceed to booking</h3>
+                <div onClick={addPet} className="btn">
+                  <FontAwesomeIcon icon={faPaw} /> Add boss!
+                </div>
               </div>
             </div>
           ) : (
@@ -126,11 +128,11 @@ const Pet = () => {
                     </div>
                     <div className="pet-card-content">
                       <div className="pet-card-header">
-                        <span className="pet-name">{pet.name}</span>
-                        <span className="pet-color">{pet.color}</span>
+                        <span className="pet-name">Name: {pet.name}</span>
+                        <span className="pet-color">Color: {pet.color}</span>
                       </div>
                       <div className="pet-card-footer">
-                        <span className="pet-gender">{pet.gender}</span>
+                        <span className="pet-gender">Gender: {pet.gender}</span>
                       </div>
                     </div>
                   </div>
