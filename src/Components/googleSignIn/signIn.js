@@ -37,39 +37,50 @@ function SignIn() {
 
 
   const handleGoogleLogin = async () => {
-    try {
-      const data = await signInWithPopup(auth, provider); // Replace 'provider' with your Google Sign-in provider
-      console.log(data);
-      const userEmail = data.user.email;
-      const userNamePart = userEmail.split('@')[0]; // Lấy phần trước @ của email
-    const userName = 'gg' + userNamePart; // Tạo username mới với tiền tố "gg"
-      const userId = data.user.uid;
-      setUsername(userName);
-      setUserEmail(userEmail);
-      localStorage.setItem("email", userEmail); // Consider secure storage in production
   
+    try {
+      const data = await signInWithPopup(auth, provider);
+      const userEmail = data.user.email;
+      const userNamePart = userEmail.split('@')[0];
+      const userName = 'gg' + userNamePart;
+      const userId = data.user.uid;
       const db = getDatabase();
       const userRef = ref(db, 'users/' + userId);
       let userRole = 'user';
   
-      // Wait for data from Firebase
-      await new Promise((resolve) => {
+      // Kiểm tra và lấy dữ liệu người dùng từ Firebase
+      const userDataSnapshot = await new Promise((resolve) => {
         onValue(userRef, (snapshot) => {
-          const userData = snapshot.val();
-          if (userData && userData.role) {
-            userRole = userData.role;
-          }
-          resolve();
+          resolve(snapshot);
+        });
+      });
+      
+      const userData = userDataSnapshot.val();
+  
+      // Nếu người dùng chưa tồn tại trong cơ sở dữ liệu, thêm người dùng
+      if (!userData) {
+        await set(userRef, {
+          email: userEmail,
+          username: userName,
+          role: userRole
+        });
+      } else {
+        userRole = userData.role || 'user';
+      }
+  
+      // Đọc dữ liệu thú cưng của người dùng từ Firebase sau khi đăng nhập thành công
+      const petRef = ref(db, "users/" + userId + "/pets");
+      const pets = await new Promise((resolve) => {
+        onValue(petRef, (snapshot) => {
+          const petData = snapshot.val();
+          resolve(petData ? Object.values(petData) : []);
         });
       });
   
-      if (!userRole) {
-        addDataBase(userId, userEmail, userName, userRole);
-      }
-
-        addDataBase(userId, userEmail, userName, userRole);
-
+      // Lưu dữ liệu thú cưng vào state hoặc localStorage nếu cần
+      localStorage.setItem("pets", JSON.stringify(pets));
   
+      // Điều hướng dựa trên vai trò của người dùng
       switch (userRole) {
         case 'user':
           navigate("/");
@@ -86,10 +97,11 @@ function SignIn() {
         default:
           navigate("/");
       }
-      console.log(userName)
-      toast.success("Login successfully. Wish you enjoy our best experiment");
+  
+      toast.success("Login successfully. Wish you enjoy our best experience");
     } catch (error) {
       setError(error.message);
+      toast.error("Login failed. Please try again.");
     }
   };
   
@@ -206,6 +218,16 @@ function SignIn() {
         // If role is not defined in the database, add it
         addDataBase(userId, userEmail, user.displayName, userRole);
       }
+      const petRef = ref(db, "users/" + userId + "/pets");
+      const pets = await new Promise((resolve) => {
+        onValue(petRef, (snapshot) => {
+          const petData = snapshot.val();
+          resolve(petData ? Object.values(petData) : []);
+        });
+      });
+  
+      // Lưu dữ liệu thú cưng vào state hoặc localStorage nếu cần
+      localStorage.setItem("pets", JSON.stringify(pets));
   
       switch (userRole) {
         case 'user':

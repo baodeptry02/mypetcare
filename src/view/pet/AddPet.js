@@ -57,7 +57,7 @@ const AddPet = () => {
         size: petSize,
         color: petColor,
         vacinated: petVacinated,
-        imageUrls: imageUrls // Store all image URLs
+        imageUrls: imageUrls
       });
       toast.success('Pet added successfully. You can view your pet in your collection!');
     } catch (error) {

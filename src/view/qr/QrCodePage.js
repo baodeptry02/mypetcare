@@ -119,9 +119,18 @@ const QrCodePage = () => {
     <div className="qr-code-page" style={{ display: 'flex', flexDirection: 'column', justifyContent: 'center', alignItems: 'center', height: '100vh' }}>
     <h2 style={{paddingBottom: "20px", fontSize: "3rem"}}>Quét QR để thanh toán</h2>
     {isLoading ? (
-      <ScaleLoader color={"#123abc"} loading={true} css={override} size={3000} /> // Display the spinner when isLoading is true
+            <ScaleLoader 
+            color={"#123abc"} 
+            loading={true} 
+            css={override} 
+            height={35} 
+            width={4} 
+            radius={2} 
+            margin={2}
+            speedMultiplier={2}
+          /> 
     ) : (
-      <img style={{ width: "50%" }} src={qrUrl} alt="QR Code" />
+      <img style={{ width: "80%" }} src={qrUrl} alt="QR Code" />
     )}
   </div>
   );

@@ -98,7 +98,8 @@ const seconds = String(now.getSeconds()).padStart(2, '0');
 const bookingId = 'BK' + day + month + hours + minutes + seconds;
     // const randomString = generateRandomString();
 //https://api.vieqr.com/vietqr/MBBank/0000418530364/300000/full.jpg?NDck=thanhtoan%20dbao03122003&FullName=Nguyen%20Cong%20Duy%20Bao&1716262092
-    const qrUrl = `https://api.vieqr.com/vietqr/MBBank/0000418530364/300000/full.jpg?NDck=thanhtoan%20${bookingId}&FullName=Nguyen%20Cong%20Duy%20Bao&1716262092`;
+// https://img.vietqr.io/image/MB-0000418530364-print.png?addInfo=thanhtoan%20${bookingId}&accountName=Nguyen%20Cong%20Duy%20Bao
+    const qrUrl = `https://img.vietqr.io/image/MB-0000418530364-print.png?amount=300000&addInfo=thanhtoan%20${bookingId}&accountName=Nguyen%20Cong%20Duy%20Bao`;
     
     console.log(qrUrl); // Log the QR URL to check it
     

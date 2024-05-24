@@ -70,7 +70,7 @@ const Pet = () => {
     if (user) {
       navigate("/pet/add");
     } else {
-      navigate("/login"); // Chuyển hướng đến trang đăng nhập nếu chưa đăng nhập
+      navigate("/signIn"); // Chuyển hướng đến trang đăng nhập nếu chưa đăng nhập
     }
   };
   if (loading) {
