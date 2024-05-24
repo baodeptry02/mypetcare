@@ -1,25 +1,15 @@
-import React, { useState, useEffect } from "react";
-import { useNavigate } from "react-router-dom";
-import {
-  getDatabase,
-  ref,
-  onValue,
-  get,
-  set,
-  push,
-  remove,
-} from "firebase/database";
-import { ToastContainer, toast } from "react-toastify";
+import React, { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
+import { getDatabase, ref, onValue, get, set, push, remove } from "firebase/database";
+import { ToastContainer, toast } from 'react-toastify';
 import { auth } from "../../Components/firebase/firebase";
 
 const Book = () => {
-  const [name, setName] = useState("");
-  const [phone, setPhone] = useState("");
-  const [date, setDate] = useState("");
-  const [time, setTime] = useState("");
-  const [service, setService] = useState("");
-  const [vet, setVet] = useState("");
-  const [reason, setReason] = useState("");
+  const [name, setName] = useState('');
+  const [phone, setPhone] = useState('');
+  const [date, setDate] = useState('');
+  const [time, setTime] = useState('');
+  const [reason, setReason] = useState('');
 
   const navigate = useNavigate();
   const [userId, setUserId] = useState("");
@@ -66,25 +56,21 @@ const Book = () => {
 
   const addBookingToDatabase = (bookingId, name, phone, date, time, reason) => {
     const db = getDatabase();
-    const bookingRef = push(
-      ref(db, "users/" + userId + "/bookings"),
-      {
-        name: name,
-        phone: phone,
-        date: date,
-        time: time,
-        reason: reason,
-        bookingId: bookingId,
-        paid: false, // Add a field to track payment status
-      },
-      function (error) {
-        if (error) {
-          alert("Error adding booking");
-        } else {
-          alert("Booking added successfully!");
-        }
+    const bookingRef = push(ref(db, 'users/' + userId + '/bookings'), {
+      name: name,
+      phone: phone,
+      date: date,
+      time: time,
+      reason: reason,
+      bookingId: bookingId,
+      paid: false // Add a field to track payment status
+    }, function (error) {
+      if (error) {
+        alert('Error adding booking');
+      } else {
+        alert('Booking added successfully!');
       }
-    );
+    });
 
     // Schedule a check to remove the booking if not paid after 5 minutes
     setTimeout(async () => {
@@ -92,52 +78,49 @@ const Book = () => {
       if (snapshot.exists() && !snapshot.val().paid) {
         // If the booking still exists and has not been paid, remove it
         remove(bookingRef);
-        navigate("/"); // Navigate to home page
-        toast.error(
-          "Transaction unsuccessful. You have been redirected to the home page."
-        );
+        navigate('/'); // Navigate to home page
+      toast.error('Transaction unsuccessful. You have been redirected to the home page.');
       }
     }, 5 * 60 * 1000);
   };
 
+  
+
   const handleSubmit = (event) => {
     event.preventDefault();
     const now = new Date();
-    const month = String(now.getMonth() + 1).padStart(2, "0"); // Months are 0-indexed in JavaScript
-    const day = String(now.getDate()).padStart(2, "0");
-    const hours = String(now.getHours()).padStart(2, "0");
-    const minutes = String(now.getMinutes()).padStart(2, "0");
-    const seconds = String(now.getSeconds()).padStart(2, "0");
+const month = String(now.getMonth() + 1).padStart(2, '0'); // Months are 0-indexed in JavaScript
+const day = String(now.getDate()).padStart(2, '0');
+const hours = String(now.getHours()).padStart(2, '0');
+const minutes = String(now.getMinutes()).padStart(2, '0');
+const seconds = String(now.getSeconds()).padStart(2, '0');
 
-    const bookingId = "BK" + day + month + hours + minutes + seconds;
+const bookingId = 'BK' + day + month + hours + minutes + seconds;
     // const randomString = generateRandomString();
-<<<<<<< HEAD
 //https://api.vieqr.com/vietqr/MBBank/0000418530364/300000/full.jpg?NDck=thanhtoan%20dbao03122003&FullName=Nguyen%20Cong%20Duy%20Bao&1716262092
 // https://img.vietqr.io/image/MB-0000418530364-print.png?addInfo=thanhtoan%20${bookingId}&accountName=Nguyen%20Cong%20Duy%20Bao
     const qrUrl = `https://img.vietqr.io/image/MB-0000418530364-print.png?amount=300000&addInfo=thanhtoan%20${bookingId}&accountName=Nguyen%20Cong%20Duy%20Bao`;
     
-=======
-    //https://api.vieqr.com/vietqr/MBBank/0000418530364/300000/full.jpg?NDck=thanhtoan%20dbao03122003&FullName=Nguyen%20Cong%20Duy%20Bao&1716262092
-    const qrUrl = `https://api.vieqr.com/vietqr/MBBank/0000418530364/300000/full.jpg?NDck=thanhtoan%20${bookingId}&FullName=Nguyen%20Cong%20Duy%20Bao&1716262092`;
-
->>>>>>> 0863bb9ec12d5eb0b459cb4fe7364321edac34c0
     console.log(qrUrl); // Log the QR URL to check it
-
-    navigate("/qr", { state: { qrUrl, bookingId } });
+    
+    navigate('/qr', { state: { qrUrl, bookingId } });
 
     // Reset form
-    setName("");
-    setPhone("");
-    setDate("");
-    setTime("");
-    setReason("");
+    setName('');
+    setPhone('');
+    setDate('');
+    setTime('');
+    setReason('');
     addBookingToDatabase(bookingId, name, phone, date, time, reason);
+
+    
   };
+
+  
 
   return (
     <div className="appointment-form-container">
       <h2>Đăng Ký Hẹn Lịch Khám</h2>
-      {/* <img src='https://petpro.com.vn/assets/booking_pet.fcf232f8.png' /> */}
       <form className="appointment-form" onSubmit={handleSubmit}>
         <div>
           <label htmlFor="name">Tên:</label>
@@ -148,6 +131,8 @@ const Book = () => {
             onChange={(e) => setName(e.target.value)}
             required
           />
+        </div>
+        <div>
           <label htmlFor="phone">Số điện thoại:</label>
           <input
             type="tel"
@@ -157,7 +142,6 @@ const Book = () => {
             required
           />
         </div>
-
         <div>
           <label htmlFor="date">Ngày:</label>
           <input
@@ -167,6 +151,8 @@ const Book = () => {
             onChange={(e) => setDate(e.target.value)}
             required
           />
+        </div>
+        <div>
           <label htmlFor="time">Giờ:</label>
           <input
             type="time"
@@ -176,27 +162,7 @@ const Book = () => {
             required
           />
         </div>
-
         <div>
-          <label htmlFor="service">Dịch vụ:</label>
-          <input
-            type="text"
-            id="service"
-            value={service}
-            onChange={(e) => setService(e.target.value)}
-            required
-          />
-          <label htmlFor="vet">Bác sĩ:</label>
-          <input
-            type="dropdown-menu"
-            id="text"
-            value={vet}
-            onChange={(e) => setVet(e.target.value)}
-            required
-          />
-        </div>
-
-        <div className="full-width">
           <label htmlFor="reason">Lý do khám:</label>
           <textarea
             id="reason"

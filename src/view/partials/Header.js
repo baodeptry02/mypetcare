@@ -145,9 +145,9 @@ function Header() {
 
   return (
     <header className="header">
-      <div onClick={homePage} className="logo">
+      <a href="#home" onClick={homePage} className="logo">
         <FontAwesomeIcon icon={faPaw} /> Pet Center
-      </div>
+      </a>
       <i className="bx bx-menu" id="menu-icon"></i>
       <nav className="navbar">
         <a

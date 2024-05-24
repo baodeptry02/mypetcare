@@ -485,6 +485,9 @@ span {
     .pet-manage {
         padding-top: 0 !important;
     }
+    .qr-code-page img {
+        width: 25%
+    }
 }
 
 @media (min-width: 991px) and (max-width: 1600px) {
@@ -500,7 +503,9 @@ span {
         margin-top: 0 !important;
     }
 
-
+    .qr-code-page img {
+        width: 35%
+    }
 
     .container-update {
         margin-top: 80px;
@@ -863,7 +868,6 @@ td[data-status="Busy"] {
     border: none;
     border-radius: 5px;
     cursor: pointer;
-<<<<<<< HEAD
   }
   
   .appointment-form button:hover {
@@ -940,9 +944,6 @@ td[data-status="Busy"] {
     box-shadow: 0 0 1rem var(--main-color);
 }
 
-=======
-    transition: background-color 0.3s;
-}
 
 .appointment-form button:hover {
     background-color: #7b2cbf;
@@ -1100,4 +1101,4 @@ h6.css-1731sqo-MuiTypography-root {
 .dropdown-topbar .MuiMenuItem-root {
     font-size: 1.5rem; /* Adjust the font size as needed */
   }
->>>>>>> 0863bb9ec12d5eb0b459cb4fe7364321edac34c0
+

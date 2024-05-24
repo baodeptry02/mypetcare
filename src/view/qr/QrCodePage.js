@@ -130,7 +130,7 @@ const QrCodePage = () => {
             speedMultiplier={2}
           /> 
     ) : (
-      <img style={{ width: "80%" }} src={qrUrl} alt="QR Code" />
+      <img src={qrUrl} alt="QR Code" />
     )}
   </div>
   );
