@@ -25,20 +25,21 @@ import ForgotPassword from "./Components/googleSignIn/ForgotPassword";
 
 function MainContent() {
   const location = useLocation();
-
+  const [currentPath, setCurrentPath] = useState("");
   const [user, setUser] = useState(null);
 
   useEffect(() => {
     const unsubscribe = auth.onAuthStateChanged((currentUser) => {
       setUser(currentUser);
     });
+    setCurrentPath(location.pathname);
 
     return unsubscribe; // Clean up listener on component unmount
-  }, []);
+  },[location.pathname]);
   return (
     <div className="App">
       {/* {location.pathname === "/" && <Header user={user} />} */}
-      { !location.pathname.startsWith("/admin/") && <Header user={user} />}
+      <Header user={user} currentPath={currentPath} />
       <Routes>
         <Route path="/signIn" element={<SignIn />} />
         <Route path="/" element={<Home />} />

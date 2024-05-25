@@ -32,8 +32,8 @@ function Home() {
     if (user) {
       navigate("/book");
     } else {
-      navigate("/signIn"); // Chuyển hướng đến trang đăng nhập nếu chưa đăng nhập
-      toast.error("Please log in to continue your booking!");
+      navigate("/signIn");
+      toast.error("Please log in first to continue your booking!");
     }
   };
 

@@ -1,13 +1,13 @@
 import React, { useState, useEffect } from "react";
-import { auth, provider } from "../firebase/firebase"; // Assuming config file with Firebase settings
+import { auth, provider, database } from "../firebase/firebase"; // Assuming config file with Firebase settings
 import { doCreateUserWithEmailAndPassword } from "../firebase/auth";
 import { signInWithPopup, signInWithEmailAndPassword } from "firebase/auth";
 import Home from "../../view/partials/Home";
 import { useNavigate } from "react-router-dom";
-import { fetchSignInMethodsForEmail, updateProfile } from "firebase/auth";
+import { fetchSignInMethodsForEmail, updateProfile, sendEmailVerification, onAuthStateChanged  } from "firebase/auth";
 import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
-import { getDatabase, ref, set, onValue, get } from "firebase/database";
+import { getDatabase, ref, set, onValue, get, update } from "firebase/database";
 
 function SignIn() {
   const [email, setEmail] = useState("");
@@ -24,7 +24,8 @@ function SignIn() {
     set(ref(db, 'users/' + userId), {
       email: email,
       username: name,
-      role: role
+      role: role,
+      isVerified: false
     }, function (error) {
       if (error) {
         alert('Lỗi');
@@ -62,7 +63,8 @@ function SignIn() {
         await set(userRef, {
           email: userEmail,
           username: userName,
-          role: userRole
+          role: userRole,
+          isVerified: true 
         });
       } else {
         userRole = userData.role || 'user';
@@ -113,23 +115,7 @@ function SignIn() {
       return; // Prevent form submission
     }
 
-    const isUsernameTaken = async (username) => {
-      const db = getDatabase();
-      const usersRef = ref(db, 'users');
-      const snapshot = await get(usersRef);
-      const users = snapshot.val();
-      for(let userId in users) {
-        if(users[userId].username === username) {
-          return true;
-        }
-      }
-      return false;
-    };
-  
-    if(await isUsernameTaken(username)) {
-      toast.error("Username is already taken, please try another!");
-      return; // Prevent form submission
-    }  
+    const username = email.split('@')[0];
 
     const expression = /^[^@]+@\w+(\.\w+)+\w$/;
     if (!expression.test(email)) {
@@ -155,13 +141,16 @@ function SignIn() {
         );
         const user = userCredential.user;
         const userId = userCredential.user.uid; // Use userCredential.user.uid for unique identifier
+        await sendEmailVerification(user);
         await updateProfile(user, {
           displayName: username,
-          role: "user"
-        });
-        addDataBase(userId, email, username, "user"); // Omit password from user data
+          role: "user",
+          isVerified: false
+        }); 
+        addDataBase(userId, email, username, "user", ); // Omit password from user data
+        // window.location.reload();
         navigate("/"); // Redirect to home page
-        toast.success("Login successfully. Wish you enjoy our best experiment");
+        toast.success("Registration successful. Please check your email for verification then login to our system again.");
       } catch (error) {
         // Handle Firebase errors (e.g., weak password)
         toast.error("This email is used by another user, please try again!");
@@ -195,6 +184,11 @@ function SignIn() {
         password,
       );
       const user = userCredential.user;
+      if (!user.emailVerified) {
+        toast.error("Please verify your email before logging in.");
+        auth.signOut();
+        return;
+      }
       const userEmail = user.email;
       setUserEmail(userEmail);
       localStorage.setItem("email", userEmail); // Consider secure storage in production
@@ -215,7 +209,6 @@ function SignIn() {
       });
   
       if (!userRole) {
-        // If role is not defined in the database, add it
         addDataBase(userId, userEmail, user.displayName, userRole);
       }
       const petRef = ref(db, "users/" + userId + "/pets");
@@ -261,10 +254,28 @@ function SignIn() {
     container.classList.remove("active");
   };
 
+  
   useEffect(() => {
     const storedEmail = localStorage.getItem("email");
     setUserEmail(storedEmail);
   }, []); // Empty dependency array ensures it runs only once
+
+  useEffect(() => {
+    const updateUserVerificationStatus = async (user) => {
+      if (user && user.emailVerified) {
+        const userRef = ref(database, 'users/' + user.uid);
+        await update(userRef, { isVerified: true });
+      }
+    };
+
+    const unsubscribe = onAuthStateChanged(auth, (user) => {
+      if (user) {
+        updateUserVerificationStatus(user);
+      }
+    });
+
+    return () => unsubscribe();
+  }, []);
 
   return (
     <div>
@@ -278,18 +289,6 @@ function SignIn() {
                   <button type="button" onClick={handleGoogleLogin}>Login with Google</button>
                 </div>
                 <span>or use your email for registeration</span>
-                <input
-                id="username"
-                  type="username"
-                  autoComplete="off"
-                  required
-                  value={username}
-                  placeholder ="Input your username"
-                  onChange={(e) => {
-                    setUsername(e.target.value);
-                  }}
-                  className="w-full mt-2 px-3 py-2 text-gray-500 bg-transparent outline-none border focus:indigo-600 shadow-sm rounded-lg transition duration-300"
-                />
                 <input
                 id="email"
                   type="email"
@@ -371,7 +370,7 @@ function SignIn() {
                   onChange={handleChange}
                   required
                 />
-                <a href="#">Forget Your Password?</a>
+                <a href="/reset">Forget Your Password?</a>
                 <button>Sign In</button>
               </form>
             </div>

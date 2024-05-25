@@ -4,19 +4,18 @@ import { useNavigate } from "react-router-dom";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faPaw } from "@fortawesome/free-solid-svg-icons";
 import { updateProfile } from "firebase/auth";
-import { getDatabase, ref, onValue, update } from "firebase/database";
+import { getDatabase, ref, onValue } from "firebase/database";
 
-function Header() {
+function Header({ user, currentPath }) {
   const navigate = useNavigate();
   const dropdownRef = useRef(null);
   const [dropdownOpen, setDropdownOpen] = useState(false);
-  const [isLoading, setIsLoading] = useState(false);
-  const [userId, setUserId] = useState("");
   const [activeSection, setActiveSection] = useState("home");
-
   const [username, setUsername] = useState("");
-  const [fullname, setfullname] = useState("");
-  const user = auth.currentUser;
+  const [fullname, setFullname] = useState("");
+  const [isVerified, setIsVerified] = useState(false);
+  const [headerVisible, setHeaderVisible] = useState(false);
+
   const toggleDropdown = () => {
     setDropdownOpen(!dropdownOpen);
   };
@@ -28,6 +27,7 @@ function Header() {
       toggleDropdown();
     });
   };
+
   useEffect(() => {
     const handleScroll = () => {
       const sections = document.querySelectorAll("section");
@@ -52,6 +52,7 @@ function Header() {
       window.removeEventListener("scroll", handleScroll);
     };
   }, []);
+
   useEffect(() => {
     const handleClickOutside = (event) => {
       if (dropdownRef.current && !dropdownRef.current.contains(event.target)) {
@@ -66,29 +67,22 @@ function Header() {
   }, []);
 
   useEffect(() => {
-    if (userId) {
+    if (user && user.uid) {
       const db = getDatabase();
-      const userRef = ref(db, "users/" + userId);
+      const userRef = ref(db, "users/" + user.uid);
 
       onValue(userRef, (snapshot) => {
         const data = snapshot.val();
+        console.log(data)
         if (data) {
-          const username = setUsername(data.username);
-          const fullname = setfullname(data.fullname);
+          setUsername(data.username);
+          setFullname(data.fullname);
+          setIsVerified(data.isVerified);
+          setHeaderVisible(true);
         }
       });
     }
-  }, [userId]);
-
-  useEffect(() => {
-    if (user) {
-      setIsLoading(false); // Set loading to false when user data is loaded
-    }
   }, [user]);
-
-  if (isLoading) {
-    return <div>Loading...</div>; // Show loading message while loading
-  }
 
   const homePage = () => {
     if (dropdownOpen) {
@@ -99,17 +93,14 @@ function Header() {
 
   const updateAccount = async () => {
     toggleDropdown();
-    setIsLoading(true); // Set loading to true when starting the update
     try {
       // Update displayName in Firebase
       await updateProfile(auth.currentUser, {
-        displayName: user.username,
+        displayName: user.displayName,
       });
       navigate("/account");
     } catch (error) {
       console.error(error);
-    } finally {
-      setIsLoading(false); // Set loading to false when the update is done
     }
   };
 
@@ -125,26 +116,24 @@ function Header() {
   const aboutPage = () => {
     navigate("/#about");
   };
+
   const servicesPage = () => {
     navigate("/#services");
   };
+
   const contactPage = () => {
     navigate("/#contact");
   };
-  const navbarLinks = document.querySelectorAll(".navbar a");
 
-  navbarLinks.forEach((link) => {
-    link.addEventListener("click", () => {
-      navbarLinks.forEach((navbarLink) => {
-        navbarLink.classList.remove("active");
-      });
+  const shouldShowHeader = !currentPath.startsWith("/admin") && currentPath !== "/manager" && currentPath !== "/veterinary";
 
-      link.classList.add("active");
-    });
-  });
+  if (!shouldShowHeader) {
+    return null; // Don't render the header if it's a login or admin page
+  }
+
 
   return (
-    <header className="header">
+    <header className={`header ${headerVisible ? '' : 'hidden'}`}>
       <a href="#home" onClick={homePage} className="logo">
         <FontAwesomeIcon icon={faPaw} /> Pet Center
       </a>
@@ -178,20 +167,21 @@ function Header() {
         >
           Contact
         </a>
-
-        {user ? (
-          <div className="dropdown" ref={dropdownRef}>
-            <span onClick={toggleDropdown} className="username">
-              {user.displayName || username || fullname}
-            </span>
-            <div className={`dropdown-content ${dropdownOpen ? "show" : ""}`}>
-              <div onClick={updateAccount}>Account</div>
-              <div onClick={pet}>Pet</div>
-              <div onClick={logout}>Logout</div>
+        {shouldShowHeader && (
+          user && isVerified ? (
+            <div className="dropdown" ref={dropdownRef}>
+              <span onClick={toggleDropdown} className="username">
+                {user.displayName || username || fullname}
+              </span>
+              <div className={`dropdown-content ${dropdownOpen ? "show" : ""}`}>
+                <div onClick={updateAccount}>Account</div>
+                <div onClick={pet}>Pet</div>
+                <div onClick={logout}>Logout</div>
+              </div>
             </div>
-          </div>
-        ) : (
-          <button onClick={login}>Login</button>
+          ) : (
+            <button onClick={login}>Login</button>
+          )
         )}
       </nav>
     </header>
