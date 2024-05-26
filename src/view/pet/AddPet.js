@@ -59,7 +59,7 @@ const AddPet = () => {
         vacinated: petVacinated,
         imageUrls: imageUrls
       });
-      toast.success('Pet added successfully. You can view your pet in your collection!');
+      toast.success('Pet added successfully. You can view in your collection!');
     } catch (error) {
       alert('Error adding pet: ' + error.message);
     }

@@ -1,22 +1,41 @@
-import React, { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
-import { getDatabase, ref, onValue, get, set, push, remove } from "firebase/database";
-import { ToastContainer, toast } from 'react-toastify';
+import React, { useState, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
+import {
+  getDatabase,
+  ref,
+  onValue,
+  get,
+  set,
+  push,
+  remove,
+  update,
+} from "firebase/database";
+import { ToastContainer, toast } from "react-toastify";
 import { auth } from "../../Components/firebase/firebase";
 
 const Book = () => {
-  const [name, setName] = useState('');
-  const [phone, setPhone] = useState('');
-  const [date, setDate] = useState('');
-  const [time, setTime] = useState('');
-  const [reason, setReason] = useState('');
+  const [name, setName] = useState("");
+  const [phone, setPhone] = useState("");
+  const [date, setDate] = useState("");
+  const [time, setTime] = useState("");
+  const [reason, setReason] = useState("");
 
   const navigate = useNavigate();
   const [userId, setUserId] = useState("");
   const [email, setEmail] = useState("");
   const [username, setUsername] = useState("");
+  const [accountBalance, setAccountBalance] = useState(0);
   const [bookingId, setBookingId] = useState("");
+  const [totalPaid, setTotalPaid] = useState("");
+  const [service, setService] = useState([]);
+  const [vet, setVet] = useState("");
   const user = auth.currentUser;
+
+  const services = [
+    { name: "Grooming", price: 20 },
+    { name: "Healthcare", price: 50 },
+    { name: "Training", price: 100 },
+  ];
 
   useEffect(() => {
     const fetchUserData = async () => {
@@ -31,6 +50,7 @@ const Book = () => {
             const data = snapshot.val();
             setUsername(data.username);
             setEmail(data.email);
+            setAccountBalance(data.accountBalance);
           }
         } catch (error) {
           console.error("Error fetching user data: ", error);
@@ -41,20 +61,7 @@ const Book = () => {
     fetchUserData();
   }, [user]);
 
-  // const generateRandomString = () => {
-  //   const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz';
-  //   const digits = '0123456789';
-  //   let result = '';
-  //   for (let i = 0; i < 4; i++) {
-  //     result += digits.charAt(Math.floor(Math.random() * digits.length));
-  //   }
-  //   for (let i = 0; i < 4; i++) {
-  //     result += chars.charAt(Math.floor(Math.random() * chars.length));
-  //   }
-  //   return result;
-  // };
-
-  const addBookingToDatabase = (bookingId, name, phone, date, time, reason) => {
+  const addBookingToDatabase = (bookingId, name, phone, date, time, reason, services, totalPaid,amountToPay, paid) => {
     const db = getDatabase();
     const bookingRef = push(ref(db, 'users/' + userId + '/bookings'), {
       name: name,
@@ -63,7 +70,10 @@ const Book = () => {
       time: time,
       reason: reason,
       bookingId: bookingId,
-      paid: false // Add a field to track payment status
+      services: services,
+      totalPaid: totalPaid,
+      amountToPay: amountToPay,
+      paid: paid // Add a field to track payment status
     }, function (error) {
       if (error) {
         alert('Error adding booking');
@@ -71,56 +81,100 @@ const Book = () => {
         alert('Booking added successfully!');
       }
     });
-
-    // Schedule a check to remove the booking if not paid after 5 minutes
-    setTimeout(async () => {
-      const snapshot = await get(bookingRef);
-      if (snapshot.exists() && !snapshot.val().paid) {
-        // If the booking still exists and has not been paid, remove it
-        remove(bookingRef);
-        navigate('/'); // Navigate to home page
-      toast.error('Transaction unsuccessful. You have been redirected to the home page.');
-      }
-    }, 5 * 60 * 1000);
   };
 
-  
+  const handleServiceChange = (event) => {
+    const serviceName = event.target.value;
+    const isChecked = event.target.checked;
 
-  const handleSubmit = (event) => {
+    setService((prevServices) => {
+      if (isChecked) {
+        return [...prevServices, serviceName];
+      } else {
+        return prevServices.filter((service) => service !== serviceName);
+      }
+    });
+  };
+
+  const calculateTotalPaid = () => {
+    const totalServiceCost = service.reduce((total, serviceName) => {
+      const serviceData = services.find((s) => s.name === serviceName);
+      return total + (serviceData ? serviceData.price : 0);
+    }, 0);
+    return totalServiceCost;
+  };
+
+  const handleSubmit = async (event) => {
     event.preventDefault();
     const now = new Date();
-const month = String(now.getMonth() + 1).padStart(2, '0'); // Months are 0-indexed in JavaScript
-const day = String(now.getDate()).padStart(2, '0');
-const hours = String(now.getHours()).padStart(2, '0');
-const minutes = String(now.getMinutes()).padStart(2, '0');
-const seconds = String(now.getSeconds()).padStart(2, '0');
+    const month = String(now.getMonth() + 1).padStart(2, "0"); // Months are 0-indexed in JavaScript
+    const day = String(now.getDate()).padStart(2, "0");
+    const hours = String(now.getHours()).padStart(2, "0");
+    const minutes = String(now.getMinutes()).padStart(2, "0");
+    const seconds = String(now.getSeconds()).padStart(2, "0");
 
-const bookingId = 'BK' + day + month + hours + minutes + seconds;
-    // const randomString = generateRandomString();
-//https://api.vieqr.com/vietqr/MBBank/0000418530364/300000/full.jpg?NDck=thanhtoan%20dbao03122003&FullName=Nguyen%20Cong%20Duy%20Bao&1716262092
-// https://img.vietqr.io/image/MB-0000418530364-print.png?addInfo=thanhtoan%20${bookingId}&accountName=Nguyen%20Cong%20Duy%20Bao
-    const qrUrl = `https://img.vietqr.io/image/MB-0000418530364-print.png?amount=300000&addInfo=thanhtoan%20${bookingId}&accountName=Nguyen%20Cong%20Duy%20Bao`;
-    
-    console.log(qrUrl); // Log the QR URL to check it
-    
-    navigate('/qr', { state: { qrUrl, bookingId } });
+    const bookingId = "BK" + day + month + hours + minutes + seconds;
+    const totalPaid = calculateTotalPaid();
 
-    // Reset form
-    setName('');
-    setPhone('');
-    setDate('');
-    setTime('');
-    setReason('');
-    addBookingToDatabase(bookingId, name, phone, date, time, reason);
+    if (accountBalance >= totalPaid) {
+      // If accountBalance is sufficient to cover the total cost, update the balance and add booking
+      const newBalance = accountBalance - totalPaid;
+      const db = getDatabase();
+      const userRef = ref(db, "users/" + userId);
 
-    
+      await update(userRef, { accountBalance: newBalance });
+      setTotalPaid(totalPaid);
+      addBookingToDatabase(
+        bookingId,
+        name,
+        phone,
+        date,
+        time,
+        reason,
+        service,
+        totalPaid,
+        0,
+        true
+      );
+      toast.success(
+        "Booking successful! Your account balance has been updated."
+      );
+      navigate("/");
+    } else {
+      // If accountBalance is not sufficient, calculate remaining amount to pay and navigate to QR page for payment
+      const amountToPay = (totalPaid - accountBalance)*1000;
+      const qrUrl = `https://img.vietqr.io/image/MB-0000418530364-print.png?amount=${amountToPay}&addInfo=thanhtoan%20${bookingId}&accountName=Nguyen%20Cong%20Duy%20Bao`;
+      console.log(qrUrl); // Log the QR URL to check it
+      setTotalPaid(totalPaid);
+      addBookingToDatabase(
+        bookingId,
+        name,
+        phone,
+        date,
+        time,
+        reason,
+        service,
+        totalPaid,
+        amountToPay/1000,
+        false
+      );
+      navigate("/qr", { state: { qrUrl, bookingId } });
+    }
+
+    setName("");
+    setPhone("");
+    setDate("");
+    setTime("");
+    setReason("");
+    setService([]);
+    setTotalPaid("");
+    setVet("");
   };
-
-  
 
   return (
     <div className="appointment-form-container">
       <h2>Đăng Ký Hẹn Lịch Khám</h2>
+      {/* <img src='https://petpro.com.vn/assets/booking_pet.fcf232f8.png' /> */}
       <form className="appointment-form" onSubmit={handleSubmit}>
         <div>
           <label htmlFor="name">Tên:</label>
@@ -131,8 +185,6 @@ const bookingId = 'BK' + day + month + hours + minutes + seconds;
             onChange={(e) => setName(e.target.value)}
             required
           />
-        </div>
-        <div>
           <label htmlFor="phone">Số điện thoại:</label>
           <input
             type="tel"
@@ -142,6 +194,7 @@ const bookingId = 'BK' + day + month + hours + minutes + seconds;
             required
           />
         </div>
+
         <div>
           <label htmlFor="date">Ngày:</label>
           <input
@@ -151,8 +204,6 @@ const bookingId = 'BK' + day + month + hours + minutes + seconds;
             onChange={(e) => setDate(e.target.value)}
             required
           />
-        </div>
-        <div>
           <label htmlFor="time">Giờ:</label>
           <input
             type="time"
@@ -162,7 +213,36 @@ const bookingId = 'BK' + day + month + hours + minutes + seconds;
             required
           />
         </div>
+
         <div>
+          <label>Dịch vụ:</label>
+          {services.map((service) => (
+            <div key={service.name}>
+              <input
+                type="checkbox"
+                id={service.name}
+                value={service.name}
+                onChange={handleServiceChange}
+              />
+              <label className="service-item" htmlFor={service.name}>
+                {service.name} - ${service.price}
+              </label>
+            </div>
+          ))}
+        </div>
+
+        <div>
+          <label htmlFor="vet">Bác sĩ:</label>
+          <input
+            type="dropdown-menu"
+            id="text"
+            value={vet}
+            onChange={(e) => setVet(e.target.value)}
+            required
+          />
+        </div>
+
+        <div className="full-width">
           <label htmlFor="reason">Lý do khám:</label>
           <textarea
             id="reason"

@@ -6,6 +6,8 @@ import React, { useState, useEffect } from 'react';
 import { getDatabase, ref, onValue } from "firebase/database";
 import { ScaleLoader } from 'react-spinners';
 import { css } from "@emotion/react";
+import { ToastContainer, toast } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
 
 const Manager = () => {
   const navigate = useNavigate();
@@ -28,35 +30,54 @@ const Manager = () => {
   };
 
   useEffect(() => {
-    const unsubscribe = auth.onAuthStateChanged((user) => {
+    const unsubscribe = auth.onAuthStateChanged(async (user) => {
       if (user) {
-        setUser(user);
         const db = getDatabase();
-        const usersRef = ref(db, 'users');
-        const unsubscribeUsers = onValue(usersRef, (snapshot) => {
-          const usersData = snapshot.val();
-          if (usersData) {
-            const userList = Object.entries(usersData).map(([uid, userData]) => ({
-              uid,
-              ...userData
-            }));
-            const veterinarianUsers = userList.filter(user => user.role === 'veterinarian');
-            setUsers(veterinarianUsers);
-            setLoading(false);
-          } else {
-            setUsers([]);
-            setLoading(false);
+        const userRef = ref(db, 'users/' + user.uid);
+
+        onValue(userRef, (snapshot) => {
+          const data = snapshot.val();
+          if (data.role === "user") {
+            toast.error("You cant entry to this site!")
+            navigate("/"); // Redirect user role to home page
+          } else if (data.role === "admin") {
+            toast.error("You cant entry to this site!")
+            navigate("/admin");
+          } else if (data.role === "veterinary") {
+            toast.error("You cant entry to this site!")
+            navigate("/veterinary");
+          }
+          else {
+            setUser(user);
+            const usersRef = ref(db, 'users');
+            const unsubscribeUsers = onValue(usersRef, (snapshot) => {
+              const usersData = snapshot.val();
+              if (usersData) {
+                const userList = Object.entries(usersData).map(([uid, userData]) => ({
+                  uid,
+                  ...userData
+                }));
+                const veterinarianUsers = userList.filter(user => user.role === 'veterinarian');
+                setUsers(veterinarianUsers);
+                setLoading(false);
+              } else {
+                setUsers([]);
+                setLoading(false);
+              }
+            });
+            return () => unsubscribeUsers();
           }
         });
-        return () => unsubscribeUsers();
       } else {
         setUser(null);
         setUsers([]);
         setLoading(false);
+        navigate("/signIn");
       }
     });
+
     return () => unsubscribe();
-  }, []);
+  }, [navigate]);
 
   if (loading) {
     return <Loading />;

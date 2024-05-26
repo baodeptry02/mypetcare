@@ -67,12 +67,8 @@ const Pet = () => {
   }, []);
 
   const addPet = () => {
-    if (user) {
       navigate("/pet/add");
-    } else {
-      navigate("/signIn"); // Chuyển hướng đến trang đăng nhập nếu chưa đăng nhập
-    }
-  };
+  }
   if (loading) {
     return <Loading />;
   }

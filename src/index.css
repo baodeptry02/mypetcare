@@ -351,7 +351,7 @@ span.username {
 }
 
 .dropdown-content {
-    margin-top: 20px;
+    margin-top: 16px;
     border: #7b2cbf 1px solid;
     display: none;
     position: absolute;
@@ -488,15 +488,56 @@ span {
     .qr-code-page img {
         width: 25%
     }
+    .container.form {
+        margin-top: 0;
+    }
+    .container-update {
+        margin-top: 50px!important;
+    }
 }
 
 @media (min-width: 991px) and (max-width: 1600px) {
     html {
         font-size: 55%;
     }
+    .header {
+        top: 10px !important
+    }
+    .account-title {
+        margin: 12px 0 !important;
+}
+    .container.container-update {
+        top: 56% !important
+    }
+    .container input {
+        margin: 8px 0 !important;
+    }
+    .container-update input {
+        padding: 8px 16px !important;
+    }
+    .header .username {
+        display: inline-block;
+        max-width: 150px; /* Adjust the width according to your layout */
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        vertical-align: middle;
+        position: relative;
+        bottom: 4px;
+    }
+    .empty-pet.container {
+        top: 55% !important
+    }
 
     .container {
         margin-top: 100px;
+    }
+
+    .container.form{
+        margin-top: 40px;
+    }
+    .contact h2 {
+        margin-top: 20px!important;
     }
 
     .pet-manage {
@@ -577,6 +618,17 @@ label {
 .container-update button {
     margin: 16px 0;
     font-size: 16px;
+}
+
+.pet-list h1 {
+    margin: 16px 0!important;
+}
+.pet-list p {
+    margin: 16px 0!important;
+}
+
+.pet-manage {
+    padding-top: 60px!important;
 }
 
 .parent-container {
@@ -801,10 +853,18 @@ td[data-status="Busy"] {
 }
 
 /* AppointmentForm.css */
-
+.service-item {
+    display: flex;
+    align-items: center;
+    margin-bottom: 5px;
+    width: 130px !important;
+  }
+  
+  .service-item input[type="checkbox"] {
+    margin-right: 10px;
+  }
 .appointment-form-container {
     width: 1000px;
-    height: 500px;
     margin: 140px auto;
     padding: 20px;
     background-color: #fff;

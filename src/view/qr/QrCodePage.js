@@ -8,34 +8,52 @@ import { ScaleLoader } from "react-spinners"; // Import the spinner you want to 
 import { css } from "@emotion/react"; 
 import { updateProfile } from "firebase/auth";
 
-
 const QrCodePage = () => {
   const location = useLocation();
   const { qrUrl, bookingId } = location.state;
   const navigate = useNavigate();
   const { fetchTransactions } = useContext(TransactionContext);
   const [username, setUsername] = useState("");
-  const [isLoading, setIsLoading] = useState(true); // Add this line
+  const [isLoading, setIsLoading] = useState(true);
+  const [userId, setUserId] = useState("");
+  const [accountBalance, setAccountBalance] = useState(0);
+  const [totalPaid, setTotalPaid] = useState(0);
 
   const override = css`
     display: block;
     margin: 500px auto;
     border-color: red;
   `;
-  
+
+  const mockFetchTransactions = async () => {
+    return {
+      descriptions: ["thanhtoan BK1243463456","thanhtoan BK12315234","thanhtoan BK12315234","thanhtoan BK12315234", "thanhtoan " + bookingId, "thanhtoan BK12315234", "thanhtoan BK12315234"],
+      amounts: [0, 1000, 100, 100, 120000, 500, 50000, 120000] 
+    };
+  };
 
   useEffect(() => {
     const fetchUserData = async () => {
       const user = auth.currentUser;
+      
       if (user) {
         const db = getDatabase();
         const userRef = ref(db, "users/" + user.uid);
 
         try {
           const snapshot = await get(userRef);
+          const data = snapshot.val();
           if (snapshot.exists()) {
-            const data = snapshot.val();
             setUsername(data.username);
+            setUserId(data.uid);
+            setAccountBalance(data.accountBalance || 0);
+          }
+          if (data && data.bookings) {
+            const bookings = data.bookings;
+            const booking = Object.values(bookings).find(b => b.bookingId === bookingId);
+            if (booking) {
+              setTotalPaid(booking.totalPaid);
+            }
           }
         } catch (error) {
           console.error("Error fetching user data: ", error);
@@ -44,95 +62,81 @@ const QrCodePage = () => {
     };
 
     fetchUserData();
-  }, []);
+  }, [bookingId]);
 
   useEffect(() => {
     const user = auth.currentUser;
-    console.log("bookingId:", bookingId);
-    console.log("user.uid:", user?.uid); // Use user?.uid to avoid error if user is undefined
-  
+
     if (!username || !bookingId) return;
-  
+
     const intervalId = setInterval(async () => {
       try {
-        const { descriptions } = await fetchTransactions(); // Fetch transaction history
+        const { descriptions, amounts } = await mockFetchTransactions();
         const contentTransfer = `thanhtoan ${bookingId}`;
-        console.log('Checking for payment description:', contentTransfer);
-        console.log('Transaction descriptions:', descriptions);
-        const isPaymentSuccessful = descriptions.some(description => {
-          return description.includes(contentTransfer);
-        });
-  
-        console.log('isPaymentSuccessful:', isPaymentSuccessful); // Log the value of isPaymentSuccessful
-  
-        if (isPaymentSuccessful) {
-          // Update booking status to paid
-          const user = auth.currentUser;
-          console.log('Current user:', user);
+
+        const paymentIndex = descriptions.findIndex((description) =>
+          description.includes(contentTransfer)
+        );
+
+        if (paymentIndex !== -1) {
+          const paymentAmount = amounts[paymentIndex];
           const db = getDatabase();
-          const bookingRef = ref(db, `users/${user.uid}/bookings`);
-          console.log('Booking ref:', bookingRef);
-          const bookingSnapshot = await get(bookingRef);
-          console.log("BookingSnapshot:",bookingSnapshot)
-          const bookingData = bookingSnapshot.val();
-          const bookingKeys = Object.keys(bookingData);
-          let bookingKeyToUpdate;
+          const userRef = ref(db, 'users/' + user.uid);
+          const snapshot = await get(userRef);
+          const data = snapshot.val();
+          const paymentAmountInSystem = paymentAmount / 1000
 
-          // Find the correct booking key
-          for (const key of bookingKeys) {
-            if (bookingData[key].bookingId === bookingId) {
-              bookingKeyToUpdate = key;
-              break;
-            }
+          if (!data) {
+            throw new Error('No user data found.');
           }
-          console.log(bookingKeyToUpdate)
+          const accountBalanceNumber = parseFloat(accountBalance);
+          console.log("Current accountBalance:", accountBalance, typeof accountBalanceNumber);
+          console.log("Payment amount:", paymentAmountInSystem, typeof paymentAmountInSystem);
+          console.log("Total paid for booking:", totalPaid, typeof totalPaid);
 
-          if (bookingKeyToUpdate) {
-            // Update the paid status of the booking
-            const updateRef = ref(db, `users/${user.uid}/bookings/${bookingKeyToUpdate}`);
-            await update(updateRef, { paid: true });
+          const newAccountBalance = accountBalanceNumber + paymentAmountInSystem - totalPaid;
+          console.log("New account balance:", newAccountBalance);
 
-            toast.success('Payment success! Please check your email to see your appointment information');
-          } else {
-            console.log('No booking data found for this bookingId');
+          if (newAccountBalance >= 0) {
+            await update(userRef, { accountBalance: newAccountBalance });
+            toast.success(
+              'Payment success! Please check your booking section to track your booking information'
+            );
+            clearInterval(intervalId);
+            navigate('/');
           }
-          toast.success('Payment success! Please check your email to see your appoitment information');
-          clearInterval(intervalId);
-          navigate('/');
         } else {
           console.log('Payment not found in transaction history');
         }
       } catch (error) {
         console.error('Error fetching transaction history:', error);
       } finally {
-        setIsLoading(false); // Set isLoading to false after completing fetching data
+        setIsLoading(false); 
       }
     }, 10000); // Check every 10 seconds
-  
+
     return () => clearInterval(intervalId);
-  }, [navigate, username, bookingId, fetchTransactions]);
-  
-  
-  
+  }, [navigate, username, bookingId, fetchTransactions, totalPaid]);
 
   return (
     <div className="qr-code-page" style={{ display: 'flex', flexDirection: 'column', justifyContent: 'center', alignItems: 'center', height: '100vh' }}>
-    <h2 style={{paddingBottom: "20px", fontSize: "3rem"}}>Quét QR để thanh toán</h2>
-    {isLoading ? (
-            <ScaleLoader 
-            color={"#123abc"} 
-            loading={true} 
-            css={override} 
-            height={35} 
-            width={4} 
-            radius={2} 
-            margin={2}
-            speedMultiplier={2}
-          /> 
-    ) : (
-      <img src={qrUrl} alt="QR Code" />
-    )}
-  </div>
+      <h2 style={{paddingBottom: "20px", fontSize: "3rem"}}>Quét QR để thanh toán</h2>
+      {isLoading ? (
+        <ScaleLoader 
+          color={"#123abc"} 
+          loading={true} 
+          css={override} 
+          height={35} 
+          width={4} 
+          radius={2} 
+          margin={2}
+          speedMultiplier={2}
+        /> 
+      ) : (
+        <img src={qrUrl} alt="QR Code" />
+      )}
+      <ToastContainer />
+    </div>
   );
 };
 

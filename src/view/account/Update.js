@@ -10,6 +10,7 @@ function Update() {
   const [username, setUsername] = useState("");
   const [phone, setPhone] = useState("");
   const [address, setAddress] = useState("");
+  const [accountBalance, setAccountBalance] = useState("");
   const [userId, setUserId] = useState("");
   const [fullname, setFullname] = useState("");
   const [loading, setLoading] = useState(true);
@@ -39,6 +40,7 @@ function Update() {
           setUsername(data.username);
           setPhone(data.phone);
           setAddress(data.address);
+          setAccountBalance(data.accountBalance);
         }
         setLoading(false);
       });
@@ -56,6 +58,10 @@ function Update() {
     if (username) {
       updates.username = username;
       localStorage.setItem('username', username);
+    }
+    if (accountBalance) {
+      updates.accountBalance = accountBalance;
+      localStorage.setItem('accountBalance', accountBalance);
     }
     if (phone) {
       updates.phone = phone;
@@ -105,19 +111,7 @@ function Update() {
       <div className="account">
         <h3 className="account-title">Update Account</h3>
         <form onSubmit={handleSubmit}>
-          <label>Full Name</label>
-          <input
-            id="fullname"
-            type="fullname"
-            autoComplete="off"
-            value={fullname}
-            placeholder="Enter your full name"
-            onChange={(e) => {
-              setFullname(e.target.value);
-            }}
-            className="w-full mt-2 px-3 py-2 text-gray-500 bg-transparent outline-none border focus:indigo-600 shadow-sm rounded-lg transition duration-300"
-          />
-          <label>Email</label>
+        <label>Email</label>
           <input
             id="email"
             type="email"
@@ -129,6 +123,30 @@ function Update() {
             }}
             className="w-full mt-2 px-3 py-2 text-gray-500 bg-transparent outline-none border focus:indigo-600 shadow-sm rounded-lg transition duration-300"
             disabled
+          />
+          <label>Account Balance</label>
+          <input
+            id="accountBalance"
+            type="accountBalance"
+            autoComplete="off"
+            value={accountBalance}
+            onChange={(e) => {
+              setAccountBalance(e.target.value);
+            }}
+            className="w-full mt-2 px-3 py-2 text-gray-500 bg-transparent outline-none border focus:indigo-600 shadow-sm rounded-lg transition duration-300"
+            
+          />
+          <label>Full Name</label>
+          <input
+            id="fullname"
+            type="fullname"
+            autoComplete="off"
+            value={fullname}
+            placeholder="Enter your full name"
+            onChange={(e) => {
+              setFullname(e.target.value);
+            }}
+            className="w-full mt-2 px-3 py-2 text-gray-500 bg-transparent outline-none border focus:indigo-600 shadow-sm rounded-lg transition duration-300"
           />
           <label>Phone</label>
           <input

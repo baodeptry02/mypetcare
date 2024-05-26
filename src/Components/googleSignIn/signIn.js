@@ -9,6 +9,7 @@ import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import { getDatabase, ref, set, onValue, get, update } from "firebase/database";
 
+
 function SignIn() {
   const [email, setEmail] = useState("");
   const [username, setUsername] = useState("");
@@ -19,13 +20,22 @@ function SignIn() {
   const [isRegistering, setIsRegistering] = useState(false);
   const navigate = useNavigate();
 
+    useEffect(() => {
+    const unsubscribe = auth.onAuthStateChanged((user) => {
+      if (user) {
+        navigate("/"); // Redirect to home page if user is already logged in
+      }
+    });
+    return () => unsubscribe();
+  }, [navigate]);
+
   function addDataBase(userId, email, name, role) {
     const db = getDatabase();
     set(ref(db, 'users/' + userId), {
       email: email,
       username: name,
       role: role,
-      isVerified: false
+      isVerified: false,
     }, function (error) {
       if (error) {
         alert('Lỗi');
@@ -48,7 +58,9 @@ function SignIn() {
       const db = getDatabase();
       const userRef = ref(db, 'users/' + userId);
       let userRole = 'user';
-  
+      console.log('User Email:', userEmail);
+    console.log('Generated Username:', userName);
+    console.log('User ID:', userId);
       // Kiểm tra và lấy dữ liệu người dùng từ Firebase
       const userDataSnapshot = await new Promise((resolve) => {
         onValue(userRef, (snapshot) => {
@@ -57,17 +69,22 @@ function SignIn() {
       });
       
       const userData = userDataSnapshot.val();
-  
+      console.log('User Data from Firebase:', userData);
       // Nếu người dùng chưa tồn tại trong cơ sở dữ liệu, thêm người dùng
       if (!userData) {
         await set(userRef, {
           email: userEmail,
           username: userName,
           role: userRole,
-          isVerified: true 
+          isVerified: true,
+          accountBalance: 0
         });
       } else {
         userRole = userData.role || 'user';
+        await set(userRef, {
+          ...userData,
+          username: userName
+        });
       }
   
       // Đọc dữ liệu thú cưng của người dùng từ Firebase sau khi đăng nhập thành công
@@ -145,7 +162,8 @@ function SignIn() {
         await updateProfile(user, {
           displayName: username,
           role: "user",
-          isVerified: false
+          isVerified: false,
+          accountBalance: 0
         }); 
         addDataBase(userId, email, username, "user", ); // Omit password from user data
         // window.location.reload();
@@ -174,15 +192,11 @@ function SignIn() {
   };
 
   const handleEmailLogin = async (event) => {
-    event.preventDefault(); // Prevent default form submission behavior
-    setError(null); // Clear any previous errors
+    event.preventDefault(); // Ngăn hành vi mặc định của biểu mẫu
+    setError(null); // Xóa các lỗi trước đó
   
     try {
-      const userCredential = await signInWithEmailAndPassword(
-        auth,
-        email,
-        password,
-      );
+      const userCredential = await signInWithEmailAndPassword(auth, email, password);
       const user = userCredential.user;
       if (!user.emailVerified) {
         toast.error("Please verify your email before logging in.");
@@ -191,32 +205,52 @@ function SignIn() {
       }
       const userEmail = user.email;
       setUserEmail(userEmail);
-      localStorage.setItem("email", userEmail); // Consider secure storage in production
+      localStorage.setItem("email", userEmail); // Xem xét việc lưu trữ an toàn trong sản xuất
       const userId = user.uid;
       const db = getDatabase();
       const userRef = ref(db, 'users/' + userId);
       let userRole = 'user';
   
-      // Wait for data from Firebase
-      await new Promise((resolve) => {
+      // Kiểm tra và lấy dữ liệu người dùng từ Firebase
+      const userDataSnapshot = await new Promise((resolve) => {
         onValue(userRef, (snapshot) => {
-          const userData = snapshot.val();
-          if (userData && userData.role) {
-            userRole = userData.role;
-          }
-          resolve();
-        });
+          resolve(snapshot);
+        }, { onlyOnce: true });
       });
   
-      if (!userRole) {
-        addDataBase(userId, userEmail, user.displayName, userRole);
+      const userData = userDataSnapshot.val();
+      console.log('User Data from Firebase:', userData);
+  
+      if (!userData) {
+        await set(userRef, {
+          email: userEmail,
+          username: user.displayName,
+          role: userRole,
+          isVerified: true,
+          accountBalance: 0 // Thiết lập accountBalance mặc định là 0 nếu người dùng không tồn tại
+        });
+      } else {
+        userRole = userData.role || 'user';
+        // Chỉ cập nhật accountBalance nếu nó chưa tồn tại
+        if (userData.accountBalance === undefined) {
+          await update(userRef, {
+            accountBalance: 0
+          });
+        }
+        // Cập nhật các trường khác mà không làm thay đổi accountBalance
+        await update(userRef, {
+          username: user.displayName,
+          role: userRole,
+          isVerified: userData.isVerified
+        });
       }
+  
       const petRef = ref(db, "users/" + userId + "/pets");
       const pets = await new Promise((resolve) => {
         onValue(petRef, (snapshot) => {
           const petData = snapshot.val();
           resolve(petData ? Object.values(petData) : []);
-        });
+        }, { onlyOnce: true });
       });
   
       // Lưu dữ liệu thú cưng vào state hoặc localStorage nếu cần
@@ -238,11 +272,12 @@ function SignIn() {
         default:
           navigate("/");
       }
-      toast.success("Login successfully. Wish you enjoy our best experiment");
+      toast.success("Login successfully. Wish you enjoy our best experience");
     } catch (error) {
       toast.error("Something went wrong. Please check your email or password and try again!");
     }
   };
+  
   
 
   const handleClickButtonReg = async () => {
@@ -281,7 +316,7 @@ function SignIn() {
     <div>
       {!userEmail && ( // Only show login options if not logged in
         <>
-          <div className="container" id="container">
+          <div className="container form" id="container">
             <div className="form-container sign-up">
               <form onSubmit={onSubmit}>
                 <h1>Create Account</h1>

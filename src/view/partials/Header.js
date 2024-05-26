@@ -73,7 +73,7 @@ function Header({ user, currentPath }) {
 
       onValue(userRef, (snapshot) => {
         const data = snapshot.val();
-        console.log(data)
+        console.log(data.bookings)
         if (data) {
           setUsername(data.username);
           setFullname(data.fullname);

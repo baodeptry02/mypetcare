@@ -93,8 +93,7 @@ function Home() {
           </div>
           <div className="home-img">
             <img
-              src="https://scontent.fsgn5-10.fna.fbcdn.net/v/t39.30808-6/440942530_423620990437817_5689570377664203254_n.jpg?_nc_cat=110&ccb=1-7&_nc_sid=5f2048&_nc_eui2=AeGH7MPTf2dzUW3ThUsw3HmXDDoRkmzJd3IMOhGSbMl3cpvAmH2puahNUM-H3cX522nwwjSb-77rqIf3YpNqmHfJ&_nc_ohc=pRyaLPx__BYQ7kNvgG7oi2O&_nc_ht=scontent.fsgn5-10.fna&oh=00_AYDPeV8x1QY0gBNXtPfoYvwmWEMuIc2fqy9FS_Mg1FVQiA&oe=664E6D92"
-              alt=""
+              src="https://scontent.fsgn2-6.fna.fbcdn.net/v/t39.30808-6/440942530_423620990437817_5689570377664203254_n.jpg?_nc_cat=110&ccb=1-7&_nc_sid=5f2048&_nc_ohc=BFrjCE_IQ8AQ7kNvgHNUkAr&_nc_ht=scontent.fsgn2-6.fna&oh=00_AYAE-6ge9dx5ooH4pzNnSfurgsz5i8tv1ymwOloTS8-CyQ&oe=66576FD2"
             />
           </div>
         </section>
@@ -120,7 +119,7 @@ function Home() {
           </div>
           <div className="input-box">
             <input type="number" name="from_phone" placeholder="Mobile Number" required />
-            <input type="text" name="subject" placeholder="Email Subject" required />
+            <input type="text" name="subject" placeholder="Your Address" required />
           </div>
           <textarea name="message" cols="30" rows="10" placeholder="Your Message" required></textarea>
           <input type="submit" value="Send Message" className="btn" />
