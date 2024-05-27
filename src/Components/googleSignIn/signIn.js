@@ -312,6 +312,10 @@ function SignIn() {
     return () => unsubscribe();
   }, []);
 
+  const handleReset = () => {
+    navigate('/reset');
+  }
+
   return (
     <div>
       {!userEmail && ( // Only show login options if not logged in
@@ -405,7 +409,7 @@ function SignIn() {
                   onChange={handleChange}
                   required
                 />
-                <a href="/reset">Forget Your Password?</a>
+                <a href="/reset" onClick={handleReset}>Forget Your Password?</a>
                 <button>Sign In</button>
               </form>
             </div>

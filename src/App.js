@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from "react";
 import SignIn from "./Components/googleSignIn/signIn"; // Replace with your actual login component path
+import { CircularProgress } from "@mui/material";
 import "./App.css"; // Import your CSS styles (optional)
 import {
   BrowserRouter as Router,
@@ -25,34 +26,50 @@ import ForgotPassword from "./Components/googleSignIn/ForgotPassword";
 
 function MainContent() {
   const location = useLocation();
-  const [currentPath, setCurrentPath] = useState("");
+  const [currentPath, setCurrentPath] = useState(location.pathname);
   const [user, setUser] = useState(null);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     const unsubscribe = auth.onAuthStateChanged((currentUser) => {
       setUser(currentUser);
     });
-    setCurrentPath(location.pathname);
 
-    return unsubscribe; // Clean up listener on component unmount
-  },[location.pathname]);
+    const handleLoading = () => {
+      setLoading(true);
+      setTimeout(() => {
+        setLoading(false);
+      }, 1000);
+    };
+
+    handleLoading();
+
+    return () => {
+      unsubscribe(); 
+      clearTimeout(handleLoading); 
+    };
+  }, [location.pathname]);
+
   return (
     <div className="App">
-      {/* {location.pathname === "/" && <Header user={user} />} */}
       <Header user={user} currentPath={currentPath} />
-      <Routes>
-        <Route path="/signIn" element={<SignIn />} />
-        <Route path="/" element={<Home />} />
-        <Route path="/account" element={<Update user={user} />} />
-        <Route path="/admin/*" element={<Admin />} />
-        <Route path="/manager" element={<Manager />} />
-        <Route path="/pet" element={<Pet />} />
-        <Route path="/pet/add" element={<AddPet />} />
-        <Route path="/book" element={<Book />} />
-        <Route path="/qr" element={<QrCodePage />} />
-        <Route path="/transaction-history" element={<Transaction />} />
-        <Route path="/reset" element={<ForgotPassword />} />
-      </Routes>
+      {loading ? (
+        <CircularProgress className="loading-spinner" />
+      ) : (
+        <Routes>
+          <Route path="/signIn" element={<SignIn />} />
+          <Route path="/" element={<Home />} />
+          <Route path="/account" element={<Update user={user} />} />
+          <Route path="/admin/*" element={<Admin />} />
+          <Route path="/manager" element={<Manager />} />
+          <Route path="/pet" element={<Pet />} />
+          <Route path="/pet/add" element={<AddPet />} />
+          <Route path="/book" element={<Book />} />
+          <Route path="/qr" element={<QrCodePage />} />
+          <Route path="/transaction-history" element={<Transaction />} />
+          <Route path="/reset" element={<ForgotPassword />} />
+        </Routes>
+      )}
     </div>
   );
 }
