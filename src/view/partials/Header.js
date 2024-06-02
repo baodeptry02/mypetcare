@@ -109,7 +109,7 @@ function Header({ user, currentPath }) {
 
   const homePage = () => {
     if (dropdownOpen) {
-      setDropdownOpen(false); // Close dropdown if open
+      setDropdownOpen(false); 
     }
     navigate("/");
   };
@@ -117,7 +117,6 @@ function Header({ user, currentPath }) {
   const updateAccount = async () => {
     toggleDropdown();
     try {
-      // Update displayName in Firebase
       await updateProfile(auth.currentUser, {
         displayName: user.displayName,
       });
@@ -155,7 +154,7 @@ function Header({ user, currentPath }) {
   const shouldShowHeader = !location.pathname.startsWith("/admin") && location.pathname !== "/manager" && location.pathname !== "/veterinary";
 
   if (!shouldShowHeader) {
-    return null; // Don't render the header if it's a login or admin page
+    return null;
   }
 
   return (

@@ -35,7 +35,7 @@ const Manager = () => {
           const data = snapshot.val();
           if (data.role === "user") {
             toast.error("You cant entry to this site!")
-            navigate("/"); // Redirect user role to home page
+            navigate("/");
           } else if (data.role === "admin") {
             toast.error("You cant entry to this site!")
             navigate("/admin");

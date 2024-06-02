@@ -4,11 +4,15 @@ import { doCreateUserWithEmailAndPassword } from "../firebase/auth";
 import { signInWithPopup, signInWithEmailAndPassword } from "firebase/auth";
 import Home from "../../view/partials/Home";
 import { useNavigate } from "react-router-dom";
-import { fetchSignInMethodsForEmail, updateProfile, sendEmailVerification, onAuthStateChanged  } from "firebase/auth";
-import { ToastContainer, toast } from 'react-toastify';
-import 'react-toastify/dist/ReactToastify.css';
+import {
+  fetchSignInMethodsForEmail,
+  updateProfile,
+  sendEmailVerification,
+  onAuthStateChanged,
+} from "firebase/auth";
+import { ToastContainer, toast } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 import { getDatabase, ref, set, onValue, get, update } from "firebase/database";
-
 
 function SignIn() {
   const [email, setEmail] = useState("");
@@ -20,7 +24,7 @@ function SignIn() {
   const [isRegistering, setIsRegistering] = useState(false);
   const navigate = useNavigate();
 
-    useEffect(() => {
+  useEffect(() => {
     const unsubscribe = auth.onAuthStateChanged((user) => {
       if (user) {
         navigate("/"); // Redirect to home page if user is already logged in
@@ -31,46 +35,48 @@ function SignIn() {
 
   function addDataBase(userId, email, name, role) {
     const db = getDatabase();
-    set(ref(db, 'users/' + userId), {
-      email: email,
-      username: name,
-      role: role,
-      isVerified: false,
-    }, function (error) {
-      if (error) {
-        alert('Lỗi');
-      } else {
-        alert('Thành Công !!!');
+    set(
+      ref(db, "users/" + userId),
+      {
+        email: email,
+        username: name,
+        role: role,
+        isVerified: false,
+      },
+      function (error) {
+        if (error) {
+          alert("Lỗi");
+        } else {
+          alert("Thành Công !!!");
+        }
       }
-    });
+    );
   }
-
-
 
   const handleGoogleLogin = async () => {
     try {
       const data = await signInWithPopup(auth, provider);
       const userEmail = data.user.email;
-      const userNamePart = userEmail.split('@')[0];
-      const userName = 'gg' + userNamePart;
+      const userNamePart = userEmail.split("@")[0];
+      const userName = "gg" + userNamePart;
       const userId = data.user.uid;
       const db = getDatabase();
-      const userRef = ref(db, 'users/' + userId);
-      let userRole = 'user';
-      console.log('User Email:', userEmail);
-      console.log('Generated Username:', userName);
-      console.log('User ID:', userId);
-  
+      const userRef = ref(db, "users/" + userId);
+      let userRole = "user";
+      console.log("User Email:", userEmail);
+      console.log("Generated Username:", userName);
+      console.log("User ID:", userId);
+
       // Fetch user data from Firebase
       const userDataSnapshot = await new Promise((resolve) => {
         onValue(userRef, (snapshot) => {
           resolve(snapshot);
         });
       });
-  
+
       const userData = userDataSnapshot.val();
-      console.log('User Data from Firebase:', userData);
-  
+      console.log("User Data from Firebase:", userData);
+      let accountStatus = 'enable';
       // If user does not exist in the database, add the user
       if (!userData) {
         await set(userRef, {
@@ -78,11 +84,12 @@ function SignIn() {
           username: userName,
           role: userRole,
           isVerified: true,
-          accountBalance: 0
+          accountBalance: 0,
+          accountStatus: accountStatus,
         });
       } else {
-        userRole = userData.role || 'user';
-        const accountBalance = userData.accountBalance || 0
+        userRole = userData.role || "user";
+        const accountBalance = userData.accountBalance || 0;
         await set(userRef, {
           ...userData,
           email: userEmail,
@@ -90,73 +97,59 @@ function SignIn() {
           role: userRole,
           isVerified: true,
           accountBalance: accountBalance,
+          accountStatus: userData.accountStatus || accountStatus
         });
       }
-  
-      // If accountBalance is undefined, set it to 0
+
       if (userData && userData.accountBalance === undefined) {
         await update(userRef, {
-          accountBalance: 0
+          accountBalance: 0,
         });
       }
-  
-      // Redirect or handle post-login logic here
+
       switch (userRole) {
-        case 'user':
+        case "user":
           navigate("/");
           break;
-        case 'veterinarian':
+        case "veterinarian":
           navigate("/veterinarian");
           break;
-        case 'manager':
+        case "manager":
           navigate("/manager");
           break;
-        case 'admin':
+        case "admin":
           navigate("/admin");
           break;
         default:
           navigate("/");
       }
-      toast.success("Login successfully. Wish you enjoy our best experience",
-      {
-        onClose: () => {
-          setTimeout(() => {
-            navigate('/');
-          }, 1500); // 1500 ms delay to allow toast to be shown
-        }
-      }
-    );
+      toast.success("Login successfully. Wish you enjoy our best experience");
     } catch (error) {
       console.error("Error during Google sign-in:", error);
       toast.error("Failed to sign in with Google. Please try again.");
     }
   };
-  
-  
-  
 
   const onSubmit = async (e) => {
     e.preventDefault();
     if (password !== confirmPassword) {
       toast.error("Password not match, please try again!");
-      return; // Prevent form submission
+      return; 
     }
 
-    const username = email.split('@')[0];
+    const username = email.split("@")[0];
 
     const expression = /^[^@]+@\w+(\.\w+)+\w$/;
     if (!expression.test(email)) {
       toast.error("Email is invalid. Please enter a valid email address.");
-      return; // Prevent form submission
+      return; 
     }
 
     const signInMethods = await fetchSignInMethodsForEmail(auth, email);
     if (signInMethods.length > 0) {
-      setIsRegistering(false); // Allow user to edit registration info
-      toast.error(
-        "This email is used by another user, please try again!"
-      );
-      return; // Prevent form submission
+      setIsRegistering(false);
+      toast.error("This email is used by another user, please try again!");
+      return; 
     }
 
     if (!isRegistering) {
@@ -173,24 +166,18 @@ function SignIn() {
           displayName: username,
           role: "user",
           isVerified: false,
-          accountBalance: 0
-        }); 
+          accountBalance: 0,
+        });
         addDataBase(userId, email, username, "user");
-      await auth.signOut();
-        toast.success("Registration successful. Please check your email for verification then login to our system again.",
-        {
-          onClose: () => {
-            setTimeout(() => {
-              navigate('/signIn');
-            }, 1500); // 1500 ms delay to allow toast to be shown
-          }
-        }
-      );
+        await auth.signOut();
+        toast.success(
+          "Registration successful. Please check your email for verification then login to our system again."
+        );
+        navigate("/signIn");
       } catch (error) {
-        // Handle Firebase errors (e.g., weak password)
         toast.error("This email is used by another user, please try again!");
       } finally {
-        setIsRegistering(false); // Allow user to edit registration info
+        setIsRegistering(false); 
       }
     }
   };
@@ -209,103 +196,108 @@ function SignIn() {
   };
 
   const handleEmailLogin = async (event) => {
-    event.preventDefault(); // Ngăn hành vi mặc định của biểu mẫu
-    setError(null); // Xóa các lỗi trước đó
-  
+    event.preventDefault(); 
+    setError(null); 
+
     try {
-      const userCredential = await signInWithEmailAndPassword(auth, email, password);
+      const userCredential = await signInWithEmailAndPassword(
+        auth,
+        email,
+        password
+      );
       const user = userCredential.user;
       if (!user.emailVerified) {
         toast.error("Please verify your email before logging in.");
         auth.signOut();
-        navigate("/signIn")
+        navigate("/signIn");
         return;
       }
       const userEmail = user.email;
       setUserEmail(userEmail);
-      localStorage.setItem("email", userEmail); // Xem xét việc lưu trữ an toàn trong sản xuất
+      localStorage.setItem("email", userEmail); 
       const userId = user.uid;
       const db = getDatabase();
-      const userRef = ref(db, 'users/' + userId);
-      let userRole = 'user';
-  
-      // Kiểm tra và lấy dữ liệu người dùng từ Firebase
+      const userRef = ref(db, "users/" + userId);
+      let userRole = "user";
+
+      
+      let accountStatus = "enable";
+      
       const userDataSnapshot = await new Promise((resolve) => {
-        onValue(userRef, (snapshot) => {
-          resolve(snapshot);
-        }, { onlyOnce: true });
+        onValue(
+          userRef,
+          (snapshot) => {
+            resolve(snapshot);
+          },
+          { onlyOnce: true }
+        );
       });
-  
+
       const userData = userDataSnapshot.val();
-      console.log('User Data from Firebase:', userData);
-  
+
       if (!userData) {
         await set(userRef, {
           email: userEmail,
           username: user.displayName,
           role: userRole,
           isVerified: true,
-          accountBalance: 0 // Thiết lập accountBalance mặc định là 0 nếu người dùng không tồn tại
+          accountBalance: 0,
+          accountStatus: accountStatus,
         });
       } else {
-        userRole = userData.role || 'user';
-        // Chỉ cập nhật accountBalance nếu nó chưa tồn tại
+        userRole = userData.role || "user";
         if (userData.accountBalance === undefined) {
           await update(userRef, {
             accountBalance: 0,
-            status: userData.status
           });
         }
-        // Cập nhật các trường khác mà không làm thay đổi accountBalance
+        
         await update(userRef, {
           username: user.displayName,
           role: userRole,
-          isVerified: userData.isVerified
+          isVerified: userData.isVerified,
+          accountStatus: userData.accountStatus || accountStatus,
         });
       }
-  
+
       const petRef = ref(db, "users/" + userId + "/pets");
       const pets = await new Promise((resolve) => {
-        onValue(petRef, (snapshot) => {
-          const petData = snapshot.val();
-          resolve(petData ? Object.values(petData) : []);
-        }, { onlyOnce: true });
+        onValue(
+          petRef,
+          (snapshot) => {
+            const petData = snapshot.val();
+            resolve(petData ? Object.values(petData) : []);
+          },
+          { onlyOnce: true }
+        );
       });
-  
+
       // Lưu dữ liệu thú cưng vào state hoặc localStorage nếu cần
       localStorage.setItem("pets", JSON.stringify(pets));
-  
+
       switch (userRole) {
-        case 'user':
+        case "user":
           navigate("/");
           break;
-        case 'veterinarian':
+        case "veterinarian":
           navigate("/veterinarian");
           break;
-        case 'manager':
+        case "manager":
           navigate("/manager");
           break;
-        case 'admin':
+        case "admin":
           navigate("/admin");
           break;
         default:
           navigate("/");
       }
-      toast.success("Login successfully. Wish you enjoy our best experience",
-      {
-        onClose: () => {
-          setTimeout(() => {
-            navigate('/');
-          }, 1500); // 1500 ms delay to allow toast to be shown
-        }
-      }
-    );
+      toast.success("Login successfully. Wish you enjoy our best experience");
     } catch (error) {
-      toast.error("Something went wrong. Please check your email or password and try again!");
+      toast.error(
+        "Something went wrong. Please check your email or password and try again!"
+      );
     }
   };
-  
-  
 
   const handleClickButtonReg = async () => {
     const container = document.getElementById("container");
@@ -316,16 +308,15 @@ function SignIn() {
     container.classList.remove("active");
   };
 
-  
   useEffect(() => {
     const storedEmail = localStorage.getItem("email");
     setUserEmail(storedEmail);
-  }, []); // Empty dependency array ensures it runs only once
+  }, []); 
 
   useEffect(() => {
     const updateUserVerificationStatus = async (user) => {
       if (user && user.emailVerified) {
-        const userRef = ref(database, 'users/' + user.uid);
+        const userRef = ref(database, "users/" + user.uid);
         await update(userRef, { isVerified: true });
       }
     };
@@ -341,137 +332,141 @@ function SignIn() {
 
   return (
     <div>
-      {!userEmail && ( // Only show login options if not logged in
+      {!userEmail && ( 
         <>
-        <div style={{height: "100vh"}}>
-
-          <div className="container form" id="container">
-            <div className="form-container sign-up">
-              <form onSubmit={onSubmit}>
-                <h1>Create Account</h1>
-                <div className="social-icons">
-                  <button type="button" onClick={handleGoogleLogin}>Login with Google</button>
-                </div>
-                <span>or use your email for registeration</span>
-                <input
-                id="email"
-                type="email"
-                autoComplete="off"
-                required
-                value={email}
-                placeholder ="Input your email"
-                onChange={(e) => {
-                    setEmail(e.target.value);
-                  }}
-                  className="w-full mt-2 px-3 py-2 text-gray-500 bg-transparent outline-none border focus:indigo-600 shadow-sm rounded-lg transition duration-300"
-                  />
-                <input
-                id="password"
-                disabled={isRegistering}
-                placeholder ="Input your password"
-                type="password"
-                autoComplete="off"
-                required
-                value={password}
-                onChange={(e) => {
-                  setPassword(e.target.value);
-                }}
-                className="w-full mt-2 px-3 py-2 text-gray-500 bg-transparent outline-none border focus:border-indigo-600 shadow-sm rounded-lg transition duration-300"
-                />
-                <div>
-                  <label className="text-sm text-gray-600 font-bold">
-                    Confirm Password
-                  </label>
+          <div style={{ height: "100vh" }}>
+            <div className="container form" id="container">
+              <div className="form-container sign-up">
+                <form onSubmit={onSubmit}>
+                  <h1>Create Account</h1>
+                  <div className="social-icons">
+                    <button type="button" onClick={handleGoogleLogin}>
+                      Login with Google
+                    </button>
+                  </div>
+                  <span>or use your email for registeration</span>
                   <input
-                    disabled={isRegistering}
-                    type="password"
-                    placeholder ="Confirm your password"
+                    id="email"
+                    type="email"
                     autoComplete="off"
                     required
-                    value={confirmPassword}
+                    value={email}
+                    placeholder="Input your email"
                     onChange={(e) => {
-                      setconfirmPassword(e.target.value);
+                      setEmail(e.target.value);
+                    }}
+                    className="w-full mt-2 px-3 py-2 text-gray-500 bg-transparent outline-none border focus:indigo-600 shadow-sm rounded-lg transition duration-300"
+                  />
+                  <input
+                    id="password"
+                    disabled={isRegistering}
+                    placeholder="Input your password"
+                    type="password"
+                    autoComplete="off"
+                    required
+                    value={password}
+                    onChange={(e) => {
+                      setPassword(e.target.value);
                     }}
                     className="w-full mt-2 px-3 py-2 text-gray-500 bg-transparent outline-none border focus:border-indigo-600 shadow-sm rounded-lg transition duration-300"
+                  />
+                  <div>
+                    <label className="text-sm text-gray-600 font-bold">
+                      Confirm Password
+                    </label>
+                    <input
+                      disabled={isRegistering}
+                      type="password"
+                      placeholder="Confirm your password"
+                      autoComplete="off"
+                      required
+                      value={confirmPassword}
+                      onChange={(e) => {
+                        setconfirmPassword(e.target.value);
+                      }}
+                      className="w-full mt-2 px-3 py-2 text-gray-500 bg-transparent outline-none border focus:border-indigo-600 shadow-sm rounded-lg transition duration-300"
                     />
-                </div>
-                <button
-                  type="submit"
-                  disabled={isRegistering}
-                  className={`w-full px-4 py-2 text-white font-medium rounded-lg ${
-                    isRegistering
-                    ? "bg-gray-300 cursor-not-allowed"
-                    : "bg-indigo-600 hover:bg-indigo-700 hover:shadow-xl transition duration-300"
-                  }`}
+                  </div>
+                  <button
+                    type="submit"
+                    disabled={isRegistering}
+                    className={`w-full px-4 py-2 text-white font-medium rounded-lg ${
+                      isRegistering
+                        ? "bg-gray-300 cursor-not-allowed"
+                        : "bg-indigo-600 hover:bg-indigo-700 hover:shadow-xl transition duration-300"
+                    }`}
                   >
-                  {isRegistering ? "Signing Up..." : "Sign Up"}
-                </button>
-              </form>
-            </div>
-            <div class="form-container sign-in">
-              <form onSubmit={handleEmailLogin}>
-                <h1>Sign In</h1>
-                <div className="social-icons">
-                  <button type="button" onClick={handleGoogleLogin}>Login with Google</button>
-                </div>
-                <span>or use your email password</span>
-                <input
-                  type="email"
-                  id="email"
-                  name="email"
-                  placeholder ="Input your email"
-                  value={email}
-                  onChange={handleChange}
-                  required
-                  />
-                <input
-                  type="password"
-                  placeholder ="Input your password"
-                  
-                  id="password"
-                  name="password"
-                  value={password}
-                  onChange={handleChange}
-                  required
-                  />
-                <a href="/reset">Forget Your Password?</a>
-                <button>Sign In</button>
-              </form>
-            </div>
-            <div className="toggle-container">
-              <div className="toggle">
-                <div className="toggle-panel toggle-left">
-                  <h1>Welcome Back!</h1>
-                  <p>Enter your personal details to use all of site features</p>
-                  <button
-                    className="hidden"
-                    id="login"
-                    onClick={handleClickButtonLog}
-                    >
-                    Sign In
+                    {isRegistering ? "Signing Up..." : "Sign Up"}
                   </button>
-                </div>
-                <div className="toggle-panel toggle-right">
-                  <h1>Hello, Friend!</h1>
-                  <p>
-                    Register with your personal details to use all of site
-                    features
-                  </p>
-                  <button
-                    className="hidden"
-                    id="register"
-                    onClick={handleClickButtonReg}
+                </form>
+              </div>
+              <div class="form-container sign-in">
+                <form onSubmit={handleEmailLogin}>
+                  <h1>Sign In</h1>
+                  <div className="social-icons">
+                    <button type="button" onClick={handleGoogleLogin}>
+                      Login with Google
+                    </button>
+                  </div>
+                  <span>or use your email password</span>
+                  <input
+                    type="email"
+                    id="email"
+                    name="email"
+                    placeholder="Input your email"
+                    value={email}
+                    onChange={handleChange}
+                    required
+                  />
+                  <input
+                    type="password"
+                    placeholder="Input your password"
+                    id="password"
+                    name="password"
+                    value={password}
+                    onChange={handleChange}
+                    required
+                  />
+                  <a href="/reset">Forget Your Password?</a>
+                  <button>Sign In</button>
+                </form>
+              </div>
+              <div className="toggle-container">
+                <div className="toggle">
+                  <div className="toggle-panel toggle-left">
+                    <h1>Welcome Back!</h1>
+                    <p>
+                      Enter your personal details to use all of site features
+                    </p>
+                    <button
+                      className="hidden"
+                      id="login"
+                      onClick={handleClickButtonLog}
                     >
-                    Sign Up
-                  </button>
+                      Sign In
+                    </button>
+                  </div>
+                  <div className="toggle-panel toggle-right">
+                    <h1>Hello, Friend!</h1>
+                    <p>
+                      Register with your personal details to use all of site
+                      features
+                    </p>
+                    <button
+                      className="hidden"
+                      id="register"
+                      onClick={handleClickButtonReg}
+                    >
+                      Sign Up
+                    </button>
+                  </div>
                 </div>
               </div>
             </div>
           </div>
-      </div>
         </>
       )}
-      {userEmail && <Home />} {/* Render Home if user is logged in */}
+      {userEmail && <Home />} 
     </div>
   );
 }

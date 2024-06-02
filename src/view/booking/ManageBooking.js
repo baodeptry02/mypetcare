@@ -3,9 +3,9 @@ import { getDatabase, ref, onValue, update, get } from "firebase/database";
 import { auth } from "../../Components/firebase/firebase";
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
-import { useNavigate } from "react-router-dom"; // Import useNavigate for navigation
+import { useNavigate } from "react-router-dom"; 
 import { Pagination, PaginationItem } from "@mui/material";
-import { makeStyles } from "@mui/styles"; // Import makeStyles
+import { makeStyles } from "@mui/styles"; 
 
 const useStyles = makeStyles({
   pagination: {
@@ -40,7 +40,7 @@ const ManageBookings = () => {
   const [showPaid, setShowPaid] = useState(true);
   const [currentPage, setCurrentPage] = useState(1);
   const [bookingsPerPage] = useState(10);
-  const navigate = useNavigate(); // Initialize navigate
+  const navigate = useNavigate();
   const classes = useStyles();
 
   useEffect(() => {

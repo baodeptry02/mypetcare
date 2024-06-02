@@ -107,7 +107,7 @@ const Book = () => {
       totalPaid: totalPaid,
       amountToPay: amountToPay,
       paid: paid,
-      petId: petId // Include pet ID
+      petId: petId 
     },
       function (error) {
         if (error) {
@@ -153,7 +153,7 @@ const Book = () => {
     }
 
     const now = new Date();
-    const month = String(now.getMonth() + 1).padStart(2, "0"); // Months are 0-indexed in JavaScript
+    const month = String(now.getMonth() + 1).padStart(2, "0");
     const day = String(now.getDate()).padStart(2, "0");
     const hours = String(now.getHours()).padStart(2, "0");
     const minutes = String(now.getMinutes()).padStart(2, "0");
@@ -163,7 +163,6 @@ const Book = () => {
     const totalPaid = calculateTotalPaid();
 
     if (accountBalance >= totalPaid) {
-      // If accountBalance is sufficient to cover the total cost, update the balance and add booking
       const newBalance = accountBalance - totalPaid;
       const db = getDatabase();
       const userRef = ref(db, "users/" + userId);
@@ -173,7 +172,7 @@ const Book = () => {
       addBookingToDatabase(
         bookingId,
         name,
-        pet ,// Pass pet ID
+        pet ,
         phone,
         date,
         time,
@@ -194,10 +193,8 @@ const Book = () => {
         }
       );
     } else {
-      // If accountBalance is not sufficient, calculate remaining amount to pay and navigate to QR page for payment
       const amountToPay = (totalPaid - accountBalance) * 1000;
       const qrUrl = `https://img.vietqr.io/image/MB-0000418530364-print.png?amount=${amountToPay}&addInfo=thanhtoan%20${bookingId}&accountName=Nguyen%20Cong%20Duy%20Bao`;
-      console.log(qrUrl); // Log the QR URL to check it
       setTotalPaid(totalPaid);
       addBookingToDatabase(
         bookingId,

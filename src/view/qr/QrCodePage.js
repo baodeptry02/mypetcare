@@ -25,12 +25,12 @@
       border-color: red;
     `;
 
-    const mockFetchTransactions = async () => {
-      return {
-        descriptions: ["thanhtoan BK1243463456","thanhtoan BK12315234","thanhtoan BK12315234","thanhtoan BK12315234", "thanhtoan " + bookingId, "thanhtoan BK12315234", "thanhtoan BK12315234"],
-        amounts: [0, 1000, 100, 100, 200000, 500, 50000, 120000] 
-      };
-    };
+    // const mockFetchTransactions = async () => {
+    //   return {
+    //     descriptions: ["thanhtoan BK1243463456","thanhtoan BK12315234","thanhtoan BK12315234","thanhtoan BK12315234", "thanhtoan " + bookingId, "thanhtoan BK12315234", "thanhtoan BK12315234"],
+    //     amounts: [0, 1000, 100, 100, 200000, 500, 50000, 120000] 
+    //   };
+    // };
 
     useEffect(() => {
       const fetchUserData = async () => {
@@ -71,7 +71,7 @@
 
       const intervalId = setInterval(async () => {
         try {
-          const { descriptions, amounts } = await mockFetchTransactions();
+          const { descriptions, amounts } = await fetchTransactions();
           const contentTransfer = `thanhtoan ${bookingId}`;
 
           const paymentIndex = descriptions.findIndex((description) =>

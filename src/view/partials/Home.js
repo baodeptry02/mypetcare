@@ -30,7 +30,9 @@ function Home() {
       navigate("/book");
     } else {
       navigate("/signIn");
-      toast.error("Please log in first to continue your booking!");
+      toast.error("Please log in first to continue your booking!", {
+        autoClose: 1500
+      });
     }
   };
 
@@ -96,7 +98,7 @@ function Home() {
           </div>
           <div className="home-img">
             <img
-              src="https://scontent.fsgn2-6.fna.fbcdn.net/v/t39.30808-6/440942530_423620990437817_5689570377664203254_n.jpg?_nc_cat=110&ccb=1-7&_nc_sid=5f2048&_nc_ohc=BFrjCE_IQ8AQ7kNvgHNUkAr&_nc_ht=scontent.fsgn2-6.fna&oh=00_AYAE-6ge9dx5ooH4pzNnSfurgsz5i8tv1ymwOloTS8-CyQ&oe=66576FD2"
+              src="https://scontent.fsgn5-10.fna.fbcdn.net/v/t39.30808-6/440942530_423620990437817_5689570377664203254_n.jpg?_nc_cat=110&ccb=1-7&_nc_sid=5f2048&_nc_eui2=AeGH7MPTf2dzUW3ThUsw3HmXDDoRkmzJd3IMOhGSbMl3cpvAmH2puahNUM-H3cX522nwwjSb-77rqIf3YpNqmHfJ&_nc_ohc=6WVepax_CA0Q7kNvgFWnwC1&_nc_ht=scontent.fsgn5-10.fna&oh=00_AYCwGVs2X07aO_fS63fjsv5hhr3pudVOvrtePHF2_kb__A&oe=6661C392"
             />
           </div>
         </section>
@@ -128,22 +130,6 @@ function Home() {
           <input type="submit" value="Send Message" className="btn" />
         </form>
       </section>
-      {/* footer design */}
-      {/* <footer className="footer">
-        <div className="footer-text">
-          <p>Copyright &copy; 2024 by NJS1804 - Team3 | All Rights Reserved.</p>
-        </div>
-        <div className="footer-iconTop" style={{fontSize: "2rem"}}>
-          <ScrollLink 
-            to="home" 
-            smooth={true} 
-            duration={500}
-            style={{padding: "1rem 1.2rem", borderRadius: "50%", display: "inline-flex", justifyContent: "center", alignItems: "center", color: "#fff", cursor: "pointer"}}
-          >
-            <FontAwesomeIcon icon={faArrowUp} />
-          </ScrollLink>
-        </div>
-      </footer> */}
     </div>
   );
 }
