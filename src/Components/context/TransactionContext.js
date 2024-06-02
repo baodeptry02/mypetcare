@@ -9,10 +9,10 @@ export const TransactionProvider = ({ children }) => {
 
   const fetchTransactions = async () => {
     try {
-      const response = await fetch('https://oauth.casso.vn/v2/transactions?pageSize=100', {
+      const response = await fetch(process.env.REACT_APP_CASSO_API_URL, {
         method: 'GET',
         headers: {
-          'Authorization': 'Apikey AK_CS.39242b10173211ef9e7e3bff706c3b3e.KHq0K9EzQdvg7X1sGXxowVyMA2sFU6FQfp0b6r3Fsgr5FLLDEx2qq2NJXOcAkrzXtCEgKeTs',
+          'Authorization': `Apikey ${process.env.REACT_APP_CASSO_API_KEY}`,
         },
       });
   
