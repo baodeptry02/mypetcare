@@ -14,7 +14,7 @@ function Update() {
   const [userId, setUserId] = useState("");
   const [fullname, setFullname] = useState("");
   const [loading, setLoading] = useState(true);
-  const [userUpdated, setUserUpdated] = useState(false); // State để theo dõi cập nhật của người dùng
+  const [userUpdated, setUserUpdated] = useState(false); 
   const navigate = useNavigate();
   const user = auth.currentUser;
 
