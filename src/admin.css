@@ -11,7 +11,7 @@ body,
 }
 
 .content {
-    /* background-color: #222121; */
+    background-color: #222121;
 }
 
 .app {
@@ -169,19 +169,24 @@ p.css-1dl7p6k-MuiTypography-root {
     font-size: 2rem;
 }
 
-button.css-bg5st4-MuiButtonBase-root-MuiButton-root{
+button.css-bg5st4-MuiButtonBase-root-MuiButton-root {
     font-size: 1.5rem;
     background-color: green;
 }
-div.css-v3zyv7-MuiSelect-select-MuiInputBase-input-MuiOutlinedInput-input.css-v3zyv7-MuiSelect-select-MuiInputBase-input-MuiOutlinedInput-input.css-v3zyv7-MuiSelect-select-MuiInputBase-input-MuiOutlinedInput-input{
+
+div.css-v3zyv7-MuiSelect-select-MuiInputBase-input-MuiOutlinedInput-input.css-v3zyv7-MuiSelect-select-MuiInputBase-input-MuiOutlinedInput-input.css-v3zyv7-MuiSelect-select-MuiInputBase-input-MuiOutlinedInput-input {
     padding-right: 140px;
+    font-size: 1.5rem;
     /* margin: 0 50px;
     display: flex; */
 }
-.css-de9k3v-MuiDataGrid-selectedRowCount{
+
+/* .css-de9k3v-MuiDataGrid-selectedRowCount {
+    font-size: 1.5rem;
+} */
+.css-6hp17o-MuiList-root-MuiMenu-list li{
     font-size: 1.5rem;
 }
-
 /* scrollbar*/
 .MuiDataGrid-scrollbar.MuiDataGrid-scrollbar--vertical.css-1b9e9gy {
     position: absolute;
@@ -195,3 +200,4 @@ div.css-v3zyv7-MuiSelect-select-MuiInputBase-input-MuiOutlinedInput-input.css-v3
     top: var(--DataGrid-topContainerHeight);
     right: 0;
 }
+

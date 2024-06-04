@@ -61,7 +61,7 @@ function MainContent() {
       {!loading && (
         <>
           <Header user={user} currentPath={currentPath} />
-          <div className="content">
+          <div className="main-content">
             <Routes>
               <Route path="/signIn" element={<SignIn />} />
               <Route path="/" element={<Home />} />

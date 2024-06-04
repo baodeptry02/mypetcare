@@ -9,7 +9,7 @@ import { css } from "@emotion/react";
 import { ScaleLoader } from "react-spinners";
 import { Pagination, PaginationItem } from "@mui/material";
 import { makeStyles } from "@mui/styles"; // Import makeStyles
-import useViewport from './useViewport';
+import useViewport from "./useViewport";
 
 const useStyles = makeStyles({
   pagination: {
@@ -52,7 +52,7 @@ const Pet = () => {
     if (width >= 1785) {
       setPetsPerPage(8);
     } else if (width >= 991 && width < 1600) {
-      setPetsPerPage(6);
+      setPetsPerPage(5);
     } else {
       setPetsPerPage(4); // Default value for smaller screens
     }
@@ -85,14 +85,17 @@ const Pet = () => {
         const unsubscribePets = onValue(petRef, (snapshot) => {
           const pets = snapshot.val();
           if (pets) {
-            const petList = Object.entries(pets).map(([key, value]) => ({ ...value, key }));
+            const petList = Object.entries(pets).map(([key, value]) => ({
+              ...value,
+              key,
+            }));
             setPets(petList);
             setPetCount(petList.length);
-            setLoading(false); 
+            setLoading(false);
           } else {
             setPets([]);
             setPetCount(0);
-            setLoading(false); 
+            setLoading(false);
           }
         });
         return () => unsubscribePets();
@@ -100,7 +103,7 @@ const Pet = () => {
         setUser(null);
         setPets([]);
         setPetCount(0);
-        setLoading(false); 
+        setLoading(false);
       }
     });
     return () => unsubscribe();
@@ -108,7 +111,7 @@ const Pet = () => {
 
   useEffect(() => {
     const applyStyles = () => {
-      document.querySelectorAll('.MuiPaginationItem-root').forEach(item => {
+      document.querySelectorAll(".MuiPaginationItem-root").forEach((item) => {
         item.classList.add(classes.paginationItem);
       });
     };
@@ -116,8 +119,8 @@ const Pet = () => {
   }, [currentPage, classes]);
 
   const addPet = () => {
-      navigate("/pet/add");
-  }
+    navigate("/pet/add");
+  };
   if (loading) {
     return <Loading />;
   }
@@ -127,68 +130,77 @@ const Pet = () => {
   const currentPets = pets.slice(indexOfFirstPet, indexOfLastPet);
 
   const pageNumbers = Math.ceil(petCount / petsPerPage);
-  
+
   const handlePaginationChange = (event, value) => {
     setCurrentPage(value);
   };
-  
+
   return (
-    <div style={{height: "100%"}}>
-    <div className="parent-container">
-      <div className="pet-manage">
-        {user ? (
-          petCount === 0 ? (
-            <div className="empty-pet container">
-              <div className="empty-pet-img">
-                <img src="./Remove-bg.ai_1716049467772.png" alt="No pets" />
-              </div>
-              <div className="empty-pet-title">
-                <h1>
-                  Look like you <span>DON'T HAVE</span> any pet in our system.
-                </h1>
-                <h3>Must add your boss before you proceed to booking</h3>
-                <div onClick={addPet} className="btn">
-                  <FontAwesomeIcon icon={faPaw} /> Add boss!
+    <div style={{ height: "100%" }}>
+      <div className="parent-container">
+        <div className="pet-manage">
+          {user ? (
+            petCount === 0 ? (
+              <div className="empty-pet container">
+                <div className="empty-pet-img">
+                  <img src="./Remove-bg.ai_1716049467772.png" alt="No pets" />
+                </div>
+                <div className="empty-pet-title">
+                  <h1>
+                    Look like you <span>DON'T HAVE</span> any pet in our system.
+                  </h1>
+                  <h3>Must add your boss before you proceed to booking</h3>
+                  <div onClick={addPet} className="btn">
+                    <FontAwesomeIcon icon={faPaw} /> Add boss!
+                  </div>
                 </div>
               </div>
-            </div>
-          ) : (
-            <div className="pet-list">
-              <h1>Your Pets</h1>
-              <div className="add-pet-button">
-                <div onClick={addPet} className="btn">
-                  <FontAwesomeIcon icon={faPaw} /> Add boss!
+            ) : (
+              <div className="pet-list">
+                <h1>Your Pets</h1>
+                <div className="add-pet-button">
+                  <div onClick={addPet} className="btn">
+                    <FontAwesomeIcon icon={faPaw} /> Add boss!
+                  </div>
                 </div>
-              </div>
-              <p>Current number of pets: {petCount}</p>
-              <div className="grid-container">
-                {currentPets.map((pet, index) => (
-                  <div key={index} className="pet-card"                           onClick={() =>
-                    navigate(`/pet-details/${pet.key}`)
-                  }>
-                    <div className="pet-card-image">
-                      {pet.imageUrls && pet.imageUrls.length > 0 ? (
-                        <img
-                        src={pet.imageUrls[0]}
-                        alt={`${pet.name}'s image`}
-                        />
-                      ) : (
-                        "No image"
-                      )}
-                    </div>
-                    <div className="pet-card-content">
-                      <div className="pet-card-header">
-                        <span className="pet-name">{pet.name}</span>
-                        <span className="pet-color">{pet.style}</span>
+                <p>Current number of pets: {petCount}</p>
+                <div className="grid-container">
+                  {currentPets.map((pet, index) => (
+                    <div
+                      key={index}
+                      className="pet-card"
+                      onClick={() => navigate(`/pet-details/${pet.key}`)}
+                    >
+                      <div className="pet-card-image">
+                        {pet.imageUrls && pet.imageUrls.length > 0 ? (
+                          <img
+                            src={pet.imageUrls[0]}
+                            alt={`${pet.name}'s image`}
+                          />
+                        ) : (
+                          "No image"
+                        )}
+                      </div>
+                      <div className="pet-card-content">
+                        <div className="pet-card-header">
+                          <span className="pet-name">{pet.name}</span>
+                          <span className="pet-color">{pet.style}</span>
+                        </div>
                       </div>
                     </div>
-                  </div>
-                ))}
-              </div>
-              <div style={{ textAlign: 'center', marginBottom: '1rem', marginTop: "2rem", fontSize: "3rem" }}>
-              Page {currentPage} of {Math.ceil(petCount / petsPerPage)}
-              </div>
-              {pageNumbers > 1 && (
+                  ))}
+                </div>
+                <div
+                  style={{
+                    textAlign: "center",
+                    marginBottom: "1rem",
+                    marginTop: "2rem",
+                    fontSize: "3rem",
+                  }}
+                >
+                  Page {currentPage} of {Math.ceil(petCount / petsPerPage)}
+                </div>
+                {pageNumbers > 1 && (
                   <Pagination
                     className={classes.pagination}
                     count={pageNumbers}
@@ -200,14 +212,14 @@ const Pet = () => {
                     siblingCount={1}
                   />
                 )}
-            </div>
-          )
-        ) : (
-          <h1>Please log in to manage your pets.</h1>
-        )}
+              </div>
+            )
+          ) : (
+            <h1>Please log in to manage your pets.</h1>
+          )}
+        </div>
       </div>
     </div>
-        </div>
   );
 };
 

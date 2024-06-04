@@ -155,16 +155,54 @@ function Team() {
     setLoading(false);
   };
 
+  const handleSearch = (event) => {
+    setSearchQuery(event.target.value.toLowerCase());
+  };
+
+  const filteredRows = rows.filter(
+    (row) => row.email && row.email.toLowerCase().includes(searchQuery)
+  );
+
+  const handleEnable = async (event, id) => {
+    event.preventDefault();
+    setLoading(true);
+
+    try {
+      // Update user status in the database
+      await update(ref(getDatabase(), `users/${id}`), {
+        accountStatus: "enable",
+      });
+
+      // Update row in state
+      setRows(
+        rows.map((item) =>
+          item.id === id ? { ...item, accountStatus: "enable" } : item
+        )
+      );
+      toast.success("User enabled successfully!");
+    } catch (error) {
+      toast.error("Error enabling user.");
+    }
+
+    setLoading(false);
+  };
+
   const handleDisable = async (event, id) => {
     event.preventDefault();
     setLoading(true);
 
     try {
       // Update user status in the database
-      await update(ref(getDatabase(), `users/${id}`), { status: "disabled" });
+      await update(ref(getDatabase(), `users/${id}`), {
+        accountStatus: "disabled",
+      });
 
       // Update row in state
-      setRows(rows.map((item) => (item.id === id ? { ...item, status: "disabled" } : item)));
+      setRows(
+        rows.map((item) =>
+          item.id === id ? { ...item, accountStatus: "disabled" } : item
+        )
+      );
       toast.success("User disabled successfully!");
     } catch (error) {
       toast.error("Error disabling user.");
@@ -173,31 +211,23 @@ function Team() {
     setLoading(false);
   };
 
-  const handleSearch = (event) => {
-    setSearchQuery(event.target.value.toLowerCase());
-  };
-
   const handlePageChange = (event, page) => {
     setCurrentPage(page);
   };
-
-  const filteredRows = rows.filter((row) =>
-    row.email && row.email.toLowerCase().includes(searchQuery)
-  );
 
   const displayedRows = filteredRows.slice(
     (currentPage - 1) * rowsPerPage,
     currentPage * rowsPerPage
   );
-
   const columns = [
     { field: "id", headerName: "ID", width: 150, editable: false },
-    { field: "username", headerName: "Username", flex: 1, editable: true },
+    { field: "username", headerName: "Username", flex: 0.6, editable: true },
+    { field: "phone", headerName: "Phone Number", flex: 0.8, editable: true },
     { field: "email", headerName: "Email", flex: 1, editable: true },
     {
       field: "accountBalance",
       headerName: "Balance",
-      flex: 0.8,
+      flex: 0.6,
       editable: true,
     },
     {
@@ -233,19 +263,34 @@ function Team() {
       renderEditCell: (params) => <RoleEditCell {...params} />,
     },
     {
-      field: "status",
-      headerName: "Status",
-      flex: 0.5,
+      field: "accountStatus",
+      headerName: "Account Status",
+      flex: 0.7,
       renderCell: ({ value }) => (
-        <Typography color={value === "disabled" ? "red" : "green"}>
-          {value}
-        </Typography>
+        <div
+          style={{
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+            height: "100%", // Ensure the cell takes up the full height
+          }}
+        >
+          <Typography
+            color={value === "disabled" ? "red" : "green"}
+            sx={{
+              fontSize: "1.8rem", // Adjust font size as needed
+              textAlign: "center", // Center align text
+            }}
+          >
+            {value}
+          </Typography>
+        </div>
       ),
     },
     {
-      field: "action",
-      headerName: "Action",
-      width: 200,
+      field: "update",
+      headerName: "Update",
+      flex: .5,
       renderCell: (params) => (
         <div className="admin-update-button">
           <Button
@@ -256,11 +301,28 @@ function Team() {
           >
             Update
           </Button>
+          
+        </div>
+      ),
+    },{
+      field: "action",
+      headerName: "Action",
+      flex: 1,
+      renderCell: (params) => (
+        <div className="admin-update-button">
           <Button
             variant="contained"
             size="small"
-            color="secondary"
+            onClick={(event) => handleEnable(event, params.row.id)}
+            style={{ marginRight: "10px" }}
+          >
+            Enable
+          </Button>
+          <Button
+            variant="contained"
+            size="small"
             onClick={(event) => handleDisable(event, params.row.id)}
+            style={{ marginRight: "10px" }}
           >
             Disable
           </Button>
@@ -289,7 +351,7 @@ function Team() {
       </Box>
       <Box
         m="40px 0 0 0"
-        height="60vh"
+        height="70vh"
         sx={{
           "& .MuiDataGrid-root": {
             border: "none",
@@ -308,20 +370,30 @@ function Team() {
             backgroundColor: colors.primary[400],
           },
           "& .MuiDataGrid-footerContainer": {
-            borderTop: "none",
-            backgroundColor: colors.blueAccent[700],
+            display: "none",
           },
           "& .MuiCheckbox-root": {
             color: `${colors.greenAccent[200]} !important`,
           },
         }}
       >
-        <DataGrid
-          checkboxSelection
-          rows={displayedRows} // Use the displayed rows
-          columns={columns}
-          pagination={false} // Disable built-in pagination
-        />
+        <DataGrid rows={displayedRows} columns={columns} pagination={false} />
+      </Box>
+      <Box
+        mt="20px"
+        display="flex"
+        justifyContent="center"
+        sx={{
+          "& .MuiPagination-root": {
+            backgroundColor: colors.primary[400],
+            borderRadius: "4px",
+            padding: "10px",
+          },
+          "& .MuiPaginationItem-root": {
+            fontSize: "1.2rem",
+          },
+        }}
+      >
         <Pagination
           count={Math.ceil(filteredRows.length / rowsPerPage)}
           page={currentPage}

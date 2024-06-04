@@ -1,5 +1,3 @@
-// Header.js
-
 import React, { useState, useEffect, useRef } from "react";
 import { auth } from "../../Components/firebase/firebase";
 import { useLocation, useNavigate } from "react-router-dom";
@@ -16,8 +14,9 @@ function Header({ user, currentPath }) {
   const [username, setUsername] = useState("");
   const [fullname, setFullname] = useState("");
   const [isVerified, setIsVerified] = useState(false);
-  const [headerVisible, setHeaderVisible] = useState(false);
+  const [headerVisible, setHeaderVisible] = useState(true);
   const location = useLocation();
+  const [role, setRole] = useState("");
   const [isNewUser, setIsNewUser] = useState(false);
 
   const toggleDropdown = () => {
@@ -28,6 +27,7 @@ function Header({ user, currentPath }) {
     auth.signOut().then(() => {
       localStorage.clear();
       navigate("/");
+      window.location.hash = "#home"; // Update hash to home
       toggleDropdown();
     });
   };
@@ -77,6 +77,12 @@ function Header({ user, currentPath }) {
 
       onValue(userRef, (snapshot) => {
         const data = snapshot.val();
+        if (data && data.role) {
+          setRole(data.role);
+        } else {
+          setRole("user"); // Default to 'user' if role is null or undefined
+        }
+
         if (data) {
           setUsername(data.username);
           setFullname(data.fullname);
@@ -84,32 +90,14 @@ function Header({ user, currentPath }) {
           setHeaderVisible(true);
         }
       });
+    } else {
+      setHeaderVisible(true); // Ensure header is visible even if user is not logged in
     }
   }, [user]);
 
-  // useEffect(() => {
-  //   if (user) {
-  //     console.log("User metadata:", user.metadata);
-  //     console.log("Account creation time:", user.metadata.creationTime);
-      
-  //     // Convert creationTime to Date object
-  //     const creationTime = new Date(user.metadata.creationTime);
-  //     const targetDate = new Date("2024-05-25T00:00:00Z");
-
-  //     // Check if the user is new
-  //     if (creationTime >= targetDate) {
-  //       setIsNewUser(true);
-  //       console.log("This user is a new user.");
-  //     } else {
-  //       setIsNewUser(false);
-  //       console.log("This user is not a new user.");
-  //     }
-  //   }
-  // }, [user]);
-
   const homePage = () => {
     if (dropdownOpen) {
-      setDropdownOpen(false); 
+      setDropdownOpen(false); // Close dropdown if open
     }
     navigate("/");
   };
@@ -117,6 +105,7 @@ function Header({ user, currentPath }) {
   const updateAccount = async () => {
     toggleDropdown();
     try {
+      // Update displayName in Firebase
       await updateProfile(auth.currentUser, {
         displayName: user.displayName,
       });
@@ -130,6 +119,7 @@ function Header({ user, currentPath }) {
     toggleDropdown();
     navigate("/pet");
   };
+
   const booking = () => {
     toggleDropdown();
     navigate("/manage-booking");
@@ -140,25 +130,33 @@ function Header({ user, currentPath }) {
   };
 
   const aboutPage = () => {
-    navigate("/#about");
+    window.location.hash = "#about";
   };
 
   const servicesPage = () => {
-    navigate("/#services");
+    window.location.hash = "#services";
   };
 
   const contactPage = () => {
-    navigate("/#contact");
+    window.location.hash = "#contact";
   };
 
-  const shouldShowHeader = !location.pathname.startsWith("/admin") && location.pathname !== "/manager" && location.pathname !== "/veterinary";
+  const adminDashboard = () => {
+    toggleDropdown();
+    navigate("/admin/dashboard");
+  };
+
+  const shouldShowHeader =
+    !location.pathname.startsWith("/admin") &&
+    location.pathname !== "/manager" &&
+    location.pathname !== "/veterinary";
 
   if (!shouldShowHeader) {
-    return null;
+    return null; // Don't render the header if it's a login or admin page
   }
 
   return (
-    <header className={`header ${headerVisible ? '' : 'hidden'}`}>
+    <header className={`header ${headerVisible ? "" : "hidden"}`}>
       <a href="#home" onClick={homePage} className="logo">
         <FontAwesomeIcon icon={faPaw} /> Pet Center
       </a>
@@ -192,22 +190,23 @@ function Header({ user, currentPath }) {
         >
           Contact
         </a>
-        {shouldShowHeader && (
-          user && isVerified ? (
-            <div className="dropdown" ref={dropdownRef}>
-              <span onClick={toggleDropdown} className="username">
-                {fullname || user.displayName || username}
-              </span>
-              <div className={`dropdown-content ${dropdownOpen ? "show" : ""}`}>
-                <div onClick={updateAccount}>Account</div>
-                <div onClick={pet}>Pet</div>
-                <div onClick={booking}>Booking</div>
-                <div onClick={logout}>Logout</div>
-              </div>
+        {user && isVerified ? (
+          <div className="dropdown" ref={dropdownRef}>
+            <span onClick={toggleDropdown} className="username">
+              {fullname || user.displayName || username}
+            </span>
+            <div className={`dropdown-content ${dropdownOpen ? "show" : ""}`}>
+              <div onClick={updateAccount}>Account</div>
+              <div onClick={pet}>Pet</div>
+              <div onClick={booking}>Booking</div>
+              {role === "admin" && (
+                <div onClick={adminDashboard}>Admin Dashboard</div>
+              )}
+              <div onClick={logout}>Logout</div>
             </div>
-          ) : (
-            <button onClick={login}>Login</button>
-          )
+            </div>
+        ) : (
+          <button onClick={login}>Login</button>
         )}
       </nav>
     </header>
