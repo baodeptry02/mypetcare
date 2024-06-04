@@ -50,9 +50,9 @@ const Pet = () => {
 
   useEffect(() => {
     if (width >= 1785) {
-      setPetsPerPage(8);
+      setPetsPerPage(12);
     } else if (width >= 991 && width < 1600) {
-      setPetsPerPage(5);
+      setPetsPerPage(10);
     } else {
       setPetsPerPage(4); // Default value for smaller screens
     }
@@ -136,7 +136,7 @@ const Pet = () => {
   };
 
   return (
-    <div style={{ height: "100%" }}>
+    <div className="pet-page" style={{ height: "100%" }}>
       <div className="parent-container">
         <div className="pet-manage">
           {user ? (

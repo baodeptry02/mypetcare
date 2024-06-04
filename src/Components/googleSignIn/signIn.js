@@ -118,7 +118,7 @@ function SignIn() {
           navigate("/manager");
           break;
         case "admin":
-          navigate("/admin");
+          navigate("/admin/dashboard");
           break;
         default:
           navigate("/");
@@ -286,7 +286,7 @@ function SignIn() {
           navigate("/manager");
           break;
         case "admin":
-          navigate("/admin");
+          navigate("/admin/dashboard");
           break;
         default:
           navigate("/");
@@ -334,7 +334,7 @@ function SignIn() {
     <div>
       {!userEmail && ( 
         <>
-          <div style={{ height: "100vh" }}>
+          <div className="signIn" style={{ height: "100vh" }}>
             <div className="container form" id="container">
               <div className="form-container sign-up">
                 <form onSubmit={onSubmit}>

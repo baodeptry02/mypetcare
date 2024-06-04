@@ -43,8 +43,8 @@ function Header({ user, currentPath }) {
         const sectionId = section.getAttribute("id");
 
         if (
-          scrollPosition >= sectionTop - sectionHeight / 3 &&
-          scrollPosition < sectionTop + sectionHeight - sectionHeight / 3
+          scrollPosition >= sectionTop - window.innerHeight / 3 &&
+          scrollPosition < sectionTop + sectionHeight - window.innerHeight / 3
         ) {
           setActiveSection(sectionId);
         }
@@ -99,7 +99,7 @@ function Header({ user, currentPath }) {
     if (dropdownOpen) {
       setDropdownOpen(false); // Close dropdown if open
     }
-    navigate("/");
+    navigate("/#home");
   };
 
   const updateAccount = async () => {
@@ -130,20 +130,25 @@ function Header({ user, currentPath }) {
   };
 
   const aboutPage = () => {
-    window.location.hash = "#about";
+    navigate("/")
   };
-
+  
   const servicesPage = () => {
-    window.location.hash = "#services";
+    navigate("/")
   };
-
+  
   const contactPage = () => {
-    window.location.hash = "#contact";
+    navigate("/")
   };
 
   const adminDashboard = () => {
     toggleDropdown();
     navigate("/admin/dashboard");
+  };
+
+  const managerDashboard = () => {
+    toggleDropdown();
+    navigate("/manager");
   };
 
   const shouldShowHeader =
@@ -202,6 +207,12 @@ function Header({ user, currentPath }) {
               {role === "admin" && (
                 <div onClick={adminDashboard}>Admin Dashboard</div>
               )}
+              {role === "manager" && (
+                <div onClick={managerDashboard}>Manager Dashboard</div>
+              )}
+              {/* {role === "admin" && (
+                <div onClick={adminDashboard}>Admin Dashboard</div>
+              )} */}
               <div onClick={logout}>Logout</div>
             </div>
             </div>
