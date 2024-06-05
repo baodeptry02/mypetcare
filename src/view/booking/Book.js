@@ -12,6 +12,9 @@ import {
 } from "firebase/database";
 import { ToastContainer, toast } from "react-toastify";
 import { auth } from "../../Components/firebase/firebase";
+import DatePicker from "react-datepicker";
+import "react-datepicker/dist/react-datepicker.css";
+import moment from "moment";
 
 const Book = () => {
   const [name, setName] = useState("");
@@ -199,7 +202,7 @@ const Book = () => {
       addBookingToDatabase(
         bookingId,
         name,
-        pet, // Pass pet ID
+        pet,
         phone,
         date,
         time,
@@ -207,9 +210,15 @@ const Book = () => {
         service,
         totalPaid,
         amountToPay / 1000,
-        false,
+        false
       );
-      navigate("/qr", { state: { qrUrl, bookingId } });
+      toast.info("Redirecting to payment page...", {
+        onClose: () => {
+          setTimeout(() => {
+            navigate("/qr", { state: { qrUrl, bookingId } });
+          }, 1500);
+        },
+      });
     }
 
     setName("");
@@ -259,6 +268,10 @@ const Book = () => {
             id="date"
             value={date}
             onChange={(e) => setDate(e.target.value)}
+            selected={date}
+            minDate={new Date()} // Chỉ cho phép chọn ngày từ ngày hiện tại trở đi
+            placeholderText="Select a date"
+            dateFormat="MM/dd/yyyy"
             required
           />
           <label htmlFor="time">Time:</label>
@@ -290,7 +303,7 @@ const Book = () => {
             <option value="">Select a pet</option>
             {pets.map((pet) => (
               <option key={pet.id} value={pet.petId}>
-                {pet.name} - {pet.style}
+                {pet.name} - {pet.type}
               </option>
             ))}
           </select>

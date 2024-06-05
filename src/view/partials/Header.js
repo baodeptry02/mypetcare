@@ -150,7 +150,6 @@ function Header({ user, currentPath }) {
     toggleDropdown();
     navigate("/manager");
   };
-
   const shouldShowHeader =
     !location.pathname.startsWith("/admin") &&
     location.pathname !== "/manager" &&

@@ -53,6 +53,8 @@ const Pet = () => {
       setPetsPerPage(12);
     } else if (width >= 991 && width < 1600) {
       setPetsPerPage(10);
+    } else if (width >= 991 && width < 1600) {
+      setPetsPerPage(5);
     } else {
       setPetsPerPage(4); // Default value for smaller screens
     }
@@ -136,7 +138,7 @@ const Pet = () => {
   };
 
   return (
-    <div className="pet-page" style={{ height: "100%" }}>
+    <div className="pet-page">
       <div className="parent-container">
         <div className="pet-manage">
           {user ? (
@@ -172,11 +174,8 @@ const Pet = () => {
                       onClick={() => navigate(`/pet-details/${pet.key}`)}
                     >
                       <div className="pet-card-image">
-                        {pet.imageUrls && pet.imageUrls.length > 0 ? (
-                          <img
-                            src={pet.imageUrls[0]}
-                            alt={`${pet.name}'s image`}
-                          />
+                        {pet.imageUrl ? (
+                          <img src={pet.imageUrl} alt={`${pet.name}'s image`} />
                         ) : (
                           "No image"
                         )}
@@ -219,6 +218,7 @@ const Pet = () => {
           )}
         </div>
       </div>
+          {/* <img className="img-pet-manage" src="https://app.petotum.com/assets/img/wp/petbg.png" /> */}
     </div>
   );
 };

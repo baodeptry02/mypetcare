@@ -8,15 +8,19 @@ import {
   faTiktok,
   faYoutube,
 } from "@fortawesome/free-brands-svg-icons";
+import { useLocation } from "react-router-dom";
 
 const Footer = () => {
+  const location = useLocation()
   const scrollToTop = () => {
     window.scrollTo({ top: 0, behavior: "smooth" });
   };
-  const homePage = () => {
-   
-    window.location.hash = "/";
-  };
+  const shouldShowFooter =
+  !location.pathname.startsWith("/reset") 
+
+if (!shouldShowFooter) {
+  return null; // Don't render the header if it's a login or admin page
+}
   return (
     <footer className="footer-footer">
       <div className="footer-text">

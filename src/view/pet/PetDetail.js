@@ -8,7 +8,6 @@ const PetDetail = () => {
   const [pet, setPet] = useState(null);
   const user = auth.currentUser;
   const navigate = useNavigate();
-  const [currentImageIndex, setCurrentImageIndex] = useState(0);
 
   useEffect(() => {
     if (!user) {
@@ -34,25 +33,16 @@ const PetDetail = () => {
     fetchPetDetails();
   }, [user, petId]);
 
-  const handleNextImage = () => {
-    setCurrentImageIndex((prevIndex) => 
-      (prevIndex + 1) % pet.imageUrls.length
-    );
-  };
-
-  const handlePreviousImage = () => {
-    setCurrentImageIndex((prevIndex) => 
-      (prevIndex - 1 + pet.imageUrls.length) % pet.imageUrls.length
-    );
-  };
-
   if (!pet) {
     return <p>Loading pet details...</p>;
   }
 
-  // Loại bỏ imageUrls khỏi dữ liệu pet
+  // Lấy URL của ảnh duy nhất của pet
+  const imageUrl = pet.imageUrl;
+
+  // Loại bỏ imageUrl khỏi dữ liệu pet
   const petDetails = { ...pet };
-  delete petDetails.imageUrls;
+  delete petDetails.imageUrl;
 
   return (
     <div className="pet-detail-container">
@@ -60,24 +50,9 @@ const PetDetail = () => {
         <div className="main-image-container">
           <img 
             className="main-image"
-            src={pet.imageUrls[currentImageIndex]} 
+            src={imageUrl} 
             alt={`${pet.name} image`} 
           />
-        </div>
-        <div className="thumbnail-images">
-          {pet.imageUrls.map((url, index) => (
-            <img
-              key={index}
-              className={`thumbnail-image ${index === currentImageIndex ? 'active' : ''}`}
-              src={url}
-              alt={`${pet.name} thumbnail ${index + 1}`}
-              onClick={() => setCurrentImageIndex(index)}
-            />
-          ))}
-        </div>
-        <div className="navigation-buttons">
-          <button onClick={handlePreviousImage}>&lt;</button>
-          <button onClick={handleNextImage}>&gt;</button>
         </div>
       </div>
       <div className="pet-info-section">

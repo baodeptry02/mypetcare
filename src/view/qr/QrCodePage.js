@@ -31,7 +31,6 @@ const QrCodePage = () => {
   //     amounts: [0, 1000, 100, 100, 200000, 500, 50000, 120000] 
   //   };
   // };
-
   useEffect(() => {
     const fetchUserData = async () => {
       const user = auth.currentUser;

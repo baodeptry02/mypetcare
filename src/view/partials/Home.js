@@ -113,7 +113,7 @@ function Home() {
 
   useEffect(() => {
     const options = {
-      strings: ["Grooming", "Healthcare", "Daycare", "Bathing pets"],
+      strings: ["Grooming", "Healthcare", "Daycare", "Bathing"],
       typeSpeed: 50,
       backSpeed: 50,
       backDelay: 400,
@@ -177,7 +177,7 @@ function Home() {
             <img
               src="https://static.wixstatic.com/media/84770f_cc7fbf222d044cf09028f921a0cfe36e~mv2.png/v1/crop/x_0,y_0,w_5002,h_3009/fill/w_1163,h_699,al_c,q_90,usm_0.66_1.00_0.01,enc_auto/shutterstock_184908566%20copy.png"
               alt=""
-              width="930"
+              width="2400"
               height="559"
               srcset="https://static.wixstatic.com/media/84770f_cc7fbf222d044cf09028f921a0cfe36e~mv2.png/v1/crop/x_0,y_0,w_5002,h_3009/fill/w_1163,h_699,al_c,q_90,usm_0.66_1.00_0.01,enc_auto/shutterstock_184908566%20copy.png"
               fetchpriority="high"
@@ -420,7 +420,7 @@ function Home() {
                 </div>
               </div>
             </div>
-            <div className="button-container">
+            <div className="button-slide">
               <button className="prev" onClick={prevSlide}>
                 &#10094;
               </button>

@@ -2,20 +2,25 @@ import { sendPasswordResetEmail } from "firebase/auth";
 import React from "react";
 import { auth } from "../firebase/firebase"; 
 import { useNavigate } from "react-router-dom";
+import { toast } from "react-toastify";
 
 function ForgotPassword() {
     const navigate = useNavigate();
+
+    const signUp = () => {
+      navigate("/signIn")
+    }
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     const emailVal = e.target.email.value;
     sendPasswordResetEmail(auth, emailVal)
       .then(() => {
-        alert('Check your email');
+        toast.success('Check your email');
         navigate('/');
       })
       .catch((err) => {
-        alert(err.message); 
+        toast.error(err.message); 
       });   
   };
 
@@ -36,7 +41,7 @@ function ForgotPassword() {
 
       <p class="signup-link">
         Don't have an account?
-        <a href="/signIn" class="signup-link link"> Sign up now</a>
+        <a onClick={signUp} class="signup-link link"> Sign up now</a>
       </p>
     </div>
   );

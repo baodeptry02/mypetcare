@@ -333,7 +333,6 @@ function SignIn() {
   return (
     <div>
       {!userEmail && ( 
-        <>
           <div className="signIn" style={{ height: "100vh" }}>
             <div className="container form" id="container">
               <div className="form-container sign-up">
@@ -464,7 +463,6 @@ function SignIn() {
               </div>
             </div>
           </div>
-        </>
       )}
       {userEmail && <Home />} 
     </div>
