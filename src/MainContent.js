@@ -1,4 +1,3 @@
-// MainContent.js
 import React, { useState, useEffect } from "react";
 import { Routes, Route, useLocation } from "react-router-dom";
 import Home from "./view/partials/Home";
@@ -17,6 +16,7 @@ import ManageBooking from "./view/booking/ManageBooking";
 import BookingDetails from "./view/booking/BookingDetails";
 import Header from "./view/partials/Header";
 import Footer from "./view/partials/Footer";
+import NotFound from "../src/view/invalidPage/404Page"
 import { auth } from "./Components/firebase/firebase";
 import "./App.css";
 
@@ -70,13 +70,14 @@ function MainContent() {
               <Route path="/manager" element={<Manager />} />
               <Route path="/pet" element={<Pet />} />
               <Route path="/pet/add" element={<AddPet />} />
-              <Route path="/book" element={<Book />} />
+              <Route path="/pet-details/:petId" element={<PetDetail />} />
+              <Route path="/book/*" element={<Book />} />
               <Route path="/qr" element={<QrCodePage />} />
               <Route path="/transaction-history" element={<Transaction />} />
               <Route path="/reset" element={<ForgotPassword />} />
               <Route path="/manage-booking" element={<ManageBooking />} />
               <Route path="/booking-details/:bookingId" element={<BookingDetails />} />
-              <Route path="/pet-details/:petId" element={<PetDetail />} />
+              <Route path="*" element={<NotFound />} />
             </Routes>
           </div>
           <Footer currentPath={currentPath} />

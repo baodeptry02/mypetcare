@@ -80,7 +80,7 @@ function Header({ user, currentPath }) {
         if (data && data.role) {
           setRole(data.role);
         } else {
-          setRole("user"); // Default to 'user' if role is null or undefined
+          setRole("user");
         }
 
         if (data) {
@@ -153,7 +153,7 @@ function Header({ user, currentPath }) {
   const shouldShowHeader =
     !location.pathname.startsWith("/admin") &&
     location.pathname !== "/manager" &&
-    location.pathname !== "/veterinary";
+    location.pathname !== "/veterinary" 
 
   if (!shouldShowHeader) {
     return null; // Don't render the header if it's a login or admin page

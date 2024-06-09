@@ -1,15 +1,14 @@
-import { useNavigate } from "react-router-dom";
+import React, { useState, useEffect, useContext } from 'react';
+import { useNavigate } from 'react-router-dom';
+import { auth } from "../../Components/firebase/firebase";
+import { getDatabase, ref, onValue } from "firebase/database";
+import { ScaleLoader } from "react-spinners";
+import { Pagination } from "@mui/material";
+import { makeStyles } from "@mui/styles"; 
+import useViewport from "../../hooks/useViewport";
+import { BookingContext } from '../../Components/context/BookingContext';
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faPaw } from "@fortawesome/free-solid-svg-icons";
-import { auth, imageDb } from "../../Components/firebase/firebase";
-import React, { useState, useEffect, useRef } from "react";
-import { getDatabase, ref, onValue } from "firebase/database";
-import { ClipLoader } from "react-spinners";
-import { css } from "@emotion/react";
-import { ScaleLoader } from "react-spinners";
-import { Pagination, PaginationItem } from "@mui/material";
-import { makeStyles } from "@mui/styles"; // Import makeStyles
-import useViewport from "./useViewport";
 
 const useStyles = makeStyles({
   pagination: {
@@ -32,25 +31,20 @@ const useStyles = makeStyles({
         borderColor: "#999",
         color: "#000",
       },
-      "&.Mui-selected": {
-        backgroundColor: "rgba(0, 0, 0, 0.08);",
-        color: "#fff",
-      },
     },
   },
 });
 
-const Pet = () => {
+const SelectPet = () => {
+  const { setSelectedPet } = useContext(BookingContext);
   const navigate = useNavigate();
   const [user, setUser] = useState(null);
   const [pets, setPets] = useState([]);
-  const [petCount, setPetCount] = useState(0);
   const [loading, setLoading] = useState(true);
-  const [currentPage, setCurrentPage] = useState(1); // Trang hiện tại
+  const [currentPage, setCurrentPage] = useState(1);
   const classes = useStyles();
-  const { width } = useViewport(); // Get the viewport width
-
-  const [petsPerPage, setPetsPerPage] = useState(10); // Default value
+  const { width } = useViewport();
+  const [petsPerPage, setPetsPerPage] = useState(10);
 
   useEffect(() => {
     if (width >= 1785) {
@@ -60,27 +54,9 @@ const Pet = () => {
     } else if (width >= 991 && width < 1600) {
       setPetsPerPage(5);
     } else {
-      setPetsPerPage(4); // Default value for smaller screens
+      setPetsPerPage(4);
     }
   }, [width]);
-
-  const override = css`
-    display: block;
-    margin: 500px auto;
-    border-color: red;
-  `;
-  const Loading = () => {
-    return (
-      <div className="sweet-loading">
-        <ScaleLoader
-          color={"#123abc"}
-          loading={true}
-          css={override}
-          size={3000}
-        />
-      </div>
-    );
-  };
 
   useEffect(() => {
     const unsubscribe = auth.onAuthStateChanged((user) => {
@@ -96,11 +72,9 @@ const Pet = () => {
               key,
             }));
             setPets(petList);
-            setPetCount(petList.length);
             setLoading(false);
           } else {
             setPets([]);
-            setPetCount(0);
             setLoading(false);
           }
         });
@@ -108,45 +82,41 @@ const Pet = () => {
       } else {
         setUser(null);
         setPets([]);
-        setPetCount(0);
         setLoading(false);
       }
     });
     return () => unsubscribe();
   }, []);
 
-  useEffect(() => {
-    const applyStyles = () => {
-      document.querySelectorAll(".MuiPaginationItem-root").forEach((item) => {
-        item.classList.add(classes.paginationItem);
-      });
-    };
-    applyStyles();
-  }, [currentPage, classes]);
-
-  const addPet = () => {
-    navigate("/pet/add");
-  };
   if (loading) {
-    return <Loading />;
+    return (
+      <div className="sweet-loading">
+        <ScaleLoader
+          color={"#123abc"}
+          loading={true}
+          size={3000}
+        />
+      </div>
+    );
   }
+
+  const handlePetSelect = (pet) => {
+    console.log("Selected Pet in handlePetSelect:", pet); // Debugging line
+    setSelectedPet(pet);
+    navigate('/book/select-service');
+  };
 
   const indexOfLastPet = currentPage * petsPerPage;
   const indexOfFirstPet = indexOfLastPet - petsPerPage;
   const currentPets = pets.slice(indexOfFirstPet, indexOfLastPet);
-
-  const pageNumbers = Math.ceil(petCount / petsPerPage);
-
-  const handlePaginationChange = (event, value) => {
-    setCurrentPage(value);
-  };
+  const pageNumbers = Math.ceil(pets.length / petsPerPage);
 
   return (
     <div className="pet-page">
       <div className="parent-container">
         <div className="pet-manage">
           {user ? (
-            petCount === 0 ? (
+            pets.length === 0 ? (
               <div className="empty-pet container">
                 <div className="empty-pet-img">
                   <img src="./Remove-bg.ai_1716049467772.png" alt="No pets" />
@@ -156,7 +126,7 @@ const Pet = () => {
                     Look like you <span>DON'T HAVE</span> any pet in our system.
                   </h1>
                   <h3>Must add your boss before you proceed to booking</h3>
-                  <div onClick={addPet} className="btn">
+                  <div onClick={() => navigate('/pet/add')} className="btn">
                     <FontAwesomeIcon icon={faPaw} /> Add boss!
                   </div>
                 </div>
@@ -165,17 +135,16 @@ const Pet = () => {
               <div className="pet-list">
                 <h1>Your Pets</h1>
                 <div className="add-pet-button">
-                  <div onClick={addPet} className="btn">
+                  <div onClick={() => navigate('/pet/add')} className="btn">
                     <FontAwesomeIcon icon={faPaw} /> Add boss!
                   </div>
                 </div>
-                <p>Current number of pets: {petCount}</p>
                 <div className="grid-container">
                   {currentPets.map((pet, index) => (
                     <div
                       key={index}
                       className="pet-card"
-                      onClick={() => navigate(`/pet-details/${pet.key}`)}
+                      onClick={() => handlePetSelect(pet)}
                     >
                       <div className="pet-card-image">
                         {pet.imageUrl ? (
@@ -187,7 +156,7 @@ const Pet = () => {
                       <div className="pet-card-content">
                         <div className="pet-card-header">
                           <span className="pet-name">{pet.name}</span>
-                          <span className="pet-color">{pet.style}</span>
+                          <span className="pet-color">{pet.type}</span>
                         </div>
                       </div>
                     </div>
@@ -201,14 +170,14 @@ const Pet = () => {
                     fontSize: "3rem",
                   }}
                 >
-                  Page {currentPage} of {Math.ceil(petCount / petsPerPage)}
+                  Page {currentPage} of {Math.ceil(pets.length / petsPerPage)}
                 </div>
                 {pageNumbers > 1 && (
                   <Pagination
                     className={classes.pagination}
                     count={pageNumbers}
                     page={currentPage}
-                    onChange={handlePaginationChange}
+                    onChange={(e, value) => setCurrentPage(value)}
                     variant="outlined"
                     shape="rounded"
                     size="large"
@@ -222,9 +191,8 @@ const Pet = () => {
           )}
         </div>
       </div>
-          {/* <img className="img-pet-manage" src="https://app.petotum.com/assets/img/wp/petbg.png" /> */}
     </div>
   );
 };
 
-export default Pet;
+export default SelectPet;

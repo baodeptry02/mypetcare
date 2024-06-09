@@ -13,6 +13,7 @@ import {
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import { getDatabase, ref, set, onValue, get, update } from "firebase/database";
+import useForceUpdate from "../../hooks/useForceUpdate";
 
 function SignIn() {
   const [email, setEmail] = useState("");
@@ -23,6 +24,7 @@ function SignIn() {
   const [confirmPassword, setconfirmPassword] = useState("");
   const [isRegistering, setIsRegistering] = useState(false);
   const navigate = useNavigate();
+  const forceUpdate = useForceUpdate();
 
   useEffect(() => {
     const unsubscribe = auth.onAuthStateChanged((user) => {
@@ -123,17 +125,32 @@ function SignIn() {
         default:
           navigate("/");
       }
-      toast.success("Login successfully. Wish you enjoy our best experience");
+      toast.success("Login successfully. Wish you enjoy our best experience", {
+        autoClose: 2000,
+        onClose: () => {
+          forceUpdate()
+        }
+      })
     } catch (error) {
       console.error("Error during Google sign-in:", error);
-      toast.error("Failed to sign in with Google. Please try again.");
+      toast.error("Failed to sign in with Google. Please try again.", {
+        autoClose: 2000,
+        onClose: () => {
+          forceUpdate()
+        }
+      })
     }
   };
 
   const onSubmit = async (e) => {
     e.preventDefault();
     if (password !== confirmPassword) {
-      toast.error("Password not match, please try again!");
+      toast.error("Password not match, please try again!", {
+        autoClose: 2000,
+        onClose: () => {
+          forceUpdate()
+        }
+      })
       return; 
     }
 
@@ -141,14 +158,24 @@ function SignIn() {
 
     const expression = /^[^@]+@\w+(\.\w+)+\w$/;
     if (!expression.test(email)) {
-      toast.error("Email is invalid. Please enter a valid email address.");
+      toast.error("Email is invalid. Please enter a valid email address.", {
+        autoClose: 2000,
+        onClose: () => {
+          forceUpdate()
+        }
+      })
       return; 
     }
 
     const signInMethods = await fetchSignInMethodsForEmail(auth, email);
     if (signInMethods.length > 0) {
       setIsRegistering(false);
-      toast.error("This email is used by another user, please try again!");
+      toast.error("This email is used by another user, please try again!", {
+        autoClose: 2000,
+        onClose: () => {
+          forceUpdate()
+        }
+      })
       return; 
     }
 
@@ -171,11 +198,20 @@ function SignIn() {
         addDataBase(userId, email, username, "user");
         await auth.signOut();
         toast.success(
-          "Registration successful. Please check your email for verification then login to our system again."
-        );
+          "Registration successful. Please check your email for verification then login to our system again.", {
+          autoClose: 2000,
+          onClose: () => {
+            forceUpdate()
+          }
+        })
         navigate("/signIn");
       } catch (error) {
-        toast.error("This email is used by another user, please try again!");
+        toast.error("This email is used by another user, please try again!", {
+          autoClose: 2000,
+          onClose: () => {
+            forceUpdate()
+          }
+        })
       } finally {
         setIsRegistering(false); 
       }
@@ -207,7 +243,12 @@ function SignIn() {
       );
       const user = userCredential.user;
       if (!user.emailVerified) {
-        toast.error("Please verify your email before logging in.");
+        toast.error("Please verify your email before logging in.", {
+          autoClose: 2000,
+          onClose: () => {
+            forceUpdate()
+          }
+        })
         auth.signOut();
         navigate("/signIn");
         return;
@@ -291,11 +332,19 @@ function SignIn() {
         default:
           navigate("/");
       }
-      toast.success("Login successfully. Wish you enjoy our best experience");
+      toast.success("Login successfully. Wish you enjoy our best experience", {
+        autoClose: 2000,
+        onClose: () => {
+          forceUpdate()
+        }
+      })
     } catch (error) {
-      toast.error(
-        "Something went wrong. Please check your email or password and try again!"
-      );
+      toast.error("Something went wrong. Please check your email or password and try again!", {
+        autoClose: 2000,
+        onClose: () => {
+          forceUpdate()
+        }
+      })
     }
   };
 

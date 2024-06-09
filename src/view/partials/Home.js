@@ -15,6 +15,7 @@ import {
   faYoutube,
 } from "@fortawesome/free-brands-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import useForceUpdate from "../../hooks/useForceUpdate";
 
 function Home() {
   const typedElement = useRef(null);
@@ -25,6 +26,7 @@ function Home() {
   const [currentSlide, setCurrentSlide] = useState(0);
   const totalSlides = 6;
   const [backgroundImage, setBackgroundImage] = useState("");
+  const forceUpdate = useForceUpdate();
 
   useEffect(() => {
     const interval = setInterval(() => {
@@ -77,11 +79,14 @@ function Home() {
 
   const book = () => {
     if (user) {
-      navigate("/book");
+      navigate("/book/select-pet");
     } else {
       navigate("/signIn");
       toast.error("Please log in first to continue your booking!", {
-        autoClose: 1500,
+        autoClose: 2000,
+        onClose: () => {
+          forceUpdate()
+        }
       });
     }
   };
@@ -100,12 +105,22 @@ function Home() {
       .then(
         (result) => {
           console.log(result.text);
-          toast.success("Email sent successfully!");
+          toast.success("Email sent successfully!", {
+            autoClose: 2000,
+            onClose: () => {
+              forceUpdate()
+            }
+          })
         },
         (error) => {
           console.log(error.text);
-          toast.error("Failed to send email.");
-        }
+          toast.error("Failed to send email.", {
+            autoClose: 2000,
+            onClose: () => {
+              forceUpdate()
+            }
+          })
+        },
       );
 
     e.target.reset();

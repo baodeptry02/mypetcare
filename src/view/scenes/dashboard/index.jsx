@@ -1,14 +1,12 @@
+import React, { useEffect, useState } from "react";
 import { Box, Button, IconButton, Typography, useTheme } from "@mui/material";
 import { tokens } from "../../../theme";
-import { mockTransactions } from "../../data/mockData";
+import { mockTransactions, mockDataTeam } from "../../data/mockData";
 import DownloadOutlinedIcon from "@mui/icons-material/DownloadOutlined";
-import EmailIcon from "@mui/icons-material/Email";
 import PointOfSaleIcon from "@mui/icons-material/PointOfSale";
-import PersonAddIcon from "@mui/icons-material/PersonAdd";
 import TrafficIcon from "@mui/icons-material/Traffic";
 import Header from "../../../Components/dashboardChart/Header";
 import LineChart from "../../../Components/dashboardChart/LineChart";
-import GeographyChart from "../../../Components/dashboardChart/GeographyChart";
 import BarChart from "../../../Components/dashboardChart/BarChart";
 import StatBox from "../../../Components/dashboardChart/StatBox";
 import ProgressCircle from "../../../Components/dashboardChart/ProgressCircle";
@@ -16,6 +14,55 @@ import ProgressCircle from "../../../Components/dashboardChart/ProgressCircle";
 const Dashboard = () => {
   const theme = useTheme();
   const colors = tokens(theme.palette.mode);
+  const [dailyRevenue, setDailyRevenue] = useState(0);
+  const [monthlyRevenue, setMonthlyRevenue] = useState(0);
+  const [yearlyRevenue, setYearlyRevenue] = useState(0);
+
+  useEffect(() => {
+    const getCurrentDate = () => {
+      const currentDate = new Date();
+      const year = currentDate.getFullYear();
+      const month = String(currentDate.getMonth() + 1).padStart(2, "0");
+      const day = String(currentDate.getDate()).padStart(2, "0");
+      return { year, month, day, currentDate: `${year}-${month}-${day}` };
+    };
+
+    const getTotalPaid = (date, type) => {
+      let totalPaid = 0;
+
+      mockDataTeam.forEach((user) => {
+        for (const bookingId in user.bookings) {
+          const booking = user.bookings[bookingId];
+
+          if (booking.date) {
+            if (type === "date" && date === booking.date) {
+              totalPaid += booking.totalPaid || 0;
+            } else if (type === "month" && booking.date.startsWith(date)) {
+              totalPaid += booking.totalPaid || 0;
+            } else if (type === "year" && booking.date.startsWith(date)) {
+              totalPaid += booking.totalPaid || 0;
+            }
+          }
+        }
+      });
+
+      return totalPaid;
+    };
+
+    const currentDate = getCurrentDate();
+
+    const totalPaidForDate = getTotalPaid(currentDate.currentDate, "date");
+    setDailyRevenue(totalPaidForDate.toLocaleString() + ",000");
+
+    const totalPaidForMonth = getTotalPaid(
+      `${currentDate.year}-${currentDate.month}`,
+      "month"
+    );
+    setMonthlyRevenue(totalPaidForMonth.toLocaleString() + ",000");
+
+    const totalPaidForYear = getTotalPaid(currentDate.year, "year");
+    setYearlyRevenue(totalPaidForYear.toLocaleString() + ",000");
+  }, []);
 
   return (
     <Box m="20px">
@@ -55,12 +102,12 @@ const Dashboard = () => {
           justifyContent="center"
         >
           <StatBox
-            title="12,361"
-            subtitle="Emails Sent"
+            title={`${dailyRevenue} VND`}
+            subtitle="Daily Revenue"
             progress="0.75"
             increase="+14%"
             icon={
-              <EmailIcon
+              <PointOfSaleIcon
                 sx={{ color: colors.greenAccent[600], fontSize: "26px" }}
               />
             }
@@ -74,8 +121,8 @@ const Dashboard = () => {
           justifyContent="center"
         >
           <StatBox
-            title="431,225"
-            subtitle="Sales Obtained"
+            title={`${monthlyRevenue} VND`}
+            subtitle="Monthly Revenue"
             progress="0.50"
             increase="+21%"
             icon={
@@ -93,12 +140,12 @@ const Dashboard = () => {
           justifyContent="center"
         >
           <StatBox
-            title="32,441"
-            subtitle="New Clients"
+            title={`${yearlyRevenue} VND`}
+            subtitle="Yearly Revenue"
             progress="0.30"
             increase="+5%"
             icon={
-              <PersonAddIcon
+              <PointOfSaleIcon
                 sx={{ color: colors.greenAccent[600], fontSize: "26px" }}
               />
             }
@@ -150,9 +197,10 @@ const Dashboard = () => {
                 fontWeight="bold"
                 color={colors.greenAccent[500]}
               >
-                $500,342.32
+                {yearlyRevenue} VND
               </Typography>
             </Box>
+
             <Box>
               <IconButton>
                 <DownloadOutlinedIcon
@@ -162,58 +210,24 @@ const Dashboard = () => {
             </Box>
           </Box>
           <Box height="250px" m="-20px 0 0 0">
-            <LineChart isDashboard={true} />
+            <LineChart isDashboard={true} yearlyRevenue={yearlyRevenue} />
           </Box>
         </Box>
         <Box
           gridColumn="span 4"
           gridRow="span 2"
           backgroundColor={colors.primary[400]}
-          overflow="auto"
         >
-          <Box
-            display="flex"
-            justifyContent="space-between"
-            alignItems="center"
-            borderBottom={`4px solid ${colors.primary[500]}`}
-            colors={colors.grey[100]}
-            p="15px"
+          <Typography
+            variant="h5"
+            fontWeight="600"
+            sx={{ padding: "30px 30px 0 30px" }}
           >
-            <Typography color={colors.grey[100]} variant="h5" fontWeight="600">
-              Recent Transactions
-            </Typography>
+            Sales Quantity
+          </Typography>
+          <Box height="250px" mt="-20px">
+            <BarChart isDashboard={true} />
           </Box>
-          {mockTransactions.map((transaction, i) => (
-            <Box
-              key={`${transaction.txId}-${i}`}
-              display="flex"
-              justifyContent="space-between"
-              alignItems="center"
-              borderBottom={`4px solid ${colors.primary[500]}`}
-              p="15px"
-            >
-              <Box>
-                <Typography
-                  color={colors.greenAccent[500]}
-                  variant="h5"
-                  fontWeight="600"
-                >
-                  {transaction.txId}
-                </Typography>
-                <Typography color={colors.grey[100]}>
-                  {transaction.user}
-                </Typography>
-              </Box>
-              <Box color={colors.grey[100]}>{transaction.date}</Box>
-              <Box
-                backgroundColor={colors.greenAccent[500]}
-                p="5px 10px"
-                borderRadius="4px"
-              >
-                ${transaction.cost}
-              </Box>
-            </Box>
-          ))}
         </Box>
 
         {/* ROW 3 */}
@@ -244,38 +258,79 @@ const Dashboard = () => {
           </Box>
         </Box>
         <Box
-          gridColumn="span 4"
-          gridRow="span 2"
+          gridColumn="span 8"
+          gridRow="span 2 "
           backgroundColor={colors.primary[400]}
+          overflow="auto"
         >
-          <Typography
-            variant="h5"
-            fontWeight="600"
-            sx={{ padding: "30px 30px 0 30px" }}
+          <Box
+            display="flex"
+            justifyContent="space-between"
+            alignItems="center"
+            borderBottom={`4px solid ${colors.primary[500]}`}
+            colors={colors.grey[100]}
+            p="15px"
           >
-            Sales Quantity
-          </Typography>
-          <Box height="250px" mt="-20px">
-            <BarChart isDashboard={true} />
+            <Typography color={colors.grey[100]} variant="h5" fontWeight="600">
+              Recent Transactions
+            </Typography>
           </Box>
+          {mockTransactions.map((transaction, i) => (
+            <Box
+              key={`${transaction.bookingId}-${i}`}
+              display="flex"
+              justifyContent="space-between"
+              alignItems="center"
+              borderBottom={`4px solid ${colors.primary[500]}`}
+              p="15px"
+            >
+              <Box flex="1">
+                <Typography
+                  color={colors.greenAccent[500]}
+                  variant="h5"
+                  fontWeight="600"
+                  fontSize={"2rem"}
+                >
+                  {transaction.bookingID}
+                </Typography>
+                <Typography color={colors.grey[100]} fontSize={"2rem"}>
+                  {transaction.user}
+                </Typography>
+              </Box>
+              <Box flex="1" textAlign="center">
+                <Typography color={colors.grey[100]} fontSize={"2rem"}>
+                  {transaction.date}
+                </Typography>
+              </Box>
+              <Box flex="1" textAlign="center">
+                <Typography
+                  color={
+                    transaction.status === "cancelled" ? "red"  : colors.greenAccent[500]
+                  }
+                  fontSize={"2rem"}
+                >
+                  {transaction.status}
+                </Typography>
+              </Box>
+              <Box
+                flex=".5"
+                textAlign="center"
+                backgroundColor={colors.greenAccent[500]}
+                p="5px 5px"
+                borderRadius="4px"
+                fontSize={"2rem"}
+              >
+                ${transaction.cost}
+              </Box>
+            </Box>
+          ))}
         </Box>
-        <Box
+        {/* <Box
           gridColumn="span 4"
           gridRow="span 2"
           backgroundColor={colors.primary[400]}
           padding="30px"
-        >
-          <Typography
-            variant="h5"
-            fontWeight="600"
-            sx={{ marginBottom: "15px" }}
-          >
-            Geography Based Traffic
-          </Typography>
-          <Box height="200px">
-            <GeographyChart isDashboard={true} />
-          </Box>
-        </Box>
+        ></Box> */}
       </Box>
     </Box>
   );

@@ -37,7 +37,6 @@ const PetDetail = () => {
     return <p>Loading pet details...</p>;
   }
 
-  // Lấy URL của ảnh duy nhất của pet
   const imageUrl = pet.imageUrl;
 
   // Loại bỏ imageUrl khỏi dữ liệu pet

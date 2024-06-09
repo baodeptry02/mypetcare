@@ -27,7 +27,6 @@ import Form from "../../view/scenes/form/index";
 import Line from "../../view/scenes/line/index";
 import Pie from "../../view/scenes/pie/index";
 import FAQ from "../../view/scenes/faq/index";
-import Geography from "../../view/scenes/geography/index";
 import Calendar from "../../view/scenes/calendar/calendar";
 import { auth } from "../../Components/firebase/firebase";
 
@@ -118,7 +117,6 @@ function Admin() {
               <Route path="line" element={<Line />} />
               <Route path="faq" element={<FAQ />} />
               <Route path="calendar" element={<Calendar />} />
-              <Route path="geography" element={<Geography />} />
             </Routes>
           </main>
         </div>

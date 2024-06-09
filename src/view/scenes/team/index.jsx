@@ -18,7 +18,7 @@ import {
 } from "@mui/material";
 import { DataGrid } from "@mui/x-data-grid";
 import { tokens } from "../../../theme";
-import { mockDataTeam } from "../../data/mockData"; // Replace with your actual user data
+import { mockDataTeam } from "../../data/mockData";
 import AdminPanelSettingsOutlinedIcon from "@mui/icons-material/AdminPanelSettingsOutlined";
 import LockOpenOutlinedIcon from "@mui/icons-material/LockOpenOutlined";
 import SecurityOutlinedIcon from "@mui/icons-material/SecurityOutlined";
@@ -93,7 +93,7 @@ function Team() {
     if (row.email) {
       if (!validateEmail(row.email)) {
         isValid = false;
-        toast.error("Invalid email"); // Invalid email message in Vietnamese
+        toast.error("Invalid email");
       } else {
         updates.email = row.email;
         localStorage.setItem("email", row.email);
@@ -110,7 +110,7 @@ function Team() {
     if (row.phone) {
       if (!validatePhone(row.phone)) {
         isValid = false;
-        toast.error("Phone number must be 10 digits"); // Phone number must be 10 digits message in Vietnamese
+        toast.error("Phone number must be 10 digits");
       } else {
         updates.phone = row.phone;
       }
@@ -125,13 +125,12 @@ function Team() {
     if (isValid && Object.keys(updates).length > 0) {
       const isDuplicateEmailUsernamePhone = checkDuplicateData(row);
       if (isDuplicateEmailUsernamePhone) {
-        toast.error("Dữ liệu trùng lặp email, username hoặc số điện thoại"); // Duplicate email, username or phone number error message in Vietnamese
+        toast.error("Email, username or phone number are duplicated !!!");
         setLoading(false);
         return;
       }
 
       try {
-        // Update profile of the user being edited (not the current user)
         await updateProfile(auth.currentUser, {
           phone: row.phone,
           address: row.address,
@@ -139,18 +138,17 @@ function Team() {
           role: row.role,
         });
 
-        // Update user data in the database
         await update(ref(getDatabase(), `users/${row.id}`), updates);
         setRows(rows.map((item) => (item.id === row.id ? row : item))); // Update row in state
         setUserUpdated(true);
-        toast.success("Updated successful !!!"); // Update successful message in Vietnamese
+        toast.success("Updated successful !!!");
       } catch (error) {
-        toast.error("Error"); // Error message in Vietnamese
+        toast.error("Error");
       }
     } else if (!isValid) {
-      toast.warning("Please check all the input fields"); // Check input message in Vietnamese
+      toast.warning("Please check all the input fields");
     } else {
-      toast.warning("Nothing changed"); // No changes message in Vietnamese
+      toast.warning("Nothing changed");
     }
     setLoading(false);
   };
@@ -181,7 +179,7 @@ function Team() {
       );
       toast.success("User enabled successfully!");
     } catch (error) {
-      toast.error("Error enabling user.");
+      toast.warning("Error enabling user.");
     }
 
     setLoading(false);
@@ -203,9 +201,9 @@ function Team() {
           item.id === id ? { ...item, accountStatus: "disabled" } : item
         )
       );
-      toast.success("User disabled successfully!");
+      toast.error("User disabled successfully!");
     } catch (error) {
-      toast.error("Error disabling user.");
+      toast.warning("Error disabling user.");
     }
 
     setLoading(false);
@@ -219,6 +217,7 @@ function Team() {
     (currentPage - 1) * rowsPerPage,
     currentPage * rowsPerPage
   );
+
   const columns = [
     { field: "id", headerName: "ID", width: 150, editable: false },
     { field: "username", headerName: "Username", flex: 0.6, editable: true },
@@ -272,14 +271,14 @@ function Team() {
             display: "flex",
             alignItems: "center",
             justifyContent: "center",
-            height: "100%", // Ensure the cell takes up the full height
+            height: "100%",
           }}
         >
           <Typography
             color={value === "disabled" ? "red" : "green"}
             sx={{
-              fontSize: "1.8rem", // Adjust font size as needed
-              textAlign: "center", // Center align text
+              fontSize: "1.8rem",
+              textAlign: "center",
             }}
           >
             {value}
@@ -290,7 +289,7 @@ function Team() {
     {
       field: "update",
       headerName: "Update",
-      flex: .5,
+      flex: 0.5,
       renderCell: (params) => (
         <div className="admin-update-button">
           <Button
@@ -301,10 +300,10 @@ function Team() {
           >
             Update
           </Button>
-          
         </div>
       ),
-    },{
+    },
+    {
       field: "action",
       headerName: "Action",
       flex: 1,

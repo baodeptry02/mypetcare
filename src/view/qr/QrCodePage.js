@@ -7,6 +7,7 @@ import { ToastContainer, toast } from 'react-toastify';
 import { ScaleLoader } from "react-spinners"; // Import the spinner you want to use
 import { css } from "@emotion/react"; 
 import { updateProfile } from "firebase/auth";
+import useForceUpdate from '../../hooks/useForceUpdate';
 
 const QrCodePage = () => {
   const location = useLocation();
@@ -18,6 +19,7 @@ const QrCodePage = () => {
   const [userId, setUserId] = useState("");
   const [accountBalance, setAccountBalance] = useState(0);
   const [totalPaid, setTotalPaid] = useState(0);
+  const forceUpdate = useForceUpdate()
 
   const override = css`
     display: block;
@@ -25,12 +27,12 @@ const QrCodePage = () => {
     border-color: red;
   `;
 
-  // const mockFetchTransactions = async () => {
-  //   return {
-  //     descriptions: ["thanhtoan BK1243463456","thanhtoan BK12315234","thanhtoan BK12315234","thanhtoan BK12315234", "thanhtoan " + bookingId, "thanhtoan BK12315234", "thanhtoan BK12315234"],
-  //     amounts: [0, 1000, 100, 100, 200000, 500, 50000, 120000] 
-  //   };
-  // };
+  const mockFetchTransactions = async () => {
+    return {
+      descriptions: ["thanhtoan BK1243463456","thanhtoan BK12315234","thanhtoan BK12315234","thanhtoan BK12315234", "thanhtoan " + bookingId, "thanhtoan BK12315234", "thanhtoan BK12315234"],
+      // amounts: [0, 1000, 100, 100, 220000, 500, 50000, 120000] 
+    };
+  };
   useEffect(() => {
     const fetchUserData = async () => {
       const user = auth.currentUser;
@@ -70,7 +72,7 @@ const QrCodePage = () => {
 
     const intervalId = setInterval(async () => {
       try {
-        const { descriptions, amounts } = await fetchTransactions();
+        const { descriptions, amounts } = await mockFetchTransactions();
         const contentTransfer = `thanhtoan ${bookingId}`;
 
         const paymentIndex = descriptions.findIndex((description) =>
@@ -101,14 +103,19 @@ const QrCodePage = () => {
                 const bookingKey = Object.keys(bookings).find(key => bookings[key].bookingId === bookingId);
                 if (bookingKey) {
                   const specificBookingRef = ref(db, `users/${user.uid}/bookings/${bookingKey}`);
-                  update(specificBookingRef, { paid: true, status: "pending" });
+                  update(specificBookingRef, {status: "Paid" });
                 }
               }
             });
-
-            toast.success(
-              'Payment success! Please check your booking section to track your booking information'
-            );
+            toast.success('Payment success! Please check your booking section to track your booking information', {
+              autoClose: 2000,
+              onClose: () => {
+                setTimeout(() => {
+                  forceUpdate();
+                  navigate('/');
+                }, 2000); 
+              }
+            });            
             clearInterval(intervalId);
             navigate('/');
           }

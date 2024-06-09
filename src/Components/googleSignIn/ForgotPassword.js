@@ -3,9 +3,11 @@ import React from "react";
 import { auth } from "../firebase/firebase"; 
 import { useNavigate } from "react-router-dom";
 import { toast } from "react-toastify";
+import useForceUpdate from "../../hooks/useForceUpdate";
 
 function ForgotPassword() {
     const navigate = useNavigate();
+    const forceUpdate = useForceUpdate()
 
     const signUp = () => {
       navigate("/signIn")
@@ -16,8 +18,16 @@ function ForgotPassword() {
     const emailVal = e.target.email.value;
     sendPasswordResetEmail(auth, emailVal)
       .then(() => {
-        toast.success('Check your email');
-        navigate('/');
+        toast.success('Check your email to complete change password!', {
+          autoClose: 2000,
+          onClose: () => {
+            setTimeout(() => {
+              forceUpdate();
+              navigate('/');
+            }, 2000); // Wait for 2 seconds after the toast closes
+          }
+        });
+        
       })
       .catch((err) => {
         toast.error(err.message); 

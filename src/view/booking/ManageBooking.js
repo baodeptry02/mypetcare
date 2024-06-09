@@ -3,29 +3,34 @@ import { getDatabase, ref, onValue, update, get } from "firebase/database";
 import { auth } from "../../Components/firebase/firebase";
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
-import { useNavigate } from "react-router-dom"; 
-import { Pagination, PaginationItem } from "@mui/material";
-import { makeStyles } from "@mui/styles"; 
+import { useNavigate } from "react-router-dom";
+import { Pagination } from "@mui/material";
+import { makeStyles } from "@mui/styles";
 
 const useStyles = makeStyles({
   pagination: {
     display: "flex",
     justifyContent: "center",
     fontSize: "1.5rem",
-    marginTop: "3rem",
+    marginTop: "0",
     paddingBottom: "2rem",
     "& .MuiPaginationItem-root": {
       fontSize: "1.5rem",
       marginLeft: "2rem",
       padding: "4px",
       borderRadius: "50%",
-      backgroundColor: "#1976d2",
+      backgroundColor: "#7b2cbf",
+      border: "1px solid var(--neon-color)",
       color: "#fff",
       transition: "all 0.3s ease",
       "&:hover": {
         backgroundColor: "#f0f0f0",
         borderColor: "#999",
         color: "#000",
+      },
+      "&.Mui-selected": {
+        backgroundColor: "rgba(0, 0, 0, 0.08);",
+        color: "#fff",
       },
     },
   },
@@ -58,14 +63,14 @@ const ManageBookings = () => {
         const unpaid = [];
         Object.keys(data).forEach((key) => {
           const booking = { ...data[key], key }; // Add the key to the booking object for updating later
-          if (booking.paid) {
+          if (booking.status === "Paid" || booking.status === "Cancelled") {
             paid.push(booking);
-          } else {
+          } else if (booking.status === "Pending Payment") {
             unpaid.push(booking);
           }
         });
-        // Sort paid bookings with pending at top and cancelled at bottom
-        paid.sort((a, b) => (a.status === "cancelled" ? 1 : -1));
+        // Sort paid bookings with cancelled at bottom
+        paid.sort((a, b) => (a.status === "Cancelled" ? 1 : -1));
         setPaidBookings(paid);
         setUnpaidBookings(unpaid);
       } else {
@@ -97,21 +102,22 @@ const ManageBookings = () => {
         const userRef = ref(db, `users/${user.uid}`);
         const snapshot = await get(userRef);
         const userData = snapshot.val();
+        console.log(typeof userData.accountBalance);
         const updatedBalance = userData.accountBalance + refundAmount;
 
-        await update(bookingRef, { status: "cancelled" });
+        await update(bookingRef, { status: "Cancelled" });
 
         await update(userRef, { accountBalance: updatedBalance });
 
         const updatedPaidBookings = paidBookings.map((booking) => {
           if (booking.key === confirmCancel.key) {
-            return { ...booking, status: "cancelled" };
+            return { ...booking, status: "Cancelled" };
           }
           return booking;
         });
 
         // Sort the updated list so cancelled bookings are at the bottom
-        updatedPaidBookings.sort((a, b) => (a.status === "cancelled" ? 1 : -1));
+        updatedPaidBookings.sort((a, b) => (a.status === "Cancelled" ? 1 : -1));
         setPaidBookings(updatedPaidBookings);
 
         // Show success message
@@ -121,7 +127,9 @@ const ManageBookings = () => {
         setConfirmCancel(null);
       } catch (error) {
         console.error("Error cancelling booking:", error);
-        toast.error("An error occurred while processing the cancellation.");
+        toast.error(
+          `An error occurred while processing the cancellation. Details: ${error.message}`
+        );
       }
     }
   };
@@ -148,9 +156,10 @@ const ManageBookings = () => {
   const handlePageChange = (event, value) => {
     setCurrentPage(value);
   };
+
   useEffect(() => {
     const applyStyles = () => {
-      document.querySelectorAll('.MuiPaginationItem-root').forEach(item => {
+      document.querySelectorAll(".MuiPaginationItem-root").forEach((item) => {
         item.classList.add(classes.paginationItem);
       });
     };
@@ -170,7 +179,7 @@ const ManageBookings = () => {
               <table>
                 <thead>
                   <tr>
-                  <th>#</th>
+                    <th>#</th>
                     <th>Booking ID</th>
                     <th>Date</th>
                     <th>Time</th>
@@ -183,16 +192,17 @@ const ManageBookings = () => {
                     <tr
                       key={booking.key}
                       className={
-                        booking.status === "cancelled"
-                          ? "cancelled-booking"
-                          : ""
+                        booking.status === "Cancelled" ? "cancelled-booking" : ""
                       }
+                      style={{
+                        textDecoration: booking.status === "Cancelled" ? "line-through" : "none",
+                      }}
                     >
-                       <td>{indexOfFirstBooking + index + 1}</td>
+                      <td>{indexOfFirstBooking + index + 1}</td>
                       <td>{booking.bookingId}</td>
                       <td>{booking.date}</td>
                       <td>{booking.time}</td>
-                      <td>{booking.status || "pending"}</td>
+                      <td>{booking.status || "Pending"}</td>
                       <td>
                         <button
                           className="detail-button"
@@ -205,7 +215,7 @@ const ManageBookings = () => {
                         <button
                           className="cancel-button"
                           onClick={() => handleCancel(booking)}
-                          disabled={booking.status === "cancelled"}
+                          disabled={booking.status === "Cancelled" || booking.status === "Pending"}
                         >
                           Cancel
                         </button>
@@ -216,8 +226,16 @@ const ManageBookings = () => {
               </table>
               {paidBookings.length > bookingsPerPage && (
                 <>
-                  <div style={{ textAlign: 'center', marginBottom: '1rem', marginTop: "2rem", fontSize: "2rem" }}>
-                    Page {currentPage} of {Math.ceil(paidBookings.length / bookingsPerPage)}
+                  <div
+                    style={{
+                      textAlign: "center",
+                      marginBottom: "1rem",
+                      marginTop: "2rem",
+                      fontSize: "2rem",
+                    }}
+                  >
+                    Page {currentPage} of{" "}
+                    {Math.ceil(paidBookings.length / bookingsPerPage)}
                   </div>
                   <Pagination
                     count={Math.ceil(paidBookings.length / bookingsPerPage)}
@@ -248,23 +266,23 @@ const ManageBookings = () => {
                     <th>Booking ID</th>
                     <th>Date</th>
                     <th>Time</th>
-                    <th>Paid</th>
+                    <th>Status</th>
                     <th>Action</th>
                   </tr>
                 </thead>
                 <tbody>
                   {currentUnpaidBookings.map((booking, index) => (
                     <tr key={booking.key}>
-                       <td>{indexOfFirstBooking + index + 1}</td>
+                      <td>{indexOfFirstBooking + index + 1}</td>
                       <td>{booking.bookingId}</td>
                       <td>{booking.date}</td>
                       <td>{booking.time}</td>
-                      <td>{booking.paid ? "True" : "False"}</td>
+                      <td>{booking.status}</td>
                       <td>
                         <button
                           className="detail-button"
                           onClick={() =>
-                            navigate(`/booking-details/${booking.id}`)
+                            navigate(`/booking-details/${booking.key}`)
                           }
                         >
                           Show Details
@@ -276,8 +294,16 @@ const ManageBookings = () => {
               </table>
               {unpaidBookings.length > bookingsPerPage && (
                 <>
-                  <div style={{ textAlign: 'center', marginBottom: '1rem', marginTop: "2rem", fontSize: "2rem" }}>
-                    Page {currentPage} of {Math.ceil(unpaidBookings.length / bookingsPerPage)}
+                  <div
+                    style={{
+                      textAlign: "center",
+                      marginBottom: "1rem",
+                      marginTop: "2rem",
+                      fontSize: "2rem",
+                    }}
+                  >
+                    Page {currentPage} of{" "}
+                    {Math.ceil(unpaidBookings.length / bookingsPerPage)}
                   </div>
                   <Pagination
                     count={Math.ceil(unpaidBookings.length / bookingsPerPage)}

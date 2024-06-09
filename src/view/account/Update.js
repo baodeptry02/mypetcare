@@ -4,6 +4,7 @@ import { useNavigate } from "react-router-dom";
 import { updateProfile } from "firebase/auth"; 
 import { getDatabase, ref, onValue, update } from "firebase/database";
 import { ToastContainer, toast } from 'react-toastify';
+import useForceUpdate from '../../hooks/useForceUpdate'
 
 function Update() {
   const [email, setEmail] = useState("");
@@ -17,6 +18,8 @@ function Update() {
   const [userUpdated, setUserUpdated] = useState(false); 
   const navigate = useNavigate();
   const user = auth.currentUser;
+  const forceUpdate = useForceUpdate(); // use the custom hook
+
 
   useEffect(() => {
     if (user) {
@@ -40,6 +43,7 @@ function Update() {
           setUsername(data.username);
           setPhone(data.phone);
           setAddress(data.address);
+          setFullname(data.fullname);
           setAccountBalance(data.accountBalance);
         }
         setLoading(false);
@@ -85,9 +89,13 @@ function Update() {
           });
 
           await update(ref(getDatabase(), "users/" + userId), updates);
-          navigate("/account")
-          setUserUpdated(true); // Đánh dấu cập nhật của người dùng
-          toast.success("Cập nhật thành công !!!");
+          setUserUpdated(true); 
+          toast.success("Cập nhật thành công !!!", {
+            onClose: () => {
+              navigate("/account")
+              forceUpdate();
+            },
+          });
         } catch (error) {
           toast.error("Lỗi");
         }

@@ -4,6 +4,7 @@ import { getDatabase, ref, push, get, query, orderByChild, limitToLast, set } fr
 import { getStorage, ref as storageRef, uploadBytes, getDownloadURL } from 'firebase/storage';
 import { ToastContainer, toast } from "react-toastify";
 import { v4 } from "uuid";
+import useForceUpdate from "../../hooks/useForceUpdate";
 
 const AddPet = () => {
   const [petName, setPetName] = useState("");
@@ -15,6 +16,7 @@ const AddPet = () => {
   const [image, setImage] = useState(null);
   const [loading, setLoading] = useState(false);
   const [previewImage, setPreviewImage] = useState(null);
+  const forceUpdate= useForceUpdate();
 
   const handleImageChange = (e) => {
     const file = e.target.files[0];
@@ -54,7 +56,10 @@ const AddPet = () => {
         imageUrl: imageUrl,
       });
       toast.success("Pet added successfully. You can view it in your collection!", {
-        autoClose: 2000 
+        autoClose: 2000,
+        onClose: () => {
+          forceUpdate();
+        }
       });
     } catch (error) {
       alert("Error adding pet: " + error.message);
