@@ -9,6 +9,7 @@ import useViewport from "../../hooks/useViewport";
 import { BookingContext } from '../../Components/context/BookingContext';
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faPaw } from "@fortawesome/free-solid-svg-icons";
+import imageNopet from "../../public/assets/Remove-bg.ai_1716049467772.png"
 
 const useStyles = makeStyles({
   pagination: {
@@ -119,7 +120,7 @@ const SelectPet = () => {
             pets.length === 0 ? (
               <div className="empty-pet container">
                 <div className="empty-pet-img">
-                  <img src="./Remove-bg.ai_1716049467772.png" alt="No pets" />
+                  <img src={imageNopet} alt="No pets" />
                 </div>
                 <div className="empty-pet-title">
                   <h1>

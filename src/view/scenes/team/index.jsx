@@ -115,6 +115,9 @@ function Team() {
         updates.phone = row.phone;
       }
     }
+    if (row.role) {
+      updates.role = row.role;
+    }
     if (row.address) {
       updates.address = row.address;
     }

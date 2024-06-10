@@ -9,6 +9,7 @@ import Pet from "./view/pet/Pet";
 import AddPet from "./view/pet/AddPet";
 import PetDetail from "./view/pet/PetDetail";
 import Book from "./view/booking/Book";
+import AddPetNext from "./view/pet/AddPet-Next"; 
 import QrCodePage from "./view/qr/QrCodePage";
 import Transaction from "./Components/transaction/TransactionHistory";
 import ForgotPassword from "./Components/googleSignIn/ForgotPassword";
@@ -70,6 +71,7 @@ function MainContent() {
               <Route path="/manager" element={<Manager />} />
               <Route path="/pet" element={<Pet />} />
               <Route path="/pet/add" element={<AddPet />} />
+              <Route path="/pet/add/details" element={<AddPetNext />} />
               <Route path="/pet-details/:petId" element={<PetDetail />} />
               <Route path="/book/*" element={<Book />} />
               <Route path="/qr" element={<QrCodePage />} />

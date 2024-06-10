@@ -77,6 +77,18 @@ function Header({ user, currentPath }) {
 
       onValue(userRef, (snapshot) => {
         const data = snapshot.val();
+        // console.log(data.schedule)
+        // Object.entries(data.schedule).forEach(([date, bookings]) => {
+        //   console.log(`Date: ${date}`);
+        
+          
+        //   bookings.forEach((booking, index) => {
+        //     console.log(`  Booking ${index + 1}:`);
+        //     console.log(`    Time: ${booking.time}`);
+        //     console.log(`    Pet Name: ${booking.petName}`);
+        //     console.log(`    Service: ${booking.services}`);
+        //   });
+        // });
         if (data && data.role) {
           setRole(data.role);
         } else {

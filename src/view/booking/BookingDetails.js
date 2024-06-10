@@ -37,20 +37,59 @@ const BookingDetails = () => {
     return <p>Loading booking details...</p>;
   }
 
+  const { pet, vet, date, time, services, totalPaid, amountToPay, status } = booking;
+  const petName = pet?.name || 'N/A';
+  const vetName = vet?.name || 'N/A';
+
   return (
-    <div className="booking-details-page">
-      <h2>Booking Details</h2>
-      <table className="booking-details-table">
-        <tbody>
-          {Object.entries(booking).map(([key, value]) => (
-            <tr key={key}>
-              <td className="key-column">{key}</td>
-              <td className="value-column">{value.toString()}</td>
-            </tr>
-          ))}
-        </tbody>
-      </table>
-      <button className="back-button" onClick={() => navigate(-1)}>Back</button>
+    <div className="booking-details-wrapper">
+      <div className="booking-details-container">
+        <div className="left-panel">
+          <img src={pet.imageUrl} alt="Pet Avatar" className="pet-avatar" />
+          <div className="owner-info">
+            <h3>Owner Information</h3>
+            <p>Username: {user.displayName}</p>
+            <p>Phone: {user.phoneNumber || 'N/A'}</p>
+            <p>Pet Name: {petName}</p>
+          </div>
+        </div>
+        <div className="right-panel">
+          <h2>Booking Details</h2>
+          <table className="booking-details-table">
+            <tbody>
+              <tr>
+                <td className="key-column">Booking ID</td>
+                <td className="value-column">{booking.bookingId}</td>
+              </tr>
+              <tr>
+                <td className="key-column">Date</td>
+                <td className="value-column">{date}</td>
+              </tr>
+              <tr>
+                <td className="key-column">Time</td>
+                <td className="value-column">{time}</td>
+              </tr>
+              <tr>
+                <td className="key-column">Services</td>
+                <td className="value-column">{services.join(', ')}</td>
+              </tr>
+              <tr>
+                <td className="key-column">Total Paid</td>
+                <td className="value-column">${totalPaid}</td>
+              </tr>
+              <tr>
+                <td className="key-column">Status</td>
+                <td className="value-column">{status}</td>
+              </tr>
+              <tr>
+                <td className="key-column">Vet</td>
+                <td className="value-column">{vetName}</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+        <button className="booking-detail back-button" onClick={() => navigate(-1)}>Back</button>
+      </div>
     </div>
   );
 };

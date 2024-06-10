@@ -44,6 +44,8 @@ const PetDetail = () => {
   delete petDetails.imageUrl;
 
   return (
+    <div className="pet-detail-wrapper">
+
     <div className="pet-detail-container">
       <div className="pet-images-section">
         <div className="main-image-container">
@@ -51,7 +53,7 @@ const PetDetail = () => {
             className="main-image"
             src={imageUrl} 
             alt={`${pet.name} image`} 
-          />
+            />
         </div>
       </div>
       <div className="pet-info-section">
@@ -62,7 +64,7 @@ const PetDetail = () => {
               <tr key={key}>
                 <td className="key-column">{key}</td>
                 <td className="value-column">
-                  {Array.isArray(value) ? value.join(", ") : value.toString()}
+                  {Array.isArray(value) ? value.join(",") : value.toString()}
                 </td>
               </tr>
             ))}
@@ -71,6 +73,7 @@ const PetDetail = () => {
         <button className="back-button" onClick={() => navigate(-1)}>Back</button>
       </div>
     </div>
+          </div>
   );
 };
 

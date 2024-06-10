@@ -1,7 +1,9 @@
-import React, { useState, useContext, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
-import { BookingContext } from '../../Components/context/BookingContext';
+import React, { useState, useContext, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
+import { BookingContext } from "../../Components/context/BookingContext";
 import { getDatabase, ref, get, child, set, update } from "firebase/database";
+import Calendar from "react-calendar";
+import "react-calendar/dist/Calendar.css";
 
 const generateTimeSlots = (startTime, endTime, interval) => {
   const slots = [];
@@ -10,8 +12,12 @@ const generateTimeSlots = (startTime, endTime, interval) => {
   while (currentTime < endTime) {
     const hours = Math.floor(currentTime / 60);
     const minutes = currentTime % 60;
-    const timeString = `${hours.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}`;
-    const formattedTime = `${hours % 12 || 12}:${minutes.toString().padStart(2, '0')} ${hours >= 12 ? 'PM' : 'AM'}`;
+    const timeString = `${hours.toString().padStart(2, "0")}:${minutes
+      .toString()
+      .padStart(2, "0")}`;
+    const formattedTime = `${hours % 12 || 12}:${minutes
+      .toString()
+      .padStart(2, "0")} ${hours >= 12 ? "PM" : "AM"}`;
     slots.push({ timeString, formattedTime });
     currentTime += interval;
   }
@@ -19,55 +25,37 @@ const generateTimeSlots = (startTime, endTime, interval) => {
   return slots;
 };
 
-const saveBooking = async (vetUid, date, time, petId, serviceNames) => {
-  const db = getDatabase();
-  
-  // Update the booking slot for the veterinarian
-  const bookingSlotRef = ref(db, `users/${vetUid}/bookingSlots/${date}`);
-  const bookingSlotSnapshot = await get(bookingSlotRef);
-  let bookedSlots = bookingSlotSnapshot.val() || [];
-  bookedSlots.push(time);
-
-  await update(ref(db, `users/${vetUid}/bookingSlots`), {
-    [date]: bookedSlots
-  });
-
-  // Save booking details
-  const bookingRef = ref(db, `bookings/${vetUid}/${date}/${time}`);
-  await set(bookingRef, {
-    petId,
-    serviceNames,
-    time,
-  });
-};
-
 const SelectDateTime = () => {
-  const { selectedPet, selectedServices, setSelectedDateTime } = useContext(BookingContext);
-  const [date, setDate] = useState('');
-  const [vet, setVet] = useState('');
+  const { selectedPet, selectedServices, setSelectedDateTime } =
+    useContext(BookingContext);
+  const [date, setDate] = useState("");
+  const [vet, setVet] = useState("");
   const [vets, setVets] = useState([]);
-  const [selectedTime, setSelectedTime] = useState('');
+  const [selectedTime, setSelectedTime] = useState("");
   const navigate = useNavigate();
   const [bookedSlots, setBookedSlots] = useState([]);
-  const [isDateInputFocused, setIsDateInputFocused] = useState(false);
 
   useEffect(() => {
     if (!selectedPet) {
-      navigate('/book/select-pet');
+      navigate("/book/select-pet");
     } else if (selectedServices.length === 0) {
-      navigate('/book/select-service');
+      navigate("/book/select-service");
     }
   }, [selectedPet, selectedServices, navigate]);
 
   useEffect(() => {
     const fetchVets = async () => {
       const db = getDatabase();
-      const vetsRef = ref(db, 'users');
+      const vetsRef = ref(db, "users");
       const snapshot = await get(vetsRef);
       const vetsData = snapshot.val();
       const vetsList = Object.keys(vetsData)
-        .filter(uid => vetsData[uid].role === 'veterinarian')
-        .map(uid => ({ uid, name: vetsData[uid].fullname }));
+        .filter((uid) => vetsData[uid].role === "veterinarian")
+        .map((uid) => ({
+          uid,
+          name: vetsData[uid].fullname,
+          schedule: vetsData[uid].schedule || {},
+        }));
       setVets(vetsList);
     };
 
@@ -75,83 +63,121 @@ const SelectDateTime = () => {
   }, []);
 
   useEffect(() => {
-    const fetchAllBookedSlots = async () => {
+    const fetchAllBookings = async () => {
       const db = getDatabase();
-      const bookingsRef = ref(db, 'bookings');
-      const snapshot = await get(bookingsRef);
-      const bookingsData = snapshot.val();
-      let allBookedSlots = [];
-  
-      if (bookingsData) {
-        Object.keys(bookingsData).forEach(vetUid => {
-          Object.keys(bookingsData[vetUid]).forEach(date => {
-            Object.keys(bookingsData[vetUid][date]).forEach(time => {
-              allBookedSlots.push({ vetUid, date, time });
+      const usersRef = ref(db, "users");
+      const snapshot = await get(usersRef);
+      const usersData = snapshot.val();
+      let allBookings = [];
+      console.log("Users Data:", usersData); // Log to check usersData
+
+      if (usersData) {
+        Object.keys(usersData).forEach((userId) => {
+          const userData = usersData[userId];
+          if (userData.bookings) {
+            Object.keys(userData.bookings).forEach((bookingId) => {
+              const booking = userData.bookings[bookingId];
+              allBookings.push({
+                userId,
+                bookingId,
+                ...booking,
+              });
             });
-          });
+          }
         });
       }
-  
-      setBookedSlots(allBookedSlots);
+      console.log("All Bookings:", allBookings); // Log to check allBookings
+      setBookedSlots(allBookings);
     };
-  
-    fetchAllBookedSlots();
+
+    fetchAllBookings();
   }, []);
 
   useEffect(() => {
-    console.log('Selected Date:', date);
-    console.log('Selected Vet:', vet);
-    console.log('Booked Slots:', bookedSlots);
+    console.log("Selected Date:", date);
+    console.log("Selected Vet:", vet);
+    console.log("Booked Slots:", bookedSlots);
   }, [date, vet, bookedSlots]);
 
   const morningSlots = generateTimeSlots(600, 720, 15); // 10:00 AM to 11:45 AM
   const afternoonSlots = generateTimeSlots(720, 1080, 15); // 12:00 PM to 4:45 PM
 
+  const availableVets = date ? vets.filter((vet) => vet.schedule[date]) : [];
+  console.log(availableVets)
+  console.log('Vets:', vets);
+console.log('Date:', date);
+vets.forEach(vet => console.log('Vet Schedule:', vet.schedule));
   const handleNext = async () => {
     if (date && vet && selectedTime) {
-      const selectedVet = vets.find(v => v.name === vet);
+      const selectedVet = vets.find((v) => v.name === vet);
 
       // Extracting the names of the selected services
-      const serviceNames = selectedServices.map(service => service.name);
+      const serviceNames = selectedServices.map((service) => service.name);
 
       // Add debugging logs to check the values
-      console.log('Selected Vet UID:', selectedVet.uid);
-      console.log('Selected Date:', date);
-      console.log('Selected Time:', selectedTime);
-      console.log('Selected Pet ID:', selectedPet.petId);
-      console.log('Selected Service Names:', serviceNames);
+      console.log("Selected Vet UID:", selectedVet.uid);
+      console.log("Selected Date:", date);
+      console.log("Selected Time:", selectedTime);
+      console.log("Selected Service Names:", serviceNames);
 
-      if (!selectedPet.petId || serviceNames.length === 0) {
-        alert('Pet ID or Service Names are missing. Please check your selection.');
+      if (!selectedPet.name || serviceNames.length === 0) {
+        alert(
+          "Pet ID or Service Names are missing. Please check your selection."
+        );
         return;
       }
 
       try {
-        await saveBooking(selectedVet.uid, date, selectedTime, selectedPet.petId, serviceNames);
-        setSelectedDateTime({ date, time: selectedTime, vet });
-        navigate('/book/booking-confirm');
+        const newBookedSlot = {
+          vetUid: selectedVet.uid,
+          date,
+          time: selectedTime,
+        };
+        setBookedSlots([...bookedSlots, newBookedSlot]);
+        setSelectedDateTime({ date, time: selectedTime, vet: { name: vet, uid: selectedVet.uid } });
+        navigate("/book/booking-confirm");
       } catch (error) {
-        console.error('Error saving booking:', error);
-        alert('There was an error saving your booking. Please try again.');
+        console.error("Error processing booking:", error);
+        alert("There was an error processing your booking. Please try again.");
       }
     } else {
-      alert('Please select a date, vet, and time.');
+      alert("Please select a date, vet, and time.");
     }
   };
 
-  const selectedVetUid = vets.find(v => v.name === vet)?.uid;
+  console.log(bookedSlots);
+
+  const tileDisabled = ({ date }) => {
+    const today = new Date();
+    return date < today.setHours(0, 0, 0, 0);
+  };
+  const handleDateChange = (selectedDate) => {
+    const year = selectedDate.getFullYear();
+    const month = String(selectedDate.getMonth() + 1).padStart(2, "0"); // Tháng bắt đầu từ 0 nên cần cộng thêm 1
+    const day = String(selectedDate.getDate()).padStart(2, "0");
+    const formattedDate = `${year}-${month}-${day}`;
+    setDate(formattedDate);
+  }
+  
   const renderTimeSlots = (slots) => {
+
     return slots.map((slot, index) => {
       const isBooked = bookedSlots.some(
-        bookedSlot => bookedSlot.vetUid === selectedVetUid && bookedSlot.date === date && bookedSlot.time === slot.timeString
+        (bookedSlot) =>
+          bookedSlot.vet.name === vet &&
+          bookedSlot.date === date &&
+          bookedSlot.time === slot.timeString &&
+          bookedSlot.status === "Paid"
       );
+  
+      console.log(`Slot: ${slot.timeString}, Is Booked: ${isBooked}`);
   
       return (
         <button
           key={slot.timeString}
           onClick={() => setSelectedTime(slot.timeString)}
-          className={selectedTime === slot.timeString ? 'selected' : ''}
-          style={{ margin: '5px', width: "100px" }} // Adjust width to fit 4 buttons in a row
+          className={selectedTime === slot.timeString ? "selected" : ""}
+          style={{ margin: "5px", width: "100px" }} // Adjust width to fit 4 buttons in a row
           disabled={isBooked}
         >
           {slot.formattedTime}
@@ -159,33 +185,36 @@ const SelectDateTime = () => {
       );
     });
   };
+  
 
   if (!selectedPet || selectedServices.length === 0) {
     return (
       <div className="date-time-selection">
-        <h1>No pet or services selected. Please go back and select a pet and services.</h1>
-        <button onClick={() => navigate('/book/select-pet')}>Go Back to Pet Selection</button>
+        <h1>
+          No pet or services selected. Please go back and select a pet and
+          services.
+        </h1>
+        <button onClick={() => navigate("/book/select-pet")}>
+          Go Back to Pet Selection
+        </button>
       </div>
     );
   }
 
   return (
-    <div style={{ marginTop: "250px", height: "100vh" }}>
+    <div className="date-time-container">
       <div className="date-time-selection">
-        <h1>Select Date and Time for {selectedPet.name}</h1>
-        <div>
-          <label htmlFor="date">Date:</label>
-          <input
-            type="date"
-            id="date"
-            value={date}
-            onChange={(e) => setDate(e.target.value)}
-            min={new Date().toISOString().split("T")[0]} // Only allow selection from today onwards
-            required           
-            onKeyPress={(e) => e.preventDefault()} // This will prevent the user from typing in the input field
-          />
-        </div>
-        <div>
+        <div className="form-column">
+          <h1>Select Date and Time for {selectedPet.name}</h1>
+          <div className="sel-date-form-group">
+            <label>Date:</label>
+            <Calendar
+              onChange={handleDateChange}
+              value={date}
+              tileDisabled={tileDisabled}
+            />
+          </div>
+          <div className="sel-date-form-group">
           <label htmlFor="vet">Vet:</label>
           <select
             id="vet"
@@ -194,47 +223,59 @@ const SelectDateTime = () => {
             required
           >
             <option value="">Select a Vet</option>
-            {vets.map((vet) => (
+            {availableVets.map((vet) => (
               <option key={vet.uid} value={vet.name}>
                 {vet.name}
               </option>
             ))}
           </select>
+          </div>
         </div>
-        {date && vet && (
-          <>
-            <h2>Morning Slots</h2>
-            <div className="time-slots">
-              <div className="slot-row">
-                {renderTimeSlots(morningSlots.slice(0, 4))}
+        <div className="slots-column">
+          {date && vet && (
+            <>
+              <div className="slots-group">
+                <h2>Morning Slots</h2>
+                <div className="time-slots">
+                  <div className="slot-row">
+                    {renderTimeSlots(morningSlots.slice(0, 4))}
+                  </div>
+                  <div className="slot-row">
+                    {renderTimeSlots(morningSlots.slice(4))}
+                  </div>
+                </div>
               </div>
-              <div className="slot-row">
-                {renderTimeSlots(morningSlots.slice(4))}
+              <div className="slots-group">
+                <h2>Afternoon Slots</h2>
+                <div className="time-slots">
+                  <div className="slot-row">
+                    {renderTimeSlots(afternoonSlots.slice(0, 4))}
+                  </div>
+                  <div className="slot-row">
+                    {renderTimeSlots(afternoonSlots.slice(4, 8))}
+                  </div>
+                  <div className="slot-row">
+                    {renderTimeSlots(afternoonSlots.slice(8, 12))}
+                  </div>
+                  <div className="slot-row">
+                    {renderTimeSlots(afternoonSlots.slice(12, 16))}
+                  </div>
+                  <div className="slot-row">
+                    {renderTimeSlots(afternoonSlots.slice(16, 20))}
+                  </div>
+                </div>
               </div>
-            </div>
-            <h2>Afternoon Slots</h2>
-            <div className="time-slots">
-              <div className="slot-row">
-                {renderTimeSlots(afternoonSlots.slice(0, 4))}
-              </div>
-              <div className="slot-row">
-                {renderTimeSlots(afternoonSlots.slice(4, 8))}
-              </div>
-              <div className="slot-row">
-                {renderTimeSlots(afternoonSlots.slice(8, 12))}
-              </div>
-              <div className="slot-row">
-                {renderTimeSlots(afternoonSlots.slice(12, 16))}
-              </div>
-              <div className="slot-row">
-                {renderTimeSlots(afternoonSlots.slice(16, 20))}
-              </div>
-            </div>
-          </>
-        )}
-        <button onClick={handleNext} disabled={!date || !vet || !selectedTime}>
-          Next
-        </button>
+              <button
+                onClick={handleNext}
+                disabled={!date || !vet || !selectedTime}
+              >
+                Next
+              </button>
+            </>
+          )}
+      <button className="back-button" onClick={() => navigate(-1)}>Back</button>
+        </div>
+         
       </div>
     </div>
   );

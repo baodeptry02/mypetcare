@@ -201,10 +201,12 @@ function SignIn() {
           "Registration successful. Please check your email for verification then login to our system again.", {
           autoClose: 2000,
           onClose: () => {
-            forceUpdate()
+            setTimeout(() => {
+              forceUpdate();
+            navigate("/signIn");
+            }, 2000);
           }
         })
-        navigate("/signIn");
       } catch (error) {
         toast.error("This email is used by another user, please try again!", {
           autoClose: 2000,

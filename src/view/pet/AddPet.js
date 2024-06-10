@@ -4,7 +4,7 @@ import { getDatabase, ref, push, get, query, orderByChild, limitToLast, set } fr
 import { getStorage, ref as storageRef, uploadBytes, getDownloadURL } from 'firebase/storage';
 import { ToastContainer, toast } from "react-toastify";
 import { v4 } from "uuid";
-import useForceUpdate from "../../hooks/useForceUpdate";
+import { useNavigate } from 'react-router-dom'
 
 const AddPet = () => {
   const [petName, setPetName] = useState("");
@@ -16,8 +16,17 @@ const AddPet = () => {
   const [image, setImage] = useState(null);
   const [loading, setLoading] = useState(false);
   const [previewImage, setPreviewImage] = useState(null);
-  const forceUpdate= useForceUpdate();
+  const [update, setUpdate] = useState(false);
+  const [currentStep, setCurrentStep] = useState(0);
+  const navigate = useNavigate();
 
+  const forceUpdate = () => {
+    setUpdate(!update);
+  };
+  const handleNext = () => {
+    setCurrentStep(currentStep + 1);
+    navigate("/pet/add/details");
+  };
   const handleImageChange = (e) => {
     const file = e.target.files[0];
     setImage(file);
@@ -115,132 +124,38 @@ const AddPet = () => {
 
   return (
     <div style={{ height: "100vh" }}>
-      <div className="parent-container">
-        <div className="container pet-container" id="container">
-          <h3 className="pet-title account-title">Add Pet Info</h3>
-          <form onSubmit={handleSubmit} className="grid-container">
-            <div className="form-group">
-              <div className="flex-container">
-                <div className="flex-item">
-                  <label>Pet Name</label>
-                  <input
-                    required
-                    id="petname"
-                    type="text"
-                    autoComplete="off"
-                    value={petName}
-                    placeholder="Enter your pet name"
-                    onChange={(e) => setPetName(e.target.value)}
-                    className="w-full mt-2 px-3 py-2 text-gray-500 bg-transparent outline-none border focus:indigo-600 shadow-sm rounded-lg transition duration-300"
-                  />
-                </div>
-                <div className="flex-item">
-                  <label>Pet Type</label>
-                  <div className="pet-type">
-                    <label>
-                      <input
-                        type="radio"
-                        name="petType"
-                        value="dog"
-                        checked={petType === "dog"}
-                        onChange={() => setPetType("dog")}
-                      />
-                      Dog
-                    </label>
-                    <label>
-                      <input
-                        type="radio"
-                        name="petType"
-                        value="cat"
-                        checked={petType === "cat"}
-                        onChange={() => setPetType("cat")}
-                      />
-                      Cat
-                    </label>
-                  </div>
-                </div>
-              </div>
-              <div className="flex-container">
-                <div className="flex-item">
-                  <label>Pet Age</label>
-                  <input
-                    id="petage"
-                    type="text"
-                    autoComplete="off"
-                    value={petAge}
-                    placeholder="Enter your pet age"
-                    onChange={(e) => setPetAge(e.target.value)}
-                    className="w-full mt-2 px-3 py-2 text-gray-500 bg-transparent outline-none border focus:indigo-600 shadow-sm rounded-lg transition duration-300"
-                  />
-                </div>
-                <div className="flex-item">
-                  <label>Pet Size</label>
-                  <input
-                    required
-                    id="petsize"
-                    type="text"
-                    autoComplete="off"
-                    value={petSize}
-                    placeholder="Enter your pet size"
-                    onChange={(e) => setPetSize(e.target.value)}
-                    className="w-full mt-2 px-3 py-2 text-gray-500 bg-transparent outline-none border focus:indigo-600 shadow-sm rounded-lg transition duration-300"
-                  />
-                </div>
-              </div>
-              <div className="flex-container">
-                <div className="flex-item">
-                  <label>Pet Color</label>
-                  <input
-                    id="petcolor"
-                    type="text"
-                    autoComplete="off"
-                    required
-                    value={petColor}
-                    placeholder="Enter your pet color"
-                    onChange={(e) => setPetColor(e.target.value)}
-                    className="w-full mt-2 px-3 py-2 text-gray-500 bg-transparent outline-none border focus:indigo-600 shadow-sm rounded-lg transition duration-300"
-                  />
-                </div>
-                <div className="flex-item">
-                  <label>Pet Vaccinated</label>
-                  <input
-                    id="petvaccinated"
-                    type="text"
-                    autoComplete="off"
-                    required
-                    value={petVaccinated}
-                    placeholder="Enter your pet vaccinated status"
-                    onChange={(e) => setPetVaccinated(e.target.value)}
-                    className="w-full mt-2 px-3 py-2 text-gray-500 bg-transparent outline-none border focus:indigo-600 shadow-sm rounded-lg transition duration-300"
-                  />
-                </div>
-              </div>
-            </div>
-            <div className="image-group">
-              <label>Pet Image</label>
-              <input
-                required
-                id="petimage"
-                type="file"
-                accept="image/*"
-                onChange={handleImageChange}
-                className="w-full mt-2 px-3 py-2 text-gray-500 bg-transparent outline-none border focus:indigo-600 shadow-sm rounded-lg transition duration-300"
-              />
-              {previewImage && (
-                <img
-                  src={previewImage}
-                  alt="Pet Preview"
-                  style={{ width: '100px', height: '100px' }}
-                />
-              )}
-            </div>
-            <button type="submit" disabled={loading}>
-              {loading ? "Uploading..." : "Add Pet"}
-            </button>
-          </form>
+      <section className="section-addpet">
+        
+      <div className="add-pet-container">
+      <h2 className="title-addpet">Step 1: Add Your Pet</h2>
+      <div className="line"></div>
+      <p className="des-addpet">Choose your pet category</p>
+      <div className="pet-options">
+        <div
+          className={`pet-option ${petType === 'cat' ? 'selected' : ''}`}
+          onClick={() => setPetType('cat')}
+        >
+          <img src="https://app.petotum.com/assets/img/icon/select-cat.png" alt="Cat" />
+          <span className="checkmark">&#10003;</span>
         </div>
-        <ToastContainer />
+        <div
+          className={`pet-option ${petType === 'dog' ? 'selected' : ''}`}
+          onClick={() => setPetType('dog')}
+        >
+          <img src="https://app.petotum.com/assets/img/icon/select-dog.png" alt="Dog" />
+          <span className="checkmark">&#10003;</span>
+        </div>
       </div>
+      <div className="navigation-buttons">
+        <a className="back-link" href="/pet">Back</a>
+        <a className="next-link" onClick={handleNext}>Next</a>
+      </div>
+    </div>
+    
+    <div className="img-addpet-thumbnail">
+    <img src="https://app.petotum.com/assets/img/wp/petbg.png" />
+    </div>
+    </section>
     </div>
   );
 };

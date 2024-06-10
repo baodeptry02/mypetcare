@@ -1,10 +1,10 @@
 import React, { useContext, useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { BookingContext } from '../../Components/context/BookingContext';
-import { getDatabase, ref, push, update, get } from "firebase/database";
+import { getDatabase, ref, push, update, get, set } from "firebase/database";
 import { auth } from "../../Components/firebase/firebase";
 import { toast, ToastContainer } from 'react-toastify';
-import useForceUpdate from '../../hooks/useForceUpdate'
+import useForceUpdate from '../../hooks/useForceUpdate';
 
 const BookingConfirm = () => {
   const { selectedPet, selectedServices, selectedDateTime } = useContext(BookingContext);
@@ -12,8 +12,9 @@ const BookingConfirm = () => {
   const [accountBalance, setAccountBalance] = useState(0);
   const [username, setUsername] = useState("");
   const [bookingSuccess, setBookingSuccess] = useState(false);
+  const [showModal, setShowModal] = useState(false);
   const navigate = useNavigate();
-  const forceUpdate = useForceUpdate(); // use the custom hook
+  const forceUpdate = useForceUpdate();
 
   useEffect(() => {
     const fetchUserData = async () => {
@@ -24,7 +25,6 @@ const BookingConfirm = () => {
           const db = getDatabase();
           const userRef = ref(db, "users/" + currentUser.uid);
 
-          // Fetch user data
           const snapshot = await get(userRef);
           const data = snapshot.val();
           if (data) {
@@ -66,8 +66,21 @@ const BookingConfirm = () => {
     const db = getDatabase();
     const bookingRef = ref(db, 'users/' + user.uid + '/bookings');
     try {
-      // Add the new booking to the database
       await push(bookingRef, newBooking);
+
+      const bookingSlotRef = ref(db, `users/${selectedDateTime.vet.uid}/schedule/${selectedDateTime.date}`);
+      const bookingSlotSnapshot = await get(bookingSlotRef);
+      let bookedSlots = Array.isArray(bookingSlotSnapshot.val()) ? bookingSlotSnapshot.val() : [];
+
+      bookedSlots.push({
+        time: selectedDateTime.time,
+        petName: selectedPet.name,
+        services: selectedServices.map(service => service.name),
+        userAccount: user.email,
+        username: username
+      });
+
+      await set(ref(db, `users/${selectedDateTime.vet.uid}/schedule/${selectedDateTime.date}`), bookedSlots);
     } catch (error) {
       console.error("Error adding booking to database:", error);
       toast.error("An error occurred while processing your booking. Please try again later.");
@@ -80,14 +93,12 @@ const BookingConfirm = () => {
 
     if (user && selectedPet && selectedServices.length > 0 && selectedDateTime) {
       try {
-        // Simplify services to just their names
         const serviceNames = selectedServices.map(service => service.name);
-        
         const newBooking = {
           bookingId: bookingId,
           pet: selectedPet,
-          services: serviceNames,  // Only store the names of the services
-          date: selectedDateTime.date,  // Flatten the date and time properties
+          services: serviceNames,
+          date: selectedDateTime.date,
           time: selectedDateTime.time,
           vet: selectedDateTime.vet,
           totalPaid: totalPaid,
@@ -102,11 +113,11 @@ const BookingConfirm = () => {
           newBooking.status = "Paid";
           await addToDatabase(newBooking);
 
-          toast.success("Booking successful! Your account balance has been updated.", {
+          toast.success("Booking successful! Please check your booking section.", {
             autoClose: 2000,
             onClose: () => {
               setBookingSuccess(true);
-              forceUpdate(); // force re-render to ensure the toast is displayed
+              forceUpdate();
             }
           });
         } else {
@@ -122,7 +133,7 @@ const BookingConfirm = () => {
             autoClose: 2000,
             onClose: () => {
               navigate("/qr", { state: { qrUrl, bookingId } });
-              forceUpdate(); // force re-render to ensure the toast is displayed
+              forceUpdate();
             },
           });
         }
@@ -135,7 +146,19 @@ const BookingConfirm = () => {
     }
   };
 
-  // If required data is missing, display a message and prevent booking confirmation
+  const openModal = () => {
+    setShowModal(true);
+  };
+
+  const closeModal = () => {
+    setShowModal(false);
+  };
+
+  const confirmModal = () => {
+    setShowModal(false);
+    handleConfirmBooking();
+  };
+
   if (!selectedPet || selectedServices.length === 0 || !selectedDateTime) {
     return (
       <div className="booking-confirm">
@@ -151,11 +174,30 @@ const BookingConfirm = () => {
       <h2>Pet: {selectedPet ? selectedPet.name : 'N/A'}</h2>
       <h2>Services: {selectedServices.map(service => service.name).join(', ') || 'N/A'}</h2>
       <h2>Date: {selectedDateTime ? selectedDateTime.date : 'N/A'}</h2>
-      <h2>Vet: {selectedDateTime ? selectedDateTime.vet : 'N/A'}</h2>
+      <h2>Vet: {selectedDateTime ? selectedDateTime.vet.name : 'N/A'}</h2>
       <h2>Time: {selectedDateTime ? selectedDateTime.time : 'N/A'}</h2>
       <h2>Total Paid: ${calculateTotalPaid()}</h2>
-      <button onClick={handleConfirmBooking}>Confirm Booking</button>
+      <button className="back-button" onClick={() => navigate(-1)}>Back</button>
+      <button onClick={openModal}>Confirm</button>
       <ToastContainer />
+
+      {showModal && (
+        <div className="modal-overlay" onClick={closeModal}>
+          <div className="modal-content" onClick={(e) => e.stopPropagation()}>
+            <div className="modal-header">
+              <h3>Confirm Booking</h3>
+              <span className="modal-close" onClick={closeModal}>&times;</span>
+            </div>
+            <div className="modal-body">
+              <h2>Carefully review your booking details before clicking "Yes"</h2>
+            </div>
+            <div className="modal-actions">
+              <button className="confirm" onClick={confirmModal}>Yes</button>
+              <button className="cancel" onClick={closeModal}>No</button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 };

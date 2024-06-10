@@ -143,7 +143,7 @@ const Pet = () => {
 
   return (
     <div className="pet-page">
-      <div className="parent-container">
+      <div className="parent-container parent-container1 ">
         <div className="pet-manage">
           {user ? (
             petCount === 0 ? (
@@ -187,7 +187,7 @@ const Pet = () => {
                       <div className="pet-card-content">
                         <div className="pet-card-header">
                           <span className="pet-name">{pet.name}</span>
-                          <span className="pet-color">{pet.style}</span>
+                          <span className="pet-color">{pet.type}</span>
                         </div>
                       </div>
                     </div>

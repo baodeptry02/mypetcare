@@ -66,6 +66,7 @@ const SelectService = () => {
           </div>
         ))}
       </div>
+      <button className="back-button" onClick={() => navigate(-1)}>Back</button>
       <button disabled={selectedServiceList.length === 0} className='button-service' onClick={handleNext}>Next</button>
     </div>
   );

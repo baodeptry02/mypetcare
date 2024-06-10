@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { getDatabase, ref, onValue, update, get } from "firebase/database";
+import { getDatabase, ref, onValue, update, get, set } from "firebase/database";
 import { auth } from "../../Components/firebase/firebase";
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
@@ -29,7 +29,7 @@ const useStyles = makeStyles({
         color: "#000",
       },
       "&.Mui-selected": {
-        backgroundColor: "rgba(0, 0, 0, 0.08);",
+        backgroundColor: "#be90e5",
         color: "#fff",
       },
     },
@@ -44,7 +44,7 @@ const ManageBookings = () => {
   const [confirmCancel, setConfirmCancel] = useState(null);
   const [showPaid, setShowPaid] = useState(true);
   const [currentPage, setCurrentPage] = useState(1);
-  const [bookingsPerPage] = useState(10);
+  const [bookingsPerPage] = useState(5);
   const navigate = useNavigate();
   const classes = useStyles();
 
@@ -87,42 +87,39 @@ const ManageBookings = () => {
     setConfirmCancel(booking);
   };
 
-  const confirmCancellation = async () => {
+  const confirmCancellation = async (booking) => {
     if (confirmCancel) {
       const user = auth.currentUser;
       const db = getDatabase();
-      const bookingRef = ref(
-        db,
-        `users/${user.uid}/bookings/${confirmCancel.key}`
-      );
-
+      const bookingRef = ref(db, `users/${user.uid}/bookings/${confirmCancel.key}`);
+  
       try {
         const refundAmount = confirmCancel.totalPaid * 0.75;
-
+  
         const userRef = ref(db, `users/${user.uid}`);
         const snapshot = await get(userRef);
         const userData = snapshot.val();
         console.log(typeof userData.accountBalance);
         const updatedBalance = userData.accountBalance + refundAmount;
-
+  
         await update(bookingRef, { status: "Cancelled" });
-
+  
         await update(userRef, { accountBalance: updatedBalance });
-
+  
         const updatedPaidBookings = paidBookings.map((booking) => {
           if (booking.key === confirmCancel.key) {
             return { ...booking, status: "Cancelled" };
           }
           return booking;
         });
-
+  
         // Sort the updated list so cancelled bookings are at the bottom
         updatedPaidBookings.sort((a, b) => (a.status === "Cancelled" ? 1 : -1));
         setPaidBookings(updatedPaidBookings);
 
         // Show success message
         toast.success("Booking cancelled. Refund processed successfully!");
-
+  
         // Reset confirmCancel state
         setConfirmCancel(null);
       } catch (error) {
@@ -133,6 +130,8 @@ const ManageBookings = () => {
       }
     }
   };
+  
+  
 
   const toggleBookings = () => {
     setShowPaid(!showPaid);

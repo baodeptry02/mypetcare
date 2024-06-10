@@ -1,15 +1,17 @@
-import React, { useEffect, useContext, useState } from 'react';
-import { useLocation, useNavigate } from 'react-router-dom';
-import { getDatabase, ref, get, update, onValue } from 'firebase/database';
-import { auth } from '../../Components/firebase/firebase';
-import { TransactionContext } from '../../Components/context/TransactionContext';
-import { ToastContainer, toast } from 'react-toastify';
-import { ScaleLoader } from "react-spinners"; // Import the spinner you want to use
-import { css } from "@emotion/react"; 
-import { updateProfile } from "firebase/auth";
-import useForceUpdate from '../../hooks/useForceUpdate';
+import React, { useEffect, useContext, useState } from "react";
+import { useLocation, useNavigate } from "react-router-dom";
+import { getDatabase, ref, get, update, onValue, set } from "firebase/database";
+import { auth } from "../../Components/firebase/firebase";
+import { TransactionContext } from "../../Components/context/TransactionContext";
+import { ToastContainer, toast } from "react-toastify";
+import { ScaleLoader } from "react-spinners";
+import { css } from "@emotion/react";
+import useForceUpdate from "../../hooks/useForceUpdate";
+import { BookingContext } from "../../Components/context/BookingContext";
 
 const QrCodePage = () => {
+  const { selectedPet, selectedServices, selectedDateTime } =
+    useContext(BookingContext);
   const location = useLocation();
   const { qrUrl, bookingId } = location.state;
   const navigate = useNavigate();
@@ -19,7 +21,7 @@ const QrCodePage = () => {
   const [userId, setUserId] = useState("");
   const [accountBalance, setAccountBalance] = useState(0);
   const [totalPaid, setTotalPaid] = useState(0);
-  const forceUpdate = useForceUpdate()
+  const forceUpdate = useForceUpdate();
 
   const override = css`
     display: block;
@@ -29,14 +31,23 @@ const QrCodePage = () => {
 
   const mockFetchTransactions = async () => {
     return {
-      descriptions: ["thanhtoan BK1243463456","thanhtoan BK12315234","thanhtoan BK12315234","thanhtoan BK12315234", "thanhtoan " + bookingId, "thanhtoan BK12315234", "thanhtoan BK12315234"],
-      // amounts: [0, 1000, 100, 100, 220000, 500, 50000, 120000] 
+      descriptions: [
+        "thanhtoan BK1243463456",
+        "thanhtoan BK12315234",
+        "thanhtoan BK12315234",
+        "thanhtoan BK12315234",
+        "thanhtoan " + bookingId, // Ensure this bookingId matches the one you're checking
+        "thanhtoan BK12315234",
+        "thanhtoan BK12315234",
+      ],
+      amounts: [0, 1000, 100, 100, 55000, 500, 50000, 120000],
     };
   };
+
   useEffect(() => {
     const fetchUserData = async () => {
       const user = auth.currentUser;
-      
+
       if (user) {
         const db = getDatabase();
         const userRef = ref(db, "users/" + user.uid);
@@ -51,7 +62,9 @@ const QrCodePage = () => {
           }
           if (data && data.bookings) {
             const bookings = data.bookings;
-            const booking = Object.values(bookings).find(b => b.bookingId === bookingId);
+            const booking = Object.values(bookings).find(
+              (b) => b.bookingId === bookingId
+            );
             if (booking) {
               setTotalPaid(booking.totalPaid);
             }
@@ -79,53 +92,90 @@ const QrCodePage = () => {
           description.includes(contentTransfer)
         );
 
+        console.log("Descriptions:", descriptions);
+        console.log("Amounts:", amounts);
+        console.log("Payment Index:", paymentIndex);
+
         if (paymentIndex !== -1) {
           const paymentAmount = amounts[paymentIndex];
           const db = getDatabase();
-          const userRef = ref(db, 'users/' + user.uid);
+          const userRef = ref(db, "users/" + user.uid);
           const snapshot = await get(userRef);
           const data = snapshot.val();
-          const paymentAmountInSystem = paymentAmount / 1000
+          const paymentAmountInSystem = paymentAmount / 1000;
 
           if (!data) {
-            throw new Error('No user data found.');
+            throw new Error("No user data found.");
           }
           const accountBalanceNumber = parseFloat(accountBalance);
 
-          const newAccountBalance = accountBalanceNumber + paymentAmountInSystem - totalPaid;
+          const newAccountBalance =
+            accountBalanceNumber + paymentAmountInSystem - totalPaid;
 
           if (newAccountBalance >= 0) {
-            await update(userRef, { accountBalance: newAccountBalance});
+            await update(userRef, { accountBalance: newAccountBalance });
             const bookingRef = ref(db, `users/${user.uid}/bookings`);
             onValue(bookingRef, (snapshot) => {
               const bookings = snapshot.val();
               if (bookings) {
-                const bookingKey = Object.keys(bookings).find(key => bookings[key].bookingId === bookingId);
+                const bookingKey = Object.keys(bookings).find(
+                  (key) => bookings[key].bookingId === bookingId
+                );
                 if (bookingKey) {
-                  const specificBookingRef = ref(db, `users/${user.uid}/bookings/${bookingKey}`);
-                  update(specificBookingRef, {status: "Paid" });
+                  const specificBookingRef = ref(
+                    db,
+                    `users/${user.uid}/bookings/${bookingKey}`
+                  );
+                  update(specificBookingRef, { status: "Paid" });
                 }
               }
             });
-            toast.success('Payment success! Please check your booking section to track your booking information', {
-              autoClose: 2000,
-              onClose: () => {
-                setTimeout(() => {
-                  forceUpdate();
-                  navigate('/');
-                }, 2000); 
+
+            const bookingSlotRef = ref(
+              db,
+              `users/${selectedDateTime.vet.uid}/schedule/${selectedDateTime.date}`
+            );
+            const bookingSlotSnapshot = await get(bookingSlotRef);
+            let bookedSlots = Array.isArray(bookingSlotSnapshot.val())
+              ? bookingSlotSnapshot.val()
+              : [];
+
+            bookedSlots.push({
+              time: selectedDateTime.time,
+              petName: selectedPet.name,
+              services: selectedServices.map((service) => service.name),
+              userAccount: user.email,
+              username: username,
+            });
+
+            await set(
+              ref(
+                db,
+                `users/${selectedDateTime.vet.uid}/schedule/${selectedDateTime.date}`
+              ),
+              bookedSlots
+            );
+            toast.success(
+              "Payment successfully! Please your check booking section.",
+              {
+                autoClose: 2000,
+                onClose: () => {
+                  setTimeout(() => {
+                    forceUpdate();
+                    navigate("/");
+                  }, 2000);
+                },
               }
-            });            
+            );
             clearInterval(intervalId);
-            navigate('/');
           }
-        }else {
-          console.log('Payment not found in transaction history');
+        } else {
+          console.log("Payment not found in transaction history");
         }
       } catch (error) {
-        console.error('Error fetching transaction history:', error);
+        console.error("Error fetching transaction history:", error);
       } finally {
-        setIsLoading(false); 
+        setIsLoading(false);
       }
     }, 10000); // Check every 10 seconds
 
@@ -133,19 +183,32 @@ const QrCodePage = () => {
   }, [navigate, username, bookingId, fetchTransactions, totalPaid]);
 
   return (
-    <div className="qr-code-page" style={{ display: 'flex', flexDirection: 'column', justifyContent: 'center', alignItems: 'center', height: '100vh' }}>
-      <h2 style={{marginTop: "30px", paddingBottom: "20px", fontSize: "3rem"}}>Quét QR để thanh toán</h2>
+    <div
+      className="qr-code-page"
+      style={{
+        display: "flex",
+        flexDirection: "column",
+        justifyContent: "center",
+        alignItems: "center",
+        height: "100vh",
+      }}
+    >
+      <h2
+        style={{ marginTop: "30px", paddingBottom: "20px", fontSize: "3rem" }}
+      >
+        Quét QR để thanh toán
+      </h2>
       {isLoading ? (
-        <ScaleLoader 
-          color={"#123abc"} 
-          loading={true} 
-          css={override} 
-          height={35} 
-          width={4} 
-          radius={2} 
+        <ScaleLoader
+          color={"#123abc"}
+          loading={true}
+          css={override}
+          height={35}
+          width={4}
+          radius={2}
           margin={2}
           speedMultiplier={2}
-        /> 
+        />
       ) : (
         <img src={qrUrl} alt="QR Code" />
       )}

@@ -53,6 +53,7 @@ const Dashboard = () => {
 
     const totalPaidForDate = getTotalPaid(currentDate.currentDate, "date");
     setDailyRevenue(totalPaidForDate.toLocaleString() + ",000");
+    console.log(totalPaidForDate)
 
     const totalPaidForMonth = getTotalPaid(
       `${currentDate.year}-${currentDate.month}`,
