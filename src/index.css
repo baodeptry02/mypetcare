@@ -352,7 +352,6 @@ a {
   cursor: default;
   cursor: pointer;
 }
-
 .navbar a {
   font-size: 20px;
   color: var(--text-color);
@@ -2867,8 +2866,8 @@ text-decoration: underline;
     background-color: #717171;
 }
 
-.dot {
-    background-color: #717171;
+.dot.active {
+    background-color: rgb(28, 26, 26);
   }
 
   .about-container {
@@ -3029,86 +3028,102 @@ text-decoration: underline;
 }
 
 .services .card-container {
-    display: flex;
-    gap: 20px;
-    justify-content: center;
-    margin-bottom: 50px;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 20px;
+  justify-content: center;
+  margin-bottom: 50px;
+  cursor: pointer;
 }
 
 .services .card {
-    background-color: #fff;
-    border: 1px solid #e0e0e0;
-    border-radius: 5px;
-    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
-    padding: 20px;
-    width: 500px;
-    height: 550px;
-    text-align: center;
+  flex: 1 1 calc(50% - 20px);
+  box-sizing: border-box;
+  background-color: #fff;
+  border: 1px solid #e0e0e0;
+  border-radius: 8px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  padding: 20px;
+  max-width: 600px;
+  width: 250px;
+  height: 370px;
+  text-align: center;
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
 }
 
 .services .card h2 {
-    font-size: 2.2em;
-    margin-bottom: 10px;
-    text-transform: uppercase;
-    color: #333;
-    margin-top: 20px;
+  font-size: 2.2em;
+  margin-bottom: 10px;
+  text-transform: uppercase;
+  color: blueviolet;
+  margin-top: 20px;
+  position: relative;
+  text-align: start;
 }
 
 .services .card .line {
-    width: 150px;
-    height: 2px;
-    background-color: #e0e0e0;
-    margin: 10px auto;
-    margin-top: 20px;
+  width: 150px;
+  height: 2px;
+  background-color: #e0e0e0;
+  margin: 10px auto;
+  margin-top: 20px;
 }
 .big-line{
-    width: 800px;
-    height: 2px;
-    background-color: white;
-    margin: 10px auto;
-    margin-top: 20px;
-    margin-bottom: 50px;
+  width: 800px;
+  height: 2px;
+  background-color: white;
+  margin: 10px auto;
+  margin-top: 20px;
+  margin-bottom: 50px;
 }
 
 .services .card p {
-    font-size: 1.8em;
-    line-height: 1.5;
-    margin-bottom: 20px;
-    color: #666;
-    margin-top: 30px;
+  font-size: 1.8em;
+  line-height: 1.5;
+  margin-bottom: 20px;
+  color: #666;
+  margin-top: 30px;
+  text-align: start;
 }
 
 .services .pricing {
-    font-size: 1.8em;
-    color: #8bc34a;
-    margin-top: 30px;
+  font-size: 1.8em;
+  color: #8bc34a;
+  position: relative;
+  left: 100px;
+  bottom: 100px;
+  font-weight: bold;
 }
 .card-avatar{
-    width: 100px;
-    height: 100px;
-    border-radius: 50%;
-    margin-bottom: 15px;
+  width: 220px;
+  height: 150px;
+  margin-bottom: 15px;
+  position: relative;
+  right: 170px;
+  align-items: start;
+}
+.card:hover {
+transform: scale(5.05); /* Phóng to card lên 5% */
+box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2); /* Tăng bóng đổ khi phóng to */
 }
 
 .card-btn {
-    margin-top: 30px;
-    display: inline-block;
-    background: var(--neon-color);
-    border-radius: 4rem;
-    font-size: 2rem;
-    color: white;
-    letter-spacing: .1rem;
-    font-weight: 600;
-    cursor: pointer;
-    display: inline-block;
-    padding: 1.5rem 4.5rem;
-    border-radius: 4rem;
-    color: white;
-    letter-spacing: 0.1rem;
-    font-weight: 600;
-}
-.card-btn:hover {
+  margin-top: 30px;
+  display: inline-block;
+  background: var(--neon-color);
+  border-radius: 4rem;
   box-shadow: 0 0 1rem var(--neon-color);
+  font-size: 2rem;
+  color: white;
+  letter-spacing: .1rem;
+  font-weight: 600;
+  cursor: pointer;
+  display: inline-block;
+  padding: 1.5rem 4.5rem;
+  border-radius: 4rem;
+  color: white;
+  letter-spacing: 0.1rem;
+  font-weight: 600;
 }
 
 .contact{
