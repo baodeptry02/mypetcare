@@ -76,7 +76,7 @@ function Home() {
 
     return () => unsubscribe();
   }, []);
-
+  
   const book = () => {
     if (user) {
       navigate("/book/select-pet");

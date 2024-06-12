@@ -120,7 +120,7 @@
   padding: 20px;
   border-radius: 10px;
   box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
-  width: 400px;
+  width: 54%;
 }
 
 h3.pet-title {
@@ -228,17 +228,17 @@ label {
   font-size: 16px;
 }
 
-/* .parent-container.parent-container1 {
+.parent-container.parent-container1 {
+  margin-top: 40px;
   display: flex;
   justify-content: center;
   align-items: start;
   height: 100vh;
   position: relative;
   right: 250px;
-  margin-bottom: 50px;
 }
 
-.container.pet-container.parent-container1 {
+/* .container.pet-container.parent-container1 {
   background-color: white;
   padding: 2rem;
   border-radius: 8px;
@@ -327,7 +327,7 @@ label {
   margin-top: 1rem;
 }
 
-button[type="submit"] {
+.submit-pet[type="submit"] {
   grid-column: 1 / -1;
   background-color: #e20074;
   color: white;
@@ -338,11 +338,11 @@ button[type="submit"] {
   transition: background-color 0.3s ease;
 }
 
-button[type="submit"]:hover {
+.submit-pet[type="submit"]:hover {
   background-color: #c10065;
 }
 
-button[type="submit"]:disabled {
+.submit-pet[type="submit"]:disabled {
   background-color: #ccc;
   cursor: not-allowed;
 }

@@ -177,7 +177,7 @@ vets.forEach(vet => console.log('Vet Schedule:', vet.schedule));
           key={slot.timeString}
           onClick={() => setSelectedTime(slot.timeString)}
           className={selectedTime === slot.timeString ? "selected" : ""}
-          style={{ margin: "5px", width: "100px" }} // Adjust width to fit 4 buttons in a row
+          style={{ margin: "5px", width: "120px" }} // Adjust width to fit 4 buttons in a row
           disabled={isBooked}
         >
           {slot.formattedTime}
@@ -265,6 +265,7 @@ vets.forEach(vet => console.log('Vet Schedule:', vet.schedule));
                   </div>
                 </div>
               </div>
+              <button className="back-button" onClick={() => navigate(-1)}>Back</button>
               <button
                 onClick={handleNext}
                 disabled={!date || !vet || !selectedTime}
@@ -273,7 +274,6 @@ vets.forEach(vet => console.log('Vet Schedule:', vet.schedule));
               </button>
             </>
           )}
-      <button className="back-button" onClick={() => navigate(-1)}>Back</button>
         </div>
          
       </div>

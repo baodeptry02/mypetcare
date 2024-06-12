@@ -5,6 +5,9 @@ import { getDatabase, ref, push, update, get, set } from "firebase/database";
 import { auth } from "../../Components/firebase/firebase";
 import { toast, ToastContainer } from 'react-toastify';
 import useForceUpdate from '../../hooks/useForceUpdate';
+import {RiInformationLine} from '@remixicon/react';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
+import {faInfoCircle, faPaw, faBirthdayCake, faPalette, faArrowsAlt, faDog, faCat, faSyringe, faCheck, faCalendar, faUserMd, faClock, faMoneyBill } from '@fortawesome/free-solid-svg-icons'
 
 const BookingConfirm = () => {
   const { selectedPet, selectedServices, selectedDateTime } = useContext(BookingContext);
@@ -167,37 +170,180 @@ const BookingConfirm = () => {
       </div>
     );
   }
+  const handleConfirmMouseEnter = () => {
+    const confirmVideo = document.getElementById("confirm-video");
+    if (confirmVideo) {
+      confirmVideo.style.display = "block";
+      confirmVideo.play();
+    }
+  };
+
+  const handleConfirmMouseLeave = () => {
+    const confirmVideo = document.getElementById("confirm-video");
+    if (confirmVideo) {
+      confirmVideo.pause();
+      confirmVideo.currentTime = 0;
+      confirmVideo.style.display = "none";
+    }
+  };
+
+  const handleCancelMouseEnter = () => {
+    const cancelVideo = document.getElementById("cancel-video");
+    if (cancelVideo) {
+      cancelVideo.style.display = "block";
+      cancelVideo.play();
+    }
+  };
+
+  const handleCancelMouseLeave = () => {
+    const cancelVideo = document.getElementById("cancel-video");
+    if (cancelVideo) {
+      cancelVideo.pause();
+      cancelVideo.currentTime = 0;
+      cancelVideo.style.display = "none";
+    }
+  };
 
   return (
-    <div className="booking-confirm">
-      <h1>Booking Confirmation</h1>
-      <h2>Pet: {selectedPet ? selectedPet.name : 'N/A'}</h2>
-      <h2>Services: {selectedServices.map(service => service.name).join(', ') || 'N/A'}</h2>
-      <h2>Date: {selectedDateTime ? selectedDateTime.date : 'N/A'}</h2>
-      <h2>Vet: {selectedDateTime ? selectedDateTime.vet.name : 'N/A'}</h2>
-      <h2>Time: {selectedDateTime ? selectedDateTime.time : 'N/A'}</h2>
-      <h2>Total Paid: ${calculateTotalPaid()}</h2>
-      <button className="back-button" onClick={() => navigate(-1)}>Back</button>
-      <button onClick={openModal}>Confirm</button>
-      <ToastContainer />
+    <div className="booking-confirm-container">
+      <div className="booking-confirm">
+        <div className="booking-details">
+          <div className="confirm-pet-info">
+            <p className="confirm-pet-title">
+          <RiInformationLine className="icon icon-info" />
+              <strong>PET INFOMATION:</strong>
+            </p>
+            {selectedPet.imageUrl && (
+              <img
+                src={selectedPet.imageUrl}
+                alt={selectedPet.name}
+                className="pet-image"
+              />
+            )}
+            <div className="pet-info-detail-inline">
+              <p className="pet-info-detail">
+              <FontAwesomeIcon className="icon" icon={faPaw}/>
+                <strong>Name:</strong>
+                <span className="pet-info-value">{selectedPet.name}</span>
+              </p>
+              <p className="pet-info-detail">
+              <FontAwesomeIcon className="icon" icon={faBirthdayCake}/>
+                <strong>Age:</strong>
+                <span className="pet-info-value">{selectedPet.age}</span>
+              </p>
+            </div>
+            <div className="pet-info-detail-inline">
+              <p className="pet-info-detail">
+              <FontAwesomeIcon  className="icon"icon={faPalette}/>
+                <strong>Color:</strong>
+                <span className="pet-info-value">{selectedPet.color}</span>
+              </p>
+              <p className="pet-info-detail">
+              <FontAwesomeIcon  className="icon"icon={faArrowsAlt}/>
+                <strong>Size:</strong>
+                <span className="pet-info-value">{selectedPet.size}</span>
+              </p>
+            </div>
+            <div className="pet-info-detail-inline">
+              <p className="pet-info-detail">
+                {selectedPet.type === "Dog" &&  <FontAwesomeIcon className="icon" icon={faDog}/>}
+                {selectedPet.type === "Cat" &&  <FontAwesomeIcon className="icon" icon={faCat}/>}
+                {selectedPet.type !== "Dog" && selectedPet.type !== "Cat" && (
+                  <span className="pet-info-value">Other</span>
+                )}
+                <strong>Type:</strong>
+                <span className="pet-info-value">{selectedPet.type}</span>
+              </p>
+              <p className="pet-info-detail">
+              <FontAwesomeIcon  className="icon"icon={faSyringe}/>
+                <strong>Vaccinated:</strong>
+                <span className="pet-info-value">{selectedPet.vaccinated}</span>
+              </p>
+            </div>
+          </div>
 
-      {showModal && (
-        <div className="modal-overlay" onClick={closeModal}>
-          <div className="modal-content" onClick={(e) => e.stopPropagation()}>
-            <div className="modal-header">
-              <h3>Confirm Booking</h3>
-              <span className="modal-close" onClick={closeModal}>&times;</span>
+          <div className="confirm-detailed-booking">
+            <h2>Services:</h2>
+            <div className="services-list">
+              {selectedServices.map((service) => (
+                <div key={service.name} className="service-confirm">
+                  <img
+                    src={service.image}
+                    alt={service.name}
+                    className="service-img"
+                  />
+                  <div className="service-details">
+                    <span className="service-name">{service.name}</span>
+                    <span className="service-price">${service.price}</span>
+                  </div>
+                  <FontAwesomeIcon className="check-icon" icon={faCheck}/>
+                </div>
+              ))}
             </div>
-            <div className="modal-body">
-              <h2>Carefully review your booking details before clicking "Yes"</h2>
+            <div className="confirm-detail">
+              <h2>
+              <FontAwesomeIcon className="icon" icon={faCalendar}/> Date:{" "}
+                {selectedDateTime ? selectedDateTime.date : "N/A"}
+              </h2>
+              <h2>
+              <FontAwesomeIcon className="icon" icon={faUserMd}/> Vet:{" "}
+                {selectedDateTime ? selectedDateTime.vet.name : "N/A"}
+              </h2>
+              <h2>
+              <FontAwesomeIcon className="icon" icon={faClock}/>Time:{" "}
+                {selectedDateTime ? selectedDateTime.time : "N/A"}
+              </h2>
+              <h2>
+              <FontAwesomeIcon className="icon" icon={faMoneyBill}/>Total Paid: $
+                {calculateTotalPaid()}
+              </h2>
             </div>
-            <div className="modal-actions">
-              <button className="confirm" onClick={confirmModal}>Yes</button>
-              <button className="cancel" onClick={closeModal}>No</button>
+
+            <div className="button-row">
+              <button className="back-button" onClick={() => navigate(-1)}>
+                Back
+              </button>
+              <button className="confirm-button" onClick={openModal}>
+                Confirm
+              </button>
             </div>
           </div>
         </div>
-      )}
+
+        <ToastContainer />
+
+        {showModal && (
+          <div className="modal-overlay" onClick={closeModal}>
+            <div className="modal-content" onClick={(e) => e.stopPropagation()}>
+              <div className="modal-header">
+                <h3>Confirm Booking</h3>
+                <span className="modal-close" onClick={closeModal}>
+                  &times;
+                </span>
+              </div>
+              <div className="modal-body">
+                <h2>
+                  Carefully review your booking details before clicking "Yes"
+                </h2>
+              </div>
+              <div className="modal-actions">
+                <button
+                  className="confirm"
+                  onClick={confirmModal}
+                >
+                  Yes
+                </button>
+                <button
+                  className="cancel"
+                  onClick={closeModal}
+                >
+                  No
+                </button>
+              </div>
+            </div>
+          </div>
+        )}
+      </div>
     </div>
   );
 };

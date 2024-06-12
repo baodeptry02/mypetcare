@@ -1527,16 +1527,6 @@ table td {
     word-break: break-word;
   }
   
-  .back-button {
-    padding: 10px 20px;
-    font-size: 16px;
-    background-color: #007bff;
-    color: white;
-    border: none;
-    border-radius: 5px;
-    cursor: pointer;
-    margin-left: 20px;
-  }
   
   .back-button:hover {
     background-color: #0056b3;
@@ -1616,15 +1606,6 @@ table td {
 }
 .pet-titile.account-title {
   padding: 0 60px;
-}
-.pet-detail-wrapper {
-  min-height: 80vh;
-}
-.pet-detail-container {
-  margin-top: 120px;
-  display: flex;
-  flex-wrap: wrap;
-  gap: 20px;
 }
 
 .pet-images-section {
@@ -1724,15 +1705,9 @@ table td {
 }
 
 .back-button {
-  margin-top: 20px;
-  margin-bottom: 20px;
-  padding: 10px 20px;
-  background-color: #7b2cbf;
-  color: white;
-  border: none;
   border-radius: 5px;
   cursor: pointer;
-  font-size: 16px;
+  margin-right: 12px;
 }
 
 .back-button:hover {
@@ -3120,7 +3095,6 @@ text-decoration: underline;
     display: inline-block;
     background: var(--neon-color);
     border-radius: 4rem;
-    box-shadow: 0 0 1rem var(--neon-color);
     font-size: 2rem;
     color: white;
     letter-spacing: .1rem;
@@ -3132,6 +3106,9 @@ text-decoration: underline;
     color: white;
     letter-spacing: 0.1rem;
     font-weight: 600;
+}
+.card-btn:hover {
+  box-shadow: 0 0 1rem var(--neon-color);
 }
 
 .contact{
@@ -3217,6 +3194,7 @@ span.us {
     justify-content: space-between ;
     align-items: center;
     padding: 3rem 26rem;
+    color: var(--text-color)
   }
   
   .footer-section a {
@@ -3486,14 +3464,6 @@ input[type="checkbox"] {
   cursor: not-allowed;
 }
 
-
-
-/* booking-confirm section */
-.booking-confirm {
-  padding-top: 280px;
-    min-height: 100vh;
-    height: 100%;
-}
 .content-404 {
   height: 100vh;
   background: url('../src/public/assets/overlay_stars.svg') left top repeat;
@@ -3864,4 +3834,384 @@ background: #EBEFF2;
 .react-calendar__tile--active:enabled:focus {
   background: #0056b3;
   color: white;
+}
+.pet-profile-wrapper {
+  display: flex;
+  margin: 40px 20px 20px;
+  justify-content: space-between;
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 80%;
+}
+.owner-info, .general-info, .medical-info {
+  background-color: #fff;
+  padding: 20px;
+  border-radius: 8px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  margin-bottom: 20px;
+  border: 2px solid #ccc;
+}
+.owner-info h3, .general-info h2, .medical-info h2 {
+  margin-top: 0;
+}
+
+.update-button, .cancel-button {
+  margin-top: 20px;
+  padding: 10px 20px;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+}
+
+.update-button {
+  background-color: #28a745;
+  color: #fff;
+}
+
+.cancel-button {
+  background-color: #dc3545;
+  color: #fff;
+  margin-left: 10px;
+}
+
+.form-group {
+  margin-bottom: 15px;
+}
+
+.form-group label {
+  display: block;
+  margin-bottom: 5px;
+}
+
+.form-group input {
+  width: calc(100% - 10px);
+  padding: 8px;
+  border: 1px solid #ced4da;
+  border-radius: 4px;
+}
+
+.left-panel, .right-panel {
+  border-radius: 10px;
+  padding: 20px;
+  box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+}
+.right-panel h2 {
+  text-align: left;
+}
+
+.left-panel {
+  width: 25%;
+  margin-right: 20px;
+  text-align: center;
+}
+
+.pet-avatar {
+  width: 200px;
+  height: 200px;
+  border-radius: 50%;
+  margin-bottom: 20px;
+}
+
+.owner-info h3, .owner-info p {
+  margin: 10px 0;
+}
+
+.status {
+  color: green;
+  margin: 6px;
+}
+
+.pet-id-info {
+  margin-top: 20px;
+}
+
+.right-panel {
+  width: 70%;
+}
+.section.pet-general-info {
+  margin-top: 20px;
+  display: flex;
+  width: 100%;
+  align-items: center;
+  justify-content: space-around;
+}
+.pet-info {
+  height: 100%;
+  min-width: 150px;
+  text-align: center;
+}
+.pet-info p {
+  font-size: 2.4rem;
+  font-weight: 500;
+  margin-bottom: 10px;
+  color: #CF0070;
+}
+.pet-info div {
+  font-size: 2rem;
+}
+.header-pet-info {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  border-bottom: 1px solid #ced4da;
+}
+.edit-button {
+  font-size: 2.6rem;
+  cursor: pointer;
+  position: relative;
+z-index: 1000000;
+}
+.edit-button:hover {
+  transform: scale(1.2);
+}
+.horizontal-divider {
+  border-left: 1px solid #38546d;
+  height: 100%;
+  position: absolute;
+}
+.update-button:hover{
+  background-color: #386d48;
+}
+.booking-confirm-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 100vh;
+}
+
+.booking-confirm {
+  background-color: #fff;
+  padding: 20px;
+  border-radius: 8px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  width: 100%;
+  height: 60%;
+  max-width: 1250px;
+  display: flex;
+  flex-direction: row;
+}
+
+.booking-details {
+  display: flex;
+  width: 100%;
+}
+
+.confirm-pet-info {
+  flex: 0 0 150px;
+  background: #fff;
+  padding: 20px;
+  border-radius: 8px;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  height: 50vh;
+  margin: 20px 20px;
+}
+
+.pet-image {
+  width: 130px;
+  height: 130px;
+  border-radius: 50%;
+  margin: 20px;
+}
+
+.pet-info-detail-inline {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  width: 100%;
+}
+
+.pet-info-detail {
+  display: flex;
+  align-items: center;
+  width: 100%;
+  margin: 10px 0;
+}
+
+
+
+.pet-info-detail i {
+  margin-right: 10px;
+  color: #888;
+}
+
+.pet-info-value {
+  flex-grow: 1;
+}
+
+.confirm-detailed-booking {
+  flex-grow: 1;
+  padding: 20px;
+  border-radius: 8px;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+  margin: 20px 20px;
+}
+
+.services-list {
+  display: grid;
+  grid-template-rows: auto auto;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+  margin: 20px auto;
+}
+
+.service-item {
+  display: flex;
+  align-items: center;
+  width: calc(100% - 10px);
+  border: 1px solid #ddd;
+  border-radius: 5px;
+  padding: 10px;
+}
+
+.service-img {
+  width: 80px;
+  height: 80px;
+  margin-right: 10px;
+}
+
+.service-details {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  text-align: justify;
+  font-size: 1.5rem;
+}
+
+.check-icon {
+  margin-left: auto;
+  font-size: 2rem;
+}
+
+.service-name {
+  font-weight: bold;
+}
+
+.service-price {
+  margin-top: 5px;
+}
+
+.button-row {
+  display: flex;
+  justify-content: center;
+  margin-top: 20px;
+}
+
+.back-button.booking-detail,
+.confirm-button {
+  padding: 10px 20px;
+  font-size: 16px;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  width: 18%;
+  box-sizing: border-box;
+}
+
+.confirm-detail {
+  border: 1px solid #ddd;
+  border-radius: 5px;
+  margin: 20px 10px 0 0;
+  padding: 20px 0;
+}
+
+.confirm-detailed-booking h2 {
+  margin-bottom: 10px;
+  font-size: 2rem;
+}
+
+.confirm-detailed-booking h2 i {
+  margin-right: 5px;
+}
+
+.confirm-pet-title {
+  font-size: 1.5rem;
+}
+
+.modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.5);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.modal-content {
+  background: #fff;
+  padding: 20px;
+  border-radius: 8px;
+  position: relative;
+  max-width: 500px;
+  width: 90%;
+}
+
+.modal-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 20px;
+}
+
+.modal-header h3 {
+  margin: 0;
+}
+
+.modal-close {
+  font-size: 1.5em;
+  cursor: pointer;
+}
+
+.modal-body h2 {
+  font-size: 1.7em;
+  color: #333;
+  margin: 20px 0;
+}
+.modal-actions {
+  display: flex;
+  justify-content: flex-end;
+}
+
+.modal-actions button {
+  margin-left: 10px;
+}
+#confirm-video{
+  display: flex;
+  justify-content: start;
+}
+.confirm-video {
+  position: absolute;
+  left: 0;
+  bottom: 50%;
+  transform: translateY(50%);
+}
+.icon {
+  margin-right: 8px;
+}
+.service-confirm {
+  background-color: white;
+  border: 1px solid #ddd;
+  border-radius: 10px;
+  padding: 20px;
+  max-width: 100%;
+  width: 98%;
+  text-align: center;
+  transition: transform 0.2s;
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: space-between;
+}
+.icon.icon-info {
+  /* margin-top: 4px; */
+  position: relative;
+  top: 6px
 }

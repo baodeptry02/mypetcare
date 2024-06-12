@@ -3,6 +3,7 @@
 import React, { useState } from 'react';
 import './AddPet.css'; // Import the CSS file
 import { ToastContainer } from 'react-toastify';
+import { useNavigate } from 'react-router-dom';
 
 const AddPetNext = () => {
     // State variables
@@ -16,6 +17,7 @@ const AddPetNext = () => {
     const [petSize, setPetSize] = useState('');
     const [petColor, setPetColor] = useState('');
     const [petVaccinated, setPetVaccinated] = useState('');
+    const navigate = useNavigate()
 
     // Handle form submission
     const handleSubmit = (event) => {
@@ -44,7 +46,7 @@ const AddPetNext = () => {
     };
 
     return (
-         <div className="parent-container">
+         <div className="parent-container parent-container1">
             <h2 className="title-add-next-pet">Step 2: Add Pet Info</h2>
             <p className='des-add-next-pet'>Tell us more about your Pet</p>
         <div className="container container1 pet-container" id="container">
@@ -157,10 +159,13 @@ const AddPetNext = () => {
                 </div>
               </div>
             </div>
-            
+            <div>
+
             <button type="submit" disabled={loading} className='submit-pet'>
             {loading ? "Uploading..." : <span style={{ fontSize: '12px', color:'white' }}>Add Pet</span>}
             </button>
+        <button className="submit-pet" onClick={() => navigate(-1)}>Back</button>
+            </div>
           </form>
         </div>
         <ToastContainer />

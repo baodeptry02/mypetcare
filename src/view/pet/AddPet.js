@@ -34,6 +34,9 @@ const AddPet = () => {
     const imagePreview = URL.createObjectURL(file);
     setPreviewImage(imagePreview);
   };
+  const backBtn = () => {
+    navigate(-1)
+  }
 
   const uploadImage = async (userId) => {
     const storage = getStorage();
@@ -147,8 +150,8 @@ const AddPet = () => {
         </div>
       </div>
       <div className="navigation-buttons">
-        <a className="back-link" href="/pet">Back</a>
-        <a className="next-link" onClick={handleNext}>Next</a>
+        <div onClick={backBtn} className="back-link">Back</div>
+        <div className="next-link" onClick={handleNext}>Next</div>
       </div>
     </div>
     
