@@ -4,6 +4,9 @@ import { BookingContext } from "../../Components/context/BookingContext";
 import { getDatabase, ref, get, child, set, update } from "firebase/database";
 import Calendar from "react-calendar";
 import "react-calendar/dist/Calendar.css";
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
+import { faCaretLeft, faCaretRight } from "@fortawesome/free-solid-svg-icons";
+
 
 const generateTimeSlots = (startTime, endTime, interval) => {
   const slots = [];
@@ -160,14 +163,14 @@ vets.forEach(vet => console.log('Vet Schedule:', vet.schedule));
   }
   
   const renderTimeSlots = (slots) => {
-
+    console.log(bookedSlots)
     return slots.map((slot, index) => {
       const isBooked = bookedSlots.some(
         (bookedSlot) =>
           bookedSlot.vet.name === vet &&
           bookedSlot.date === date &&
           bookedSlot.time === slot.timeString &&
-          bookedSlot.status === "Paid"
+          (bookedSlot.status === "Paid" || bookedSlot.status === "Checked-in")
       );
   
       console.log(`Slot: ${slot.timeString}, Is Booked: ${isBooked}`);
@@ -205,7 +208,7 @@ vets.forEach(vet => console.log('Vet Schedule:', vet.schedule));
     <div className="date-time-container">
       <div className="date-time-selection">
         <div className="form-column">
-          <h1>Select Date and Time for {selectedPet.name}</h1>
+          <h1>Select Date and Time for <span className='service-pet-name'>{selectedPet.name}</span></h1>
           <div className="sel-date-form-group">
             <label>Date:</label>
             <Calendar
@@ -265,12 +268,13 @@ vets.forEach(vet => console.log('Vet Schedule:', vet.schedule));
                   </div>
                 </div>
               </div>
-              <button className="back-button" onClick={() => navigate(-1)}>Back</button>
+              <button className="back-button" onClick={() => navigate(-1)}>  <FontAwesomeIcon className='icon-left' icon={faCaretLeft} /> BACK</button>
               <button
+               className='button-service button-service1'
                 onClick={handleNext}
                 disabled={!date || !vet || !selectedTime}
               >
-                Next
+                NEXT     <FontAwesomeIcon className='icon-right' icon={faCaretRight} />
               </button>
             </>
           )}

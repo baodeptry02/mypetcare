@@ -5,6 +5,7 @@ import Typed from "typed.js"; // Import Typed.js directly
 import { ToastContainer, toast } from "react-toastify";
 import emailjs from "emailjs-com";
 import ScrollReveal from "scrollreveal";
+import { faPaw } from "@fortawesome/free-solid-svg-icons";
 import Aos from "aos";
 import "aos/dist/aos.css";
 import "react-toastify/dist/ReactToastify.css";
@@ -27,6 +28,7 @@ function Home() {
   const totalSlides = 6;
   const [backgroundImage, setBackgroundImage] = useState("");
   const forceUpdate = useForceUpdate();
+  const [dropdownOpen, setDropdownOpen] = useState(false);
 
   useEffect(() => {
     const interval = setInterval(() => {
@@ -166,6 +168,12 @@ function Home() {
       delay: 200,
     });
   }, []);
+  const homePage = () => {
+    if (dropdownOpen) {
+      setDropdownOpen(false); // Close dropdown if open
+    }
+    navigate("/#home");
+  };
 
   return (
     <div>
@@ -223,23 +231,11 @@ function Home() {
             </span>
             <p className="font_1">
               <span className="text1-about">
-                I'm a paragraph. Click here to add your own text and edit me.
-                It’s easy. Just click “Edit Text” or double click me to add your
-                own content and make changes to the font. Feel free to drag and
-                drop me anywhere you like on your page. I’m a great place for
-                you to tell a story and let your users know a little more about
-                you.
+              With over 16 years of experience working in the field of veterinary medicine, I am a passionate veterinarian with a deep understanding of the health and happiness of pet animals. I graduated from Hanoi National University School of Medicine and have worked at many reputable veterinary clinics and veterinary hospitals throughout the area.
+              Through thousands of animal treatment and care cases, I have accumulated valuable experience and diverse professional skills. I am always dedicated and dedicated to caring for each patient, along with dedicated understanding and advice to owners on how to care for and protect their pets' health.
+              
               </span>
             </p>
-
-            <span className="text2-about">
-              This is a great space to write long text about your company and
-              your services. You can use this space to go into a little more
-              detail about your company. Talk about your team and what services
-              you provide. Tell your visitors the story of how you came up with
-              the idea for your business and what makes you different from your
-              competitors.
-            </span>
           </div>
         </div>
         <div className="about-container">
@@ -249,23 +245,10 @@ function Home() {
             </span>
             <p className="font_1">
               <span className="text1-about">
-                I'm a paragraph. Click here to add your own text and edit me.
-                It’s easy. Just click “Edit Text” or double click me to add your
-                own content and make changes to the font. Feel free to drag and
-                drop me anywhere you like on your page. I’m a great place for
-                you to tell a story and let your users know a little more about
-                you.
+              In addition to my daily work, I also regularly participate in community education activities to share my knowledge and experience with the community, while creating high awareness of health issues and disease prevention for people. animal.
+              My mission is to bring peace and happiness to every family through health care for their pets. With enthusiasm and extensive knowledge, I am committed to continuing to contribute to the development of the field of veterinary medicine and bring the best care services to the community.
               </span>
             </p>
-
-            <span className="text2-about">
-              This is a great space to write long text about your company and
-              your services. You can use this space to go into a little more
-              detail about your company. Talk about your team and what services
-              you provide. Tell your visitors the story of how you came up with
-              the idea for your business and what makes you different from your
-              competitors.
-            </span>
           </div>
           <div className="about-image2" data-aos="fade-left">
             <img
@@ -273,6 +256,7 @@ function Home() {
               src="https://static.wixstatic.com/media/84770f_e57bb42011fe4e91992f1ceeece2a7b3~mv2_d_4000_3947_s_4_2.jpg/v1/fill/w_526,h_519,al_c,q_80,usm_0.66_1.00_0.01,enc_auto/84770f_e57bb42011fe4e91992f1ceeece2a7b3~mv2_d_4000_3947_s_4_2.jpg"
               fetchpriority="high"
             ></img>
+            
           </div>
         </div>
         <div className="font_2" data-aos="zoom-in-up">
@@ -287,8 +271,7 @@ function Home() {
             />
             <div class="testimonial-content">
               <p class="testimonial-text">
-                “I'm a testimonial. Click to edit me and add text that says
-                something nice about you and your services.”
+              “Dr.Sin is not only a great veterinarian but also a wonderful companion for both me and my pets.”
               </p>
               <p class="testimonial-signature">Dani, Pacific Heights</p>
             </div>
@@ -301,10 +284,9 @@ function Home() {
             />
             <div class="testimonial-content2">
               <p class="testimonial-text2">
-                “I'm a testimonial. Click to edit me and add text that says
-                something nice about you and your services.”
+              “Dr. Mice always shows great care and dedication to my pets, and I couldn't be happier with her service.”
               </p>
-              <p class="testimonial-signature2">Dani, Pacific Heights</p>
+              <p class="testimonial-signature2">Devivine, Monorita</p>
             </div>
           </div>
           <div class="testimonial-box3" data-aos="fade-up" data-aos-delay="800">
@@ -315,10 +297,9 @@ function Home() {
             />
             <div class="testimonial-content3">
               <p class="testimonial-text3">
-                “I'm a testimonial. Click to edit me and add text that says
-                something nice about you and your services.”
+              The clinic is professional in caring for my pets. I always feel secure when bringing my pets to this clinic”
               </p>
-              <p class="testimonial-signature3">Dani, Pacific Heights</p>
+              <p class="testimonial-signature3">Robin, Cleranomic</p>
             </div>
           </div>
         </div>
@@ -332,62 +313,67 @@ function Home() {
         <div class="big-line"></div>
 
         <div class="card-container">
-          <div class="card" data-aos="fade-right">
+          <div class="card" data-aos="fade-right" onClick={book}>
+            
+            <h2>GROOMING</h2>
+           
+            <p>
+              This service includes bathing, hair cutting and eye cleaning, combing, and skin examinations, requiring the groomer to understand the pet's temperament.
+            </p>
             <img
               class="card-avatar"
               src="https://bpanimalhospital.com/wp-content/uploads/shutterstock_1547371985.jpg"
               alt="User Avatar"
             />
-            <h2>GROOMING</h2>
-            <div class="line"></div>
-            <p>
-              I'm a paragraph. Click here to add your own text and edit me. It’s
-              easy. Just click “Edit Text” or double click me to add your own
-              content and make changes to the font. I’m a great place for you to
-              tell a story and let your users know a little more about you.
-            </p>
             <div class="pricing">30 min: $21.00 | 60 min: $36.00</div>
-            <a onClick={book} className="card-btn">
-              Book now
-            </a>
+            
           </div>
-          <div class="card" data-aos="fade-up">
+          <div class="card" data-aos="fade-up" onClick={book}>
+            
+            <h2>CHECK UP</h2>
+            
+            <p>
+              This service involves a comprehensive physical examination of the pet's body, including measurements of temperature, blood pressure, heart rate and weight
+            </p>
             <img
               class="card-avatar"
               src="https://www.cherrycreekvet.com/blog/wp-content/uploads/2024/03/iStock-1445008380-3-1-2000x1333.jpg"
               alt="User Avatar"
             />
-            <h2>HEALTH CARE</h2>
-            <div class="line"></div>
-            <p>
-              I'm a paragraph. Click here to add your own text and edit me. It’s
-              easy. Just click “Edit Text” or double click me to add your own
-              content and make changes to the font. I’m a great place for you to
-              tell a story and let your users know a little more about you.
-            </p>
-            <div class="pricing">30 min: $21.00 | 60 min: $36.00</div>
-            <a onClick={book} className="card-btn">
-              Book now
-            </a>
+            <div class="pricing">$50.00</div>
+            
           </div>
-          <div class="card" data-aos="fade-left">
+          <div class="card" data-aos="fade-left" onClick={book}>
+            
+            <h2>Vaccination</h2>
+          
+            <p>
+              Pet immunizations are crucial for preventative pet healthcare, protecting against harmful illnesses, and are widely discussed among veterinarians and pet owners
+            </p>
             <img
               class="card-avatar"
-              src="https://www.bupa.com.au/healthlink/-/media/project/ncs/ncs-images/family-and-pregnancy/pets/5-golden-rules-for-dog-training/5-golden-rules-for-dog-training-body-1.ashx?mw=1920&hash=13980CBC1F3AF395E28CBEA282002950&h=590&w=886&la=en"
+              src="https://media.istockphoto.com/id/966384466/vi/anh/c%E1%BA%AFt-h%C3%ACnh-%E1%BA%A3nh-ng%C6%B0%E1%BB%9Di-%C4%91%C3%A0n-%C3%B4ng-c%E1%BA%A7m-beagle-trong-khi-b%C3%A1c-s%C4%A9-th%C3%BA-y-ti%C3%AAm-b%E1%BA%B1ng-%E1%BB%91ng-ti%C3%AAm-v%C3%A0o-n%C3%B3.jpg?s=612x612&w=0&k=20&c=ViUs_0PoS5B26q7ScYHNx21sj8hMlcburn_H_aREbSM="
               alt="User Avatar"
             />
-            <h2>DAYCARE</h2>
-            <div class="line"></div>
+            <div class="pricing">$36.00</div>
+            
+          </div>
+          <div class="card" data-aos="fade-right" onClick={book}>
+            
+            <h2>PET VETERINARY</h2>
+           
             <p>
-              I'm a paragraph. Click here to add your own text and edit me. It’s
-              easy. Just click “Edit Text” or double click me to add your own
-              content and make changes to the font. I’m a great place for you to
-              tell a story and let your users know a little more about you.
+              
+This service offers complete medical care for animals,
+including the identification and management of diseases, traumas, and other health issues.
             </p>
+            <img
+              class="card-avatar"
+              src="https://media.istockphoto.com/id/1171733307/vi/anh/b%C3%A1c-s%C4%A9-th%C3%BA-y-v%E1%BB%9Bi-ch%C3%B3-v%C3%A0-m%C3%A8o-ch%C3%B3-con-v%C3%A0-m%C3%A8o-con-t%E1%BA%A1i-b%C3%A1c-s%C4%A9.jpg?s=612x612&w=0&k=20&c=eZRCsHMznU16Nr89IkT6ETLH3Enzt9TwBUx4mIxZhzE="
+              alt="User Avatar"
+            />
             <div class="pricing">30 min: $21.00 | 60 min: $36.00</div>
-            <a onClick={book} className="card-btn">
-              Book now
-            </a>
+            
           </div>
         </div>
         <div className="font_4" data-aos="flip-up">
@@ -557,14 +543,17 @@ function Home() {
       <footer className="footer">
         <div className="footer-container">
           <div className="footer-section">
+          <a href="#home" onClick={homePage} className="logo" style={{textDecoration: "none", color: '#7b2cbf'}}>
+        <FontAwesomeIcon icon={faPaw} /> Pet Center
+        </a>
             <div className="footer-info">
               <p>Address: Nha Van Hoa Sinh Vien Lang Dai Hoc Thu Duc</p>
               <p>Hotline: 0762 029 029</p>
               <p>Email: xxxxx@hotmail.com</p>
             </div>
             <div className="footer-title">
-              Không ngừng nâng cao chất lượng phục vụ, nâng tầm chuyên môn để
-              mang đến quý khách hàng những dịch vụ hoàn hảo nhất...
+              Continuously improve service quality and level of expertise
+              Bringing customers the most perfect services...
             </div>
             <div className="footer-social">
               <a href="#" className="social-icon">

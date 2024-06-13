@@ -116,6 +116,7 @@
 
 
 .container.container1 {
+  margin-top: 60px;
   background-color: white;
   padding: 20px;
   border-radius: 10px;
@@ -284,10 +285,6 @@ label {
 .py-2 {
   padding-top: 0.5rem;
   padding-bottom: 0.5rem;
-}
-
-.text-gray-500 {
-  color: #6b7280;
 }
 
 .bg-transparent {

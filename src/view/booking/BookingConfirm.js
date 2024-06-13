@@ -7,7 +7,7 @@ import { toast, ToastContainer } from 'react-toastify';
 import useForceUpdate from '../../hooks/useForceUpdate';
 import {RiInformationLine} from '@remixicon/react';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
-import {faInfoCircle, faPaw, faBirthdayCake, faPalette, faArrowsAlt, faDog, faCat, faSyringe, faCheck, faCalendar, faUserMd, faClock, faMoneyBill } from '@fortawesome/free-solid-svg-icons'
+import {faInfoCircle, faPaw, faBirthdayCake, faPalette, faArrowsAlt, faDog, faCat, faSyringe, faCheck, faCalendar, faUserMd, faClock, faMoneyBill, faCaretLeft } from '@fortawesome/free-solid-svg-icons'
 
 const BookingConfirm = () => {
   const { selectedPet, selectedServices, selectedDateTime } = useContext(BookingContext);
@@ -45,9 +45,25 @@ const BookingConfirm = () => {
 
   useEffect(() => {
     if (bookingSuccess) {
-      navigate('/');
+      navigate('/manage-booking');
     }
   }, [bookingSuccess, navigate]);
+  useEffect(() => {
+    // Hàm xử lý sự kiện
+    const handleBeforeUnload = (event) => {
+      event.preventDefault();
+      event.returnValue = '';
+    };
+  
+    // Thêm sự kiện khi component được mount
+    window.addEventListener('beforeunload', handleBeforeUnload);
+  
+    return () => {
+      // Loại bỏ sự kiện khi component unmount
+      window.removeEventListener('beforeunload', handleBeforeUnload);
+    };
+  }, []);
+  
 
   const calculateTotalPaid = () => {
     return selectedServices.reduce((total, service) => {
@@ -80,7 +96,8 @@ const BookingConfirm = () => {
         petName: selectedPet.name,
         services: selectedServices.map(service => service.name),
         userAccount: user.email,
-        username: username
+        username: username,
+        status: 1,
       });
 
       await set(ref(db, `users/${selectedDateTime.vet.uid}/schedule/${selectedDateTime.date}`), bookedSlots);
@@ -170,40 +187,6 @@ const BookingConfirm = () => {
       </div>
     );
   }
-  const handleConfirmMouseEnter = () => {
-    const confirmVideo = document.getElementById("confirm-video");
-    if (confirmVideo) {
-      confirmVideo.style.display = "block";
-      confirmVideo.play();
-    }
-  };
-
-  const handleConfirmMouseLeave = () => {
-    const confirmVideo = document.getElementById("confirm-video");
-    if (confirmVideo) {
-      confirmVideo.pause();
-      confirmVideo.currentTime = 0;
-      confirmVideo.style.display = "none";
-    }
-  };
-
-  const handleCancelMouseEnter = () => {
-    const cancelVideo = document.getElementById("cancel-video");
-    if (cancelVideo) {
-      cancelVideo.style.display = "block";
-      cancelVideo.play();
-    }
-  };
-
-  const handleCancelMouseLeave = () => {
-    const cancelVideo = document.getElementById("cancel-video");
-    if (cancelVideo) {
-      cancelVideo.pause();
-      cancelVideo.currentTime = 0;
-      cancelVideo.style.display = "none";
-    }
-  };
-
   return (
     <div className="booking-confirm-container">
       <div className="booking-confirm">
@@ -211,7 +194,7 @@ const BookingConfirm = () => {
           <div className="confirm-pet-info">
             <p className="confirm-pet-title">
           <RiInformationLine className="icon icon-info" />
-              <strong>PET INFOMATION:</strong>
+              <strong>PET INFOMATION</strong>
             </p>
             {selectedPet.imageUrl && (
               <img
@@ -254,16 +237,16 @@ const BookingConfirm = () => {
                 <strong>Type:</strong>
                 <span className="pet-info-value">{selectedPet.type}</span>
               </p>
-              <p className="pet-info-detail">
+              {/* <p className="pet-info-detail">
               <FontAwesomeIcon  className="icon"icon={faSyringe}/>
                 <strong>Vaccinated:</strong>
                 <span className="pet-info-value">{selectedPet.vaccinated}</span>
-              </p>
+              </p> */}
             </div>
           </div>
 
           <div className="confirm-detailed-booking">
-            <h2>Services:</h2>
+            <h2 className="confirm-detailed-booking-title">Services</h2>
             <div className="services-list">
               {selectedServices.map((service) => (
                 <div key={service.name} className="service-confirm">
@@ -300,10 +283,8 @@ const BookingConfirm = () => {
             </div>
 
             <div className="button-row">
-              <button className="back-button" onClick={() => navigate(-1)}>
-                Back
-              </button>
-              <button className="confirm-button" onClick={openModal}>
+            <button className="back-button" onClick={() => navigate(-1)}>  <FontAwesomeIcon className='icon-left' icon={faCaretLeft} /> BACK</button>
+              <button className="" onClick={openModal}>
                 Confirm
               </button>
             </div>
@@ -323,7 +304,7 @@ const BookingConfirm = () => {
               </div>
               <div className="modal-body">
                 <h2>
-                  Carefully review your booking details before clicking "Yes"
+                  Check carefully & review your booking details before clicking "Yes"!
                 </h2>
               </div>
               <div className="modal-actions">

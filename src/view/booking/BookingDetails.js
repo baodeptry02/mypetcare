@@ -41,6 +41,8 @@ const BookingDetails = () => {
   const petName = pet?.name || 'N/A';
   const vetName = vet?.name || 'N/A';
 
+  
+
   return (
     <div className="booking-details-wrapper">
       <div className="booking-details-container">
@@ -87,8 +89,8 @@ const BookingDetails = () => {
               </tr>
             </tbody>
           </table>
-        </div>
         <button className="booking-detail back-button" onClick={() => navigate(-1)}>Back</button>
+        </div>
       </div>
     </div>
   );

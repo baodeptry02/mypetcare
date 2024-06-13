@@ -561,6 +561,9 @@ span {
 }
 
 @media (min-width: 1785px) {
+  .date-time-selection {
+    max-width: 80%;
+  }
   .pet-manage {
     padding-top: 0 !important;
   }
@@ -965,6 +968,7 @@ label {
 table {
   width: 100%;
   border-collapse: collapse;
+  padding: 0 20px;
 }
 
 table,
@@ -1332,7 +1336,7 @@ h6.css-1731sqo-MuiTypography-root {
   height: 100%;
   max-width: 50%;
   margin: 0 auto;
-  padding: 120px 20px 20px 20px;
+  padding: 80px 20px 20px 20px;
 }
 .manage-bookings-page h2 {
   margin-bottom: 12px;
@@ -1348,6 +1352,8 @@ h6.css-1731sqo-MuiTypography-root {
   margin-top: 20px;
   background-color: #fff;
   margin-bottom: 30px;
+  padding: 0 40px;
+    width: 50vw;
 }
 
 table {
@@ -1489,19 +1495,11 @@ table td {
     color: white;
     cursor: pointer;
   }
-
-  .booking-details-page {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    height: 100vh; 
+  .cancel-button-booking.cancel-button {
+    padding: 8px;
   }
-  
-  .booking-details-page h2 {
-    padding-top: 40px;
-    margin-bottom: 20px;
-    font-size: 3rem;
+  .back-button:hover {
+    background-color: #c82333;
   }
   
   .booking-details-table {
@@ -1528,11 +1526,6 @@ table td {
   }
   
   
-  .back-button:hover {
-    background-color: #0056b3;
-  }
-  
-  
   .cancel-button, .detail-button {
     margin-right: 20px;
   }
@@ -1541,7 +1534,7 @@ table td {
     background-color: #007bff;
     color: white;
     border: none;
-    padding: 5px 10px;
+    padding: 8px 10px;
     cursor: pointer;
     border-radius: 3px;
   }
@@ -1708,11 +1701,9 @@ table td {
   border-radius: 5px;
   cursor: pointer;
   margin-right: 12px;
+  background-color: #f33c3c;
 }
 
-.back-button:hover {
-  background-color: #5a1a9e;
-}
 .container.pet-container {
   width: 680px;
 }
@@ -3029,37 +3020,45 @@ text-decoration: underline;
 }
 
 .services .card-container {
-    display: flex;
-    gap: 20px;
-    justify-content: center;
-    margin-bottom: 50px;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 20px;
+  justify-content: center;
+  margin-bottom: 50px;
+  cursor: pointer
 }
 
 .services .card {
-    background-color: #fff;
-    border: 1px solid #e0e0e0;
-    border-radius: 5px;
-    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
-    padding: 20px;
-    width: 500px;
-    height: 550px;
-    text-align: center;
+  flex: 1 1 calc(50% - 20px);
+  box-sizing: border-box;
+  background-color: #fff;
+  border: 1px solid #e0e0e0;
+  border-radius: 8px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  padding: 20px;
+  max-width: 600px;
+  width: 250px;
+  height: 370px;
+  text-align: center;
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
 }
 
 .services .card h2 {
-    font-size: 2.2em;
-    margin-bottom: 10px;
-    text-transform: uppercase;
-    color: #333;
-    margin-top: 20px;
+  font-size: 2.2em;
+  margin-bottom: 10px;
+  text-transform: uppercase;
+  color: blueviolet;
+  margin-top: 20px;
+  position: relative;
+  text-align: start;
 }
 
 .services .card .line {
-    width: 150px;
-    height: 2px;
-    background-color: #e0e0e0;
-    margin: 10px auto;
-    margin-top: 20px;
+  width: 150px;
+  height: 2px;
+  background-color: #e0e0e0;
+  margin: 10px auto;
+  margin-top: 20px;
 }
 .big-line{
     width: 800px;
@@ -3071,23 +3070,33 @@ text-decoration: underline;
 }
 
 .services .card p {
-    font-size: 1.8em;
-    line-height: 1.5;
-    margin-bottom: 20px;
-    color: #666;
-    margin-top: 30px;
+  font-size: 1.8em;
+  line-height: 1.5;
+  margin-bottom: 20px;
+  color: #666;
+  margin-top: 30px;
+  text-align: start;
 }
 
 .services .pricing {
-    font-size: 1.8em;
-    color: #8bc34a;
-    margin-top: 30px;
+  font-size: 1.8em;
+  color: #8bc34a;
+  position: relative;
+  left: 100px;
+  bottom: 100px;
+  font-weight: bold;
 }
 .card-avatar{
-    width: 100px;
-    height: 100px;
-    border-radius: 50%;
-    margin-bottom: 15px;
+  width: 220px;
+  height: 150px;
+  margin-bottom: 15px;
+  position: relative;
+  right: 170px;
+  align-items: start;
+}
+.card:hover {
+transform: scale(5.05); /* Phóng to card lên 5% */
+box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2); /* Tăng bóng đổ khi phóng to */
 }
 
 .card-btn {
@@ -3108,7 +3117,22 @@ text-decoration: underline;
     font-weight: 600;
 }
 .card-btn:hover {
+  margin-top: 30px;
+  display: inline-block;
+  background: var(--neon-color);
+  border-radius: 4rem;
   box-shadow: 0 0 1rem var(--neon-color);
+  font-size: 2rem;
+  color: white;
+  letter-spacing: .1rem;
+  font-weight: 600;
+  cursor: pointer;
+  display: inline-block;
+  padding: 1.5rem 4.5rem;
+  border-radius: 4rem;
+  color: white;
+  letter-spacing: 0.1rem;
+  font-weight: 600;
 }
 
 .contact{
@@ -3389,7 +3413,7 @@ input[type="checkbox"] {
 }
 
 .checkbox-label {
-  background-color: #007bff;
+  background-color: var(--main-color);
   color: white;
   border: none;
   border-radius: 5px;
@@ -3401,16 +3425,16 @@ input[type="checkbox"] {
 .button-service {
   margin-top: 20px;
   padding: 10px 20px;
-  background-color: #007bff;
   color: white;
   border: none;
   border-radius: 5px;
   cursor: pointer;
   transition: background-color 0.2s;
+  background-color: var(--neon-color);
 }
 
 .button-service:hover {
-  background-color: #0056b3;
+  background-color:  var(--main-color);
 }
 .button-service:disabled:hover {
     cursor: not-allowed;
@@ -3689,7 +3713,7 @@ background: #EBEFF2;
 
 .date-time-selection {
   display: flex;
-  max-width: 80%;
+  max-width: 85%;
   width: 100%;
   padding: 30px;
   background: #fff;
@@ -3983,8 +4007,8 @@ z-index: 1000000;
 }
 
 .booking-confirm {
+  margin-top: 80px;
   background-color: #fff;
-  padding: 20px;
   border-radius: 8px;
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
   width: 100%;
@@ -4000,7 +4024,7 @@ z-index: 1000000;
 }
 
 .confirm-pet-info {
-  flex: 0 0 150px;
+  flex-grow: 0.5;
   background: #fff;
   padding: 20px;
   border-radius: 8px;
@@ -4008,13 +4032,12 @@ z-index: 1000000;
   display: flex;
   flex-direction: column;
   align-items: center;
-  height: 50vh;
   margin: 20px 20px;
 }
 
 .pet-image {
-  width: 130px;
-  height: 130px;
+  width: 160px;
+  height: 160px;
   border-radius: 50%;
   margin: 20px;
 }
@@ -4024,6 +4047,7 @@ z-index: 1000000;
   flex-direction: column;
   align-items: flex-start;
   width: 100%;
+  font-size: 2rem
 }
 
 .pet-info-detail {
@@ -4031,6 +4055,7 @@ z-index: 1000000;
   align-items: center;
   width: 100%;
   margin: 10px 0;
+  justify-content: center
 }
 
 
@@ -4041,7 +4066,11 @@ z-index: 1000000;
 }
 
 .pet-info-value {
-  flex-grow: 1;
+  flex-grow: 0.5;
+  color: #000;
+}
+.pet-info-detail strong {
+  color: var(--main-color)
 }
 
 .confirm-detailed-booking {
@@ -4084,6 +4113,7 @@ z-index: 1000000;
 }
 
 .check-icon {
+  color: #218838;
   margin-left: auto;
   font-size: 2rem;
 }
@@ -4171,7 +4201,7 @@ z-index: 1000000;
 }
 
 .modal-body h2 {
-  font-size: 1.7em;
+  font-size: 2rem;
   color: #333;
   margin: 20px 0;
 }
@@ -4195,6 +4225,7 @@ z-index: 1000000;
 }
 .icon {
   margin-right: 8px;
+  /* color: var(--main-color) */
 }
 .service-confirm {
   background-color: white;
@@ -4214,4 +4245,89 @@ z-index: 1000000;
   /* margin-top: 4px; */
   position: relative;
   top: 6px
+}
+.confirm-pet-title strong {
+  color: var(--main-color)
+  }
+  .confirm-detailed-booking-title {
+  color: var(--main-color);
+  font-size: 2.8rem !important;
+}
+.confirm-detail h2 {
+  margin: 16px 0;
+}
+.icon-right {
+  margin-left: 4px;
+  font-size: 2rem;
+
+}
+.icon-left {
+  margin-right: 4px;
+  font-size: 2rem;
+}
+.button-service.button-service1 {
+  margin-top: 0;
+}
+.edit-form p {
+  margin: 20px 0;
+  font-size: 2rem;
+}
+.edit-form {
+  background-color: white;
+  padding: 20px;
+  border-radius: 8px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  max-width: 600px;
+  margin: 0 auto;
+}
+
+.title-container {
+  text-align: center;
+  margin-bottom: 20px;
+}
+
+.title-container h2 {
+  margin: 0;
+  font-size: 24px;
+  color: #c2185b;
+}
+
+
+.form-group {
+  margin-bottom: 15px;
+}
+
+.form-group label {
+  display: block;
+  margin-bottom: 5px;
+  font-weight: bold;
+}
+
+.form-group input, .form-group select {
+  width: 100%;
+  padding: 8px;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+}
+
+.button-group {
+  text-align: right;
+}
+
+.button-group .update-button, .button-group .cancel-button {
+  padding: 10px 15px;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  margin-left: 10px;
+}
+
+.button-group .update-button {
+  background-color: #d81b60;
+  color: white;
+}
+
+.button-group .cancel-button {
+  background-color: #ccc;
+  color: black;
 }

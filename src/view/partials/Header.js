@@ -2,9 +2,11 @@ import React, { useState, useEffect, useRef } from "react";
 import { auth } from "../../Components/firebase/firebase";
 import { useLocation, useNavigate } from "react-router-dom";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faPaw } from "@fortawesome/free-solid-svg-icons";
+import { faPaw, faUser } from "@fortawesome/free-solid-svg-icons";
 import { updateProfile } from "firebase/auth";
 import { getDatabase, ref, onValue } from "firebase/database";
+import {RiUserLine} from '@remixicon/react';
+
 
 function Header({ user, currentPath }) {
   const navigate = useNavigate();
@@ -164,8 +166,10 @@ function Header({ user, currentPath }) {
   };
   const shouldShowHeader =
     !location.pathname.startsWith("/admin") &&
-    location.pathname !== "/manager" &&
-    location.pathname !== "/veterinary" 
+    !location.pathname.startsWith("/manager") &&
+    !location.pathname.startsWith("/veterinarian") &&
+    !location.pathname.startsWith("/booking-details");
+    
 
   if (!shouldShowHeader) {
     return null; // Don't render the header if it's a login or admin page
@@ -209,6 +213,7 @@ function Header({ user, currentPath }) {
         {user && isVerified ? (
           <div className="dropdown" ref={dropdownRef}>
             <span onClick={toggleDropdown} className="username">
+            <FontAwesomeIcon className="icon" icon={faUser} />
               {fullname || user.displayName || username}
             </span>
             <div className={`dropdown-content ${dropdownOpen ? "show" : ""}`}>

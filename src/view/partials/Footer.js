@@ -16,7 +16,8 @@ const Footer = () => {
     window.scrollTo({ top: 0, behavior: "smooth" });
   };
   const shouldShowFooter =
-  !location.pathname.startsWith("/reset") 
+  !location.pathname.startsWith("/reset") &&
+  !location.pathname.startsWith("/booking-details");
 
 if (!shouldShowFooter) {
   return null; // Don't render the header if it's a login or admin page

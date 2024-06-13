@@ -63,7 +63,7 @@ const ManageBookings = () => {
         const unpaid = [];
         Object.keys(data).forEach((key) => {
           const booking = { ...data[key], key }; // Add the key to the booking object for updating later
-          if (booking.status === "Paid" || booking.status === "Cancelled") {
+          if (booking.status === "Paid" || booking.status === "Cancelled" || booking.status === "Checked-in") {
             paid.push(booking);
           } else if (booking.status === "Pending Payment") {
             unpaid.push(booking);
@@ -92,6 +92,16 @@ const ManageBookings = () => {
       const user = auth.currentUser;
       const db = getDatabase();
       const bookingRef = ref(db, `users/${user.uid}/bookings/${confirmCancel.key}`);
+      const vetScheduleRef = ref(db, `users/${confirmCancel.vet.uid}/schedule/${confirmCancel.date}`);
+      const vetScheduleSnapshot = await get(vetScheduleRef);
+      const vetSchedule = vetScheduleSnapshot.val();
+      
+      const updatedSchedule = vetSchedule.map(slot => {
+        if (slot.time === confirmCancel.time && slot.status === 1) {
+          return { ...slot, status: 0 };
+        }
+        return slot;
+      });
   
       try {
         const refundAmount = confirmCancel.totalPaid * 0.75;
@@ -105,6 +115,8 @@ const ManageBookings = () => {
         await update(bookingRef, { status: "Cancelled" });
   
         await update(userRef, { accountBalance: updatedBalance });
+
+        await set(vetScheduleRef, updatedSchedule);
   
         const updatedPaidBookings = paidBookings.map((booking) => {
           if (booking.key === confirmCancel.key) {
@@ -209,12 +221,12 @@ const ManageBookings = () => {
                             navigate(`/booking-details/${booking.key}`)
                           }
                         >
-                          Show Details
+                          Details
                         </button>
                         <button
-                          className="cancel-button"
+                          className="cancel-button cancel-button-booking"
                           onClick={() => handleCancel(booking)}
-                          disabled={booking.status === "Cancelled" || booking.status === "Pending"}
+                          disabled={booking.status === "Cancelled" || booking.status === "Pending" || booking.status === "Checked-in"}
                         >
                           Cancel
                         </button>

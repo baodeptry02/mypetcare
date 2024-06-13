@@ -2,6 +2,9 @@ import React, { useState, useContext, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { BookingContext } from '../../Components/context/BookingContext';
 import { services } from './ServiceData';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
+import { faCaretLeft, faCaretRight, faChevronCircleRight, faChevronRight } from '@fortawesome/free-solid-svg-icons';
+
 
 const SelectService = () => {
   const { selectedPet, setSelectedServices } = useContext(BookingContext);
@@ -66,8 +69,8 @@ const SelectService = () => {
           </div>
         ))}
       </div>
-      <button className="back-button" onClick={() => navigate(-1)}>Back</button>
-      <button disabled={selectedServiceList.length === 0} className='button-service' onClick={handleNext}>Next</button>
+      <button className="back-button" onClick={() => navigate(-1)}>  <FontAwesomeIcon className='icon-left' icon={faCaretLeft} /> BACK</button>
+      <button disabled={selectedServiceList.length === 0} className='button-service' onClick={handleNext}>NEXT     <FontAwesomeIcon className='icon-right' icon={faCaretRight} /></button>
     </div>
   );
 };

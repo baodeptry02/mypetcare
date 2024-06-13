@@ -14,6 +14,7 @@ import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import { getDatabase, ref, set, onValue, get, update } from "firebase/database";
 import useForceUpdate from "../../hooks/useForceUpdate";
+import ReCAPTCHA from "react-google-recaptcha";
 
 function SignIn() {
   const [email, setEmail] = useState("");
@@ -23,6 +24,7 @@ function SignIn() {
   const [error, setError] = useState(null); // Store error messages
   const [confirmPassword, setconfirmPassword] = useState("");
   const [isRegistering, setIsRegistering] = useState(false);
+  const [isCaptchaVerified, setIsCaptchaVerified] = useState(false);
   const navigate = useNavigate();
   const forceUpdate = useForceUpdate();
 
@@ -53,6 +55,10 @@ function SignIn() {
         }
       }
     );
+  }
+
+  const onChange = (value) => {
+    setIsCaptchaVerified(!!value);
   }
 
   const handleGoogleLogin = async () => {
@@ -178,6 +184,10 @@ function SignIn() {
       })
       return; 
     }
+    if (!isCaptchaVerified) {
+      alert('Please complete the captcha before submitting the form.');
+      return;
+    }
 
     if (!isRegistering) {
       setIsRegistering(true);
@@ -236,6 +246,11 @@ function SignIn() {
   const handleEmailLogin = async (event) => {
     event.preventDefault(); 
     setError(null); 
+
+    if (!isCaptchaVerified) {
+      toast.error('Please complete the captcha before submitting the form.');
+      return;
+    }
 
     try {
       const userCredential = await signInWithEmailAndPassword(
@@ -418,7 +433,7 @@ function SignIn() {
                     onChange={(e) => {
                       setPassword(e.target.value);
                     }}
-                    className="w-full mt-2 px-3 py-2 text-gray-500 bg-transparent outline-none border focus:border-indigo-600 shadow-sm rounded-lg transition duration-300"
+                    className="mt-2 px-3 py-2 text-gray-500 bg-transparent outline-none border focus:border-indigo-600 shadow-sm rounded-lg transition duration-300"
                   />
                   <div>
                     <label className="text-sm text-gray-600 font-bold">
@@ -437,10 +452,12 @@ function SignIn() {
                       className="w-full mt-2 px-3 py-2 text-gray-500 bg-transparent outline-none border focus:border-indigo-600 shadow-sm rounded-lg transition duration-300"
                     />
                   </div>
+                  <ReCAPTCHA sitekey="6LfjlPcpAAAAAPLRaxVhKzYI4OYR2mBW_wv6LZwW"
+    onChange={onChange} />
                   <button
                     type="submit"
                     disabled={isRegistering}
-                    className={`w-full px-4 py-2 text-white font-medium rounded-lg ${
+                    className={`px-4 py-2 text-white font-medium rounded-lg ${
                       isRegistering
                         ? "bg-gray-300 cursor-not-allowed"
                         : "bg-indigo-600 hover:bg-indigo-700 hover:shadow-xl transition duration-300"
@@ -478,6 +495,7 @@ function SignIn() {
                     required
                   />
                   <a href="/reset">Forget Your Password?</a>
+                  <ReCAPTCHA sitekey="6LfjlPcpAAAAAPLRaxVhKzYI4OYR2mBW_wv6LZwW" onChange={onChange} />
                   <button>Sign In</button>
                 </form>
               </div>
