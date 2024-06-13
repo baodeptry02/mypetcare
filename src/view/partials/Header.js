@@ -79,6 +79,14 @@ function Header({ user, currentPath }) {
 
       onValue(userRef, (snapshot) => {
         const data = snapshot.val();
+        const creationTime = new Date(data.creationTime)
+        const comparisonDate = new Date("2024-06-01");
+        console.log(creationTime)
+        if (creationTime >= comparisonDate) {
+          console.log("This is a new user.");
+        } else {
+          console.log("This is an existing user.");
+        }
         // console.log(data.schedule)
         // Object.entries(data.schedule).forEach(([date, bookings]) => {
         //   console.log(`Date: ${date}`);
@@ -108,6 +116,7 @@ function Header({ user, currentPath }) {
       setHeaderVisible(true); // Ensure header is visible even if user is not logged in
     }
   }, [user]);
+  console.log()
 
   const homePage = () => {
     if (dropdownOpen) {

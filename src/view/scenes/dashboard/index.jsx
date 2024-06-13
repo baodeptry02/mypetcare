@@ -2,14 +2,13 @@ import React, { useEffect, useState } from "react";
 import { Box, Button, IconButton, Typography, useTheme } from "@mui/material";
 import { tokens } from "../../../theme";
 import { mockTransactions, mockDataTeam } from "../../data/mockData";
-import DownloadOutlinedIcon from "@mui/icons-material/DownloadOutlined";
 import PointOfSaleIcon from "@mui/icons-material/PointOfSale";
 import TrafficIcon from "@mui/icons-material/Traffic";
 import Header from "../../../Components/dashboardChart/Header";
 import LineChart from "../../../Components/dashboardChart/LineChart";
 import BarChart from "../../../Components/dashboardChart/BarChart";
 import StatBox from "../../../Components/dashboardChart/StatBox";
-import ProgressCircle from "../../../Components/dashboardChart/ProgressCircle";
+import PieChart from "../../../Components/dashboardChart/PieChart";
 
 const Dashboard = () => {
   const theme = useTheme();
@@ -29,17 +28,26 @@ const Dashboard = () => {
 
     const getTotalPaid = (date, type) => {
       let totalPaid = 0;
-
+      let currentYear = new Date();
+      let year = currentYear.getFullYear();
       mockDataTeam.forEach((user) => {
         for (const bookingId in user.bookings) {
           const booking = user.bookings[bookingId];
+          let inputStr = booking.bookingId;
 
-          if (booking.date) {
-            if (type === "date" && date === booking.date) {
+          let strippedStr = inputStr.slice(2);
+
+          let day = strippedStr.slice(0, 2);
+          let month = strippedStr.slice(2, 4);
+
+          let formattedDate = `${year}-${month}-${day}`;
+          console.log(formattedDate);
+          if (formattedDate) {
+            if (type === "date" && date === formattedDate) {
               totalPaid += booking.totalPaid || 0;
-            } else if (type === "month" && booking.date.startsWith(date)) {
+            } else if (type === "month" && formattedDate.startsWith(date)) {
               totalPaid += booking.totalPaid || 0;
-            } else if (type === "year" && booking.date.startsWith(date)) {
+            } else if (type === "year" && formattedDate.startsWith(date)) {
               totalPaid += booking.totalPaid || 0;
             }
           }
@@ -53,7 +61,6 @@ const Dashboard = () => {
 
     const totalPaidForDate = getTotalPaid(currentDate.currentDate, "date");
     setDailyRevenue(totalPaidForDate.toLocaleString() + ",000");
-    console.log(totalPaidForDate)
 
     const totalPaidForMonth = getTotalPaid(
       `${currentDate.year}-${currentDate.month}`,
@@ -68,25 +75,10 @@ const Dashboard = () => {
   return (
     <Box m="20px">
       {/* HEADER */}
-      <Box display="flex" justifyContent="space-between" alignItems="center">
+<Box display="flex" justifyContent="space-between" alignItems="center">
         <Header title="DASHBOARD" subtitle="Welcome to your dashboard" />
-
-        <Box>
-          <Button
-            sx={{
-              backgroundColor: colors.blueAccent[700],
-              color: colors.grey[100],
-              fontSize: "14px",
-              fontWeight: "bold",
-              padding: "10px 20px",
-            }}
-          >
-            <DownloadOutlinedIcon sx={{ mr: "10px" }} />
-            Download Reports
-          </Button>
-        </Box>
       </Box>
-
+<input></input>
       {/* GRID & CHARTS */}
       <Box
         display="grid"
@@ -192,7 +184,7 @@ const Dashboard = () => {
                 color={colors.grey[100]}
               >
                 Revenue Generated
-              </Typography>
+</Typography>
               <Typography
                 variant="h3"
                 fontWeight="bold"
@@ -200,14 +192,6 @@ const Dashboard = () => {
               >
                 {yearlyRevenue} VND
               </Typography>
-            </Box>
-
-            <Box>
-              <IconButton>
-                <DownloadOutlinedIcon
-                  sx={{ fontSize: "26px", color: colors.greenAccent[500] }}
-                />
-              </IconButton>
             </Box>
           </Box>
           <Box height="250px" m="-20px 0 0 0">
@@ -227,7 +211,7 @@ const Dashboard = () => {
             Sales Quantity
           </Typography>
           <Box height="250px" mt="-20px">
-            <BarChart isDashboard={true} />
+            <PieChart isDashboard={true} />
           </Box>
         </Box>
 
@@ -236,26 +220,16 @@ const Dashboard = () => {
           gridColumn="span 4"
           gridRow="span 2"
           backgroundColor={colors.primary[400]}
-          p="30px"
         >
-          <Typography variant="h5" fontWeight="600">
-            Campaign
-          </Typography>
-          <Box
-            display="flex"
-            flexDirection="column"
-            alignItems="center"
-            mt="25px"
+          <Typography
+            variant="h5"
+            fontWeight="600"
+            sx={{ padding: "30px 30px 0 30px" }}
           >
-            <ProgressCircle size="125" />
-            <Typography
-              variant="h5"
-              color={colors.greenAccent[500]}
-              sx={{ mt: "15px" }}
-            >
-              $48,352 revenue generated
-            </Typography>
-            <Typography>Includes extra misc expenditures and costs</Typography>
+            Sales Quantity
+          </Typography>
+          <Box height="250px" mt="-20px">
+            <BarChart isDashboard={true} />
           </Box>
         </Box>
         <Box
@@ -306,7 +280,9 @@ const Dashboard = () => {
               <Box flex="1" textAlign="center">
                 <Typography
                   color={
-                    transaction.status === "cancelled" ? "red"  : colors.greenAccent[500]
+transaction.status === "cancelled"
+                      ? "red"
+                      : colors.greenAccent[500]
                   }
                   fontSize={"2rem"}
                 >

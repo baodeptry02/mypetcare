@@ -6,6 +6,7 @@ import { tokens } from "../../theme";
 let updatedDataTeam = [];
 export let mockDataTeam = [];
 export let mockTransactions = [];
+export let mockPieData = [];
 export let mockLineData = [
   {
     id: "User",
@@ -19,13 +20,23 @@ export let mockLineData = [
 
 const getMockTransactions = () => {
   let transactions = [];
+  let currentYear = new Date();
+  let year = currentYear.getFullYear();
   mockDataTeam.forEach((user) => {
     for (const bookingId in user.bookings) {
       const booking = user.bookings[bookingId];
+      let inputStr = booking.bookingId;
+      console.log(inputStr);
+      let strippedStr = inputStr.slice(2);
+
+      let day = strippedStr.slice(0, 2);
+      let month = strippedStr.slice(2, 4);
+
+      let formattedDate = `${year}-${month}-${day}`;
       transactions.push({
         bookingID: booking.bookingId,
         user: user.username,
-        date: booking.date,
+        date: formattedDate,
         status: booking.status,
         cost: booking.totalPaid || 0,
       });
@@ -58,8 +69,9 @@ const fetchUsers = () => {
         }
 
         mockDataTeam = updatedDataTeam;
-        mockTransactions = getMockTransactions(); // Update mockTransactions after fetching users
+        mockTransactions = getMockTransactions();
         getMonthsRevenue();
+        mockPieData = getMockPieData();
       } else {
         console.log("No data available");
       }
@@ -72,6 +84,7 @@ const fetchUsers = () => {
 
 const getMonthsRevenue = () => {
   const currentYear = new Date().getFullYear();
+  console.log(currentYear);
   const monthlyTotals = Array(12).fill(0);
 
   updatedDataTeam.forEach((user) => {
@@ -79,7 +92,7 @@ const getMonthsRevenue = () => {
       if (user.bookings.hasOwnProperty(bookingId)) {
         const booking = user.bookings[bookingId];
         const bookingDate = new Date(booking.date);
-        if (bookingDate.getFullYear() === currentYear) {
+        if (bookingDate.getFullYear() == currentYear) {
           const month = bookingDate.getMonth();
           const totalPaid = booking.totalPaid || 0;
           monthlyTotals[month] += totalPaid;
@@ -91,10 +104,59 @@ const getMonthsRevenue = () => {
     x: (index + 1).toString(),
     y: total.toString(),
   }));
-  // Print the totalPaid for each month
-  monthlyTotals.forEach((total, index) => {
-    // console.log(`Month ${index + 1} = ${total}`);
+};
+const getMockPieData = () => {
+  let gCount = 0;
+  let cCount = 0;
+  let pCount = 0;
+  let vCount = 0;
+
+  updatedDataTeam.forEach((user) => {
+    for (const bookingId in user.bookings) {
+      if (user.bookings.hasOwnProperty(bookingId)) {
+        const booking = user.bookings[bookingId];
+        booking.services.forEach((serviceName) => {
+          console.log(serviceName);
+          if (serviceName === "Grooming") {
+            gCount++;
+          } else if (serviceName === "Check-up") {
+            cCount++;
+          } else if (serviceName === "Pet Veterinary") {
+            pCount++;
+          } else {
+            vCount++;
+          }
+        });
+      }
+    }
   });
+
+  return [
+    {
+      id: "Grooming",
+      label: "Grooming",
+      value: gCount,
+      color: "hsl(104, 70%, 50%)",
+    },
+    {
+      id: "Check-up",
+      label: "Check-up",
+      value: cCount,
+      color: "hsl(162, 70%, 50%)",
+    },
+    {
+      id: "Pet Veterinary",
+      label: "Pet Veterinary",
+      value: pCount,
+      color: "hsl(291, 70%, 50%)",
+    },
+    {
+      id: "Vaccination",
+      label: "Vaccination",
+      value: vCount,
+      color: "hsl(229, 70%, 50%)",
+    },
+  ];
 };
 
 fetchUsers();
@@ -176,7 +238,7 @@ export const mockDataContacts = [
     address: "22215 Super Street, Everting, ZO 515234",
     city: "Evertin",
     zipCode: "51523",
-    registrarId: 123512,
+registrarId: 123512,
   },
   {
     id: 8,
@@ -288,38 +350,5 @@ export const mockDataInvoices = [
     cost: "21.24",
     phone: "(222)444-5555",
     date: "05/02/2021",
-  },
-];
-
-export const mockPieData = [
-  {
-    id: "hack",
-    label: "hack",
-    value: 239,
-    color: "hsl(104, 70%, 50%)",
-  },
-  {
-    id: "make",
-    label: "make",
-    value: 170,
-    color: "hsl(162, 70%, 50%)",
-  },
-  {
-    id: "go",
-    label: "go",
-    value: 322,
-    color: "hsl(291, 70%, 50%)",
-  },
-  {
-    id: "lisp",
-    label: "lisp",
-    value: 503,
-    color: "hsl(229, 70%, 50%)",
-  },
-  {
-    id: "scala",
-    label: "scala",
-    value: 584,
-    color: "hsl(344, 70%, 50%)",
   },
 ];

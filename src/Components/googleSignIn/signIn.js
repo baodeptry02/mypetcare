@@ -12,7 +12,15 @@ import {
 } from "firebase/auth";
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
-import { getDatabase, ref, set, onValue, get, update } from "firebase/database";
+import {
+  getDatabase,
+  ref,
+  set,
+  onValue,
+  get,
+  update,
+  child,
+} from "firebase/database";
 import useForceUpdate from "../../hooks/useForceUpdate";
 import ReCAPTCHA from "react-google-recaptcha";
 
@@ -59,32 +67,33 @@ function SignIn() {
 
   const onChange = (value) => {
     setIsCaptchaVerified(!!value);
-  }
+  };
 
   const handleGoogleLogin = async () => {
     try {
       const data = await signInWithPopup(auth, provider);
-      const userEmail = data.user.email;
+      const user = data.user;
+  
+      // Get the creation time from the user's metadata
+      const creationTime = user.metadata.creationTime;
+  
+      const userEmail = user.email;
       const userNamePart = userEmail.split("@")[0];
       const userName = "gg" + userNamePart;
-      const userId = data.user.uid;
+      const userId = user.uid;
       const db = getDatabase();
       const userRef = ref(db, "users/" + userId);
       let userRole = "user";
-      console.log("User Email:", userEmail);
-      console.log("Generated Username:", userName);
-      console.log("User ID:", userId);
-
+  
       // Fetch user data from Firebase
       const userDataSnapshot = await new Promise((resolve) => {
         onValue(userRef, (snapshot) => {
           resolve(snapshot);
         });
       });
-
+  
       const userData = userDataSnapshot.val();
-      console.log("User Data from Firebase:", userData);
-      let accountStatus = 'enable';
+      let accountStatus = "enable";
       // If user does not exist in the database, add the user
       if (!userData) {
         await set(userRef, {
@@ -94,6 +103,7 @@ function SignIn() {
           isVerified: true,
           accountBalance: 0,
           accountStatus: accountStatus,
+          creationTime: creationTime, // Add the creation time here
         });
       } else {
         userRole = userData.role || "user";
@@ -105,16 +115,17 @@ function SignIn() {
           role: userRole,
           isVerified: true,
           accountBalance: accountBalance,
-          accountStatus: userData.accountStatus || accountStatus
+          accountStatus: userData.accountStatus || accountStatus,
+          creationTime: userData.creationTime || creationTime, // Add the creation time here
         });
       }
-
+  
       if (userData && userData.accountBalance === undefined) {
         await update(userRef, {
           accountBalance: 0,
         });
       }
-
+  
       switch (userRole) {
         case "user":
           navigate("/");
@@ -134,30 +145,30 @@ function SignIn() {
       toast.success("Login successfully. Wish you enjoy our best experience", {
         autoClose: 2000,
         onClose: () => {
-          forceUpdate()
-        }
-      })
+          forceUpdate();
+        },
+      });
     } catch (error) {
       console.error("Error during Google sign-in:", error);
       toast.error("Failed to sign in with Google. Please try again.", {
         autoClose: 2000,
         onClose: () => {
-          forceUpdate()
-        }
-      })
+          forceUpdate();
+        },
+      });
     }
   };
-
+  
   const onSubmit = async (e) => {
     e.preventDefault();
     if (password !== confirmPassword) {
       toast.error("Password not match, please try again!", {
         autoClose: 2000,
         onClose: () => {
-          forceUpdate()
-        }
-      })
-      return; 
+          forceUpdate();
+        },
+      });
+      return;
     }
 
     const username = email.split("@")[0];
@@ -167,10 +178,10 @@ function SignIn() {
       toast.error("Email is invalid. Please enter a valid email address.", {
         autoClose: 2000,
         onClose: () => {
-          forceUpdate()
-        }
-      })
-      return; 
+          forceUpdate();
+        },
+      });
+      return;
     }
 
     const signInMethods = await fetchSignInMethodsForEmail(auth, email);
@@ -179,13 +190,13 @@ function SignIn() {
       toast.error("This email is used by another user, please try again!", {
         autoClose: 2000,
         onClose: () => {
-          forceUpdate()
-        }
-      })
-      return; 
+          forceUpdate();
+        },
+      });
+      return;
     }
     if (!isCaptchaVerified) {
-      alert('Please complete the captcha before submitting the form.');
+      alert("Please complete the captcha before submitting the form.");
       return;
     }
 
@@ -208,24 +219,26 @@ function SignIn() {
         addDataBase(userId, email, username, "user");
         await auth.signOut();
         toast.success(
-          "Registration successful. Please check your email for verification then login to our system again.", {
-          autoClose: 2000,
-          onClose: () => {
-            setTimeout(() => {
-              forceUpdate();
-            navigate("/signIn");
-            }, 2000);
+          "Registration successful. Please check your email for verification then login to our system again.",
+          {
+            autoClose: 2000,
+            onClose: () => {
+              setTimeout(() => {
+                forceUpdate();
+                navigate("/signIn");
+              }, 2000);
+            },
           }
-        })
+        );
       } catch (error) {
         toast.error("This email is used by another user, please try again!", {
           autoClose: 2000,
           onClose: () => {
-            forceUpdate()
-          }
-        })
+            forceUpdate();
+          },
+        });
       } finally {
-        setIsRegistering(false); 
+        setIsRegistering(false);
       }
     }
   };
@@ -244,11 +257,11 @@ function SignIn() {
   };
 
   const handleEmailLogin = async (event) => {
-    event.preventDefault(); 
-    setError(null); 
+    event.preventDefault();
+    setError(null);
 
     if (!isCaptchaVerified) {
-      toast.error('Please complete the captcha before submitting the form.');
+      toast.error("Please complete the captcha before submitting the form.");
       return;
     }
 
@@ -263,24 +276,30 @@ function SignIn() {
         toast.error("Please verify your email before logging in.", {
           autoClose: 2000,
           onClose: () => {
-            forceUpdate()
-          }
-        })
+            forceUpdate();
+          },
+        });
         auth.signOut();
         navigate("/signIn");
         return;
       }
       const userEmail = user.email;
       setUserEmail(userEmail);
-      localStorage.setItem("email", userEmail); 
+      localStorage.setItem("email", userEmail);
       const userId = user.uid;
       const db = getDatabase();
       const userRef = ref(db, "users/" + userId);
       let userRole = "user";
+      const creationTime = user.metadata.creationTime;
+      const creationTimeSnapshot = await get(child(userRef, "creationTime"));
 
-      
+      if (!creationTimeSnapshot.exists()) {
+        // If not, store it
+        await set(child(userRef, "creationTime"), creationTime);
+      }
+
       let accountStatus = "enable";
-      
+
       const userDataSnapshot = await new Promise((resolve) => {
         onValue(
           userRef,
@@ -309,7 +328,7 @@ function SignIn() {
             accountBalance: 0,
           });
         }
-        
+
         await update(userRef, {
           username: user.displayName,
           role: userRole,
@@ -352,16 +371,19 @@ function SignIn() {
       toast.success("Login successfully. Wish you enjoy our best experience", {
         autoClose: 2000,
         onClose: () => {
-          forceUpdate()
-        }
-      })
+          forceUpdate();
+        },
+      });
     } catch (error) {
-      toast.error("Something went wrong. Please check your email or password and try again!", {
-        autoClose: 2000,
-        onClose: () => {
-          forceUpdate()
+      toast.error(
+        "Something went wrong. Please check your email or password and try again!",
+        {
+          autoClose: 2000,
+          onClose: () => {
+            forceUpdate();
+          },
         }
-      })
+      );
     }
   };
 
@@ -377,7 +399,7 @@ function SignIn() {
   useEffect(() => {
     const storedEmail = localStorage.getItem("email");
     setUserEmail(storedEmail);
-  }, []); 
+  }, []);
 
   useEffect(() => {
     const updateUserVerificationStatus = async (user) => {
@@ -398,142 +420,145 @@ function SignIn() {
 
   return (
     <div>
-      {!userEmail && ( 
-          <div className="signIn" style={{ height: "100vh" }}>
-            <div className="container form" id="container">
-              <div className="form-container sign-up">
-                <form onSubmit={onSubmit}>
-                  <h1>Create Account</h1>
-                  <div className="social-icons">
-                    <button type="button" onClick={handleGoogleLogin}>
-                      Login with Google
-                    </button>
-                  </div>
-                  <span>or use your email for registeration</span>
-                  <input
-                    id="email"
-                    type="email"
-                    autoComplete="off"
-                    required
-                    value={email}
-                    placeholder="Input your email"
-                    onChange={(e) => {
-                      setEmail(e.target.value);
-                    }}
-                    className="w-full mt-2 px-3 py-2 text-gray-500 bg-transparent outline-none border focus:indigo-600 shadow-sm rounded-lg transition duration-300"
-                  />
-                  <input
-                    id="password"
-                    disabled={isRegistering}
-                    placeholder="Input your password"
-                    type="password"
-                    autoComplete="off"
-                    required
-                    value={password}
-                    onChange={(e) => {
-                      setPassword(e.target.value);
-                    }}
-                    className="mt-2 px-3 py-2 text-gray-500 bg-transparent outline-none border focus:border-indigo-600 shadow-sm rounded-lg transition duration-300"
-                  />
-                  <div>
-                    <label className="text-sm text-gray-600 font-bold">
-                      Confirm Password
-                    </label>
-                    <input
-                      disabled={isRegistering}
-                      type="password"
-                      placeholder="Confirm your password"
-                      autoComplete="off"
-                      required
-                      value={confirmPassword}
-                      onChange={(e) => {
-                        setconfirmPassword(e.target.value);
-                      }}
-                      className="w-full mt-2 px-3 py-2 text-gray-500 bg-transparent outline-none border focus:border-indigo-600 shadow-sm rounded-lg transition duration-300"
-                    />
-                  </div>
-                  <ReCAPTCHA sitekey="6LfjlPcpAAAAAPLRaxVhKzYI4OYR2mBW_wv6LZwW"
-    onChange={onChange} />
-                  <button
-                    type="submit"
-                    disabled={isRegistering}
-                    className={`px-4 py-2 text-white font-medium rounded-lg ${
-                      isRegistering
-                        ? "bg-gray-300 cursor-not-allowed"
-                        : "bg-indigo-600 hover:bg-indigo-700 hover:shadow-xl transition duration-300"
-                    }`}
-                  >
-                    {isRegistering ? "Signing Up..." : "Sign Up"}
+      {!userEmail && (
+        <div className="signIn" style={{ height: "100vh" }}>
+          <div className="container form" id="container">
+            <div className="form-container sign-up">
+              <form onSubmit={onSubmit}>
+                <h1>Create Account</h1>
+                <div className="social-icons">
+                  <button type="button" onClick={handleGoogleLogin}>
+                    Login with Google
                   </button>
-                </form>
-              </div>
-              <div class="form-container sign-in">
-                <form onSubmit={handleEmailLogin}>
-                  <h1>Sign In</h1>
-                  <div className="social-icons">
-                    <button type="button" onClick={handleGoogleLogin}>
-                      Login with Google
-                    </button>
-                  </div>
-                  <span>or use your email password</span>
+                </div>
+                <span>or use your email for registeration</span>
+                <input
+                  id="email"
+                  type="email"
+                  autoComplete="off"
+                  required
+                  value={email}
+                  placeholder="Input your email"
+                  onChange={(e) => {
+                    setEmail(e.target.value);
+                  }}
+                  className="w-full mt-2 px-3 py-2 text-gray-500 bg-transparent outline-none border focus:indigo-600 shadow-sm rounded-lg transition duration-300"
+                />
+                <input
+                  id="password"
+                  disabled={isRegistering}
+                  placeholder="Input your password"
+                  type="password"
+                  autoComplete="off"
+                  required
+                  value={password}
+                  onChange={(e) => {
+                    setPassword(e.target.value);
+                  }}
+                  className="mt-2 px-3 py-2 text-gray-500 bg-transparent outline-none border focus:border-indigo-600 shadow-sm rounded-lg transition duration-300"
+                />
+                <div>
+                  <label className="text-sm text-gray-600 font-bold">
+                    Confirm Password
+                  </label>
                   <input
-                    type="email"
-                    id="email"
-                    name="email"
-                    placeholder="Input your email"
-                    value={email}
-                    onChange={handleChange}
-                    required
-                  />
-                  <input
+                    disabled={isRegistering}
                     type="password"
-                    placeholder="Input your password"
-                    id="password"
-                    name="password"
-                    value={password}
-                    onChange={handleChange}
+                    placeholder="Confirm your password"
+                    autoComplete="off"
                     required
+                    value={confirmPassword}
+                    onChange={(e) => {
+                      setconfirmPassword(e.target.value);
+                    }}
+                    className="w-full mt-2 px-3 py-2 text-gray-500 bg-transparent outline-none border focus:border-indigo-600 shadow-sm rounded-lg transition duration-300"
                   />
-                  <a href="/reset">Forget Your Password?</a>
-                  <ReCAPTCHA sitekey="6LfjlPcpAAAAAPLRaxVhKzYI4OYR2mBW_wv6LZwW" onChange={onChange} />
-                  <button>Sign In</button>
-                </form>
-              </div>
-              <div className="toggle-container">
-                <div className="toggle">
-                  <div className="toggle-panel toggle-left">
-                    <h1>Welcome Back!</h1>
-                    <p>
-                      Enter your personal details to use all of site features
-                    </p>
-                    <button
-                      className="hidden"
-                      id="login"
-                      onClick={handleClickButtonLog}
-                    >
-                      Sign In
-                    </button>
-                  </div>
-                  <div className="toggle-panel toggle-right">
-                    <h1>Hello, Friend!</h1>
-                    <p>
-                      Register with your personal details to use all of site
-                      features
-                    </p>
-                    <button
-                      className="hidden"
-                      id="register"
-                      onClick={handleClickButtonReg}
-                    >
-                      Sign Up
-                    </button>
-                  </div>
+                </div>
+                <ReCAPTCHA
+                  sitekey="6LfjlPcpAAAAAPLRaxVhKzYI4OYR2mBW_wv6LZwW"
+                  onChange={onChange}
+                />
+                <button
+                  type="submit"
+                  disabled={isRegistering}
+                  className={`px-4 py-2 text-white font-medium rounded-lg ${
+                    isRegistering
+                      ? "bg-gray-300 cursor-not-allowed"
+                      : "bg-indigo-600 hover:bg-indigo-700 hover:shadow-xl transition duration-300"
+                  }`}
+                >
+                  {isRegistering ? "Signing Up..." : "Sign Up"}
+                </button>
+              </form>
+            </div>
+            <div class="form-container sign-in">
+              <form onSubmit={handleEmailLogin}>
+                <h1>Sign In</h1>
+                <div className="social-icons">
+                  <button type="button" onClick={handleGoogleLogin}>
+                    Login with Google
+                  </button>
+                </div>
+                <span>or use your email password</span>
+                <input
+                  type="email"
+                  id="email"
+                  name="email"
+                  placeholder="Input your email"
+                  value={email}
+                  onChange={handleChange}
+                  required
+                />
+                <input
+                  type="password"
+                  placeholder="Input your password"
+                  id="password"
+                  name="password"
+                  value={password}
+                  onChange={handleChange}
+                  required
+                />
+                <a href="/reset">Forget Your Password?</a>
+                <ReCAPTCHA
+                  sitekey="6LfjlPcpAAAAAPLRaxVhKzYI4OYR2mBW_wv6LZwW"
+                  onChange={onChange}
+                />
+                <button>Sign In</button>
+              </form>
+            </div>
+            <div className="toggle-container">
+              <div className="toggle">
+                <div className="toggle-panel toggle-left">
+                  <h1>Welcome Back!</h1>
+                  <p>Enter your personal details to use all of site features</p>
+                  <button
+                    className="hidden"
+                    id="login"
+                    onClick={handleClickButtonLog}
+                  >
+                    Sign In
+                  </button>
+                </div>
+                <div className="toggle-panel toggle-right">
+                  <h1>Hello, Friend!</h1>
+                  <p>
+                    Register with your personal details to use all of site
+                    features
+                  </p>
+                  <button
+                    className="hidden"
+                    id="register"
+                    onClick={handleClickButtonReg}
+                  >
+                    Sign Up
+                  </button>
                 </div>
               </div>
             </div>
           </div>
+        </div>
       )}
-      {userEmail && <Home />} 
+      {userEmail && <Home />}
     </div>
   );
 }
