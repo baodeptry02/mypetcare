@@ -2,16 +2,20 @@ import React, { useState, useEffect } from "react";
 import { getDatabase, ref, get } from "firebase/database";
 import { useParams, useNavigate } from "react-router-dom";
 import { auth } from "../../Components/firebase/firebase";
+import Box from "@mui/material/Box";
+import Rating from "@mui/material/Rating";
+import Typography from "@mui/material/Typography";
 
 const BookingDetails = () => {
   const { bookingId } = useParams();
   const [booking, setBooking] = useState(null);
   const user = auth.currentUser;
   const navigate = useNavigate();
+  const [value, setValue] = React.useState(null);
 
   useEffect(() => {
     if (!user) {
-      console.log('No user is currently logged in.');
+      console.log("No user is currently logged in.");
       return;
     }
 
@@ -21,9 +25,11 @@ const BookingDetails = () => {
         const bookingRef = ref(db, `users/${user.uid}/bookings/${bookingId}`);
         const snapshot = await get(bookingRef);
         if (snapshot.exists()) {
-          setBooking(snapshot.val());
+          const bookingData = snapshot.val();
+          setBooking(bookingData);
+          setValue(bookingData.rating); // Set the rating value from the booking data
         } else {
-          console.log('No data available');
+          console.log("No data available");
         }
       } catch (error) {
         console.error("Error fetching booking details:", error);
@@ -37,11 +43,10 @@ const BookingDetails = () => {
     return <p>Loading booking details...</p>;
   }
 
-  const { pet, vet, date, time, services, totalPaid, amountToPay, status } = booking;
-  const petName = pet?.name || 'N/A';
-  const vetName = vet?.name || 'N/A';
-
-  
+  const { pet, vet, date, time, services, totalPaid, amountToPay, status } =
+    booking;
+  const petName = pet?.name || "N/A";
+  const vetName = vet?.name || "N/A";
 
   return (
     <div className="booking-details-wrapper">
@@ -51,7 +56,7 @@ const BookingDetails = () => {
           <div className="owner-info">
             <h3>Owner Information</h3>
             <p>Username: {user.displayName}</p>
-            <p>Phone: {user.phoneNumber || 'N/A'}</p>
+            <p>Phone: {user.phoneNumber || "N/A"}</p>
             <p>Pet Name: {petName}</p>
           </div>
         </div>
@@ -73,7 +78,7 @@ const BookingDetails = () => {
               </tr>
               <tr>
                 <td className="key-column">Services</td>
-                <td className="value-column">{services.join(', ')}</td>
+                <td className="value-column">{services.join(", ")}</td>
               </tr>
               <tr>
                 <td className="key-column">Total Paid</td>
@@ -87,9 +92,42 @@ const BookingDetails = () => {
                 <td className="key-column">Vet</td>
                 <td className="value-column">{vetName}</td>
               </tr>
+              {value !== undefined && (
+                <tr>
+                  <td className="key-column">Rating</td>
+                  <td className="value-column">
+                    <Box
+                      sx={{
+                        width: 200,
+                        display: "flex",
+                        alignItems: "center",
+                        justifyContent: "space-between",
+                        float: "right",
+                      }}
+                    >
+                      <Rating
+                        name="read-only"
+                        value={value}
+                        readOnly
+                        sx={{
+                          "& .MuiRating-iconFilled": {
+                            color: "gold",
+                          },
+                        }}
+                      />
+                      <Box sx={{ ml: 2, fontSize: "2rem" }}>{value.toFixed(1)}</Box>
+                    </Box>
+                  </td>
+                </tr>
+              )}
             </tbody>
           </table>
-        <button className="booking-detail back-button" onClick={() => navigate(-1)}>Back</button>
+          <button
+            className="booking-detail back-button"
+            onClick={() => navigate(-1)}
+          >
+            Back
+          </button>
         </div>
       </div>
     </div>

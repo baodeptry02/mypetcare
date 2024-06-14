@@ -20,8 +20,6 @@ import Topbar from "../../view/scenes/global/Topbar";
 import Sidebar from "../../view/scenes/global/Sidebar";
 import Dashboard from "../../view/scenes/dashboard/index";
 import Team from "../../view/scenes/team/index";
-import Invoices from "../../view/scenes/invoices/index";
-import Contacts from "../../view/scenes/contacts/index";
 import Bar from "../../view/scenes/bar/index";
 import Form from "../../view/scenes/form/index";
 import Line from "../../view/scenes/line/index";
@@ -109,8 +107,6 @@ function Admin() {
             <Routes>
               <Route path="dashboard" element={<Dashboard />} />
               <Route path="team" element={<Team />} />
-              <Route path="contacts" element={<Contacts />} />
-              <Route path="invoices" element={<Invoices />} />
               <Route path="form" element={<Form />} />
               <Route path="bar" element={<Bar />} />
               <Route path="pie" element={<Pie />} />

@@ -17,6 +17,15 @@ import {
 } from "@fortawesome/free-brands-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import useForceUpdate from "../../hooks/useForceUpdate";
+import { getDatabase, get, ref } from "firebase/database";
+import Box from "@mui/material/Box";
+import Rating from "@mui/material/Rating";
+import { Swiper, SwiperSlide } from 'swiper/react';
+import { Navigation, Pagination, Autoplay } from 'swiper/modules';
+// import Swiper and modules styles
+import 'swiper/css';
+import 'swiper/css/navigation';
+import 'swiper/css/pagination';
 
 function Home() {
   const typedElement = useRef(null);
@@ -29,6 +38,7 @@ function Home() {
   const [backgroundImage, setBackgroundImage] = useState("");
   const forceUpdate = useForceUpdate();
   const [dropdownOpen, setDropdownOpen] = useState(false);
+  const [bookedSlots, setBookedSlots] = useState([]);
 
   useEffect(() => {
     const interval = setInterval(() => {
@@ -78,7 +88,7 @@ function Home() {
 
     return () => unsubscribe();
   }, []);
-  
+
   const book = () => {
     if (user) {
       navigate("/book/select-pet");
@@ -87,8 +97,8 @@ function Home() {
       toast.error("Please log in first to continue your booking!", {
         autoClose: 2000,
         onClose: () => {
-          forceUpdate()
-        }
+          forceUpdate();
+        },
       });
     }
   };
@@ -110,19 +120,19 @@ function Home() {
           toast.success("Email sent successfully!", {
             autoClose: 2000,
             onClose: () => {
-              forceUpdate()
-            }
-          })
+              forceUpdate();
+            },
+          });
         },
         (error) => {
           console.log(error.text);
           toast.error("Failed to send email.", {
             autoClose: 2000,
             onClose: () => {
-              forceUpdate()
-            }
-          })
-        },
+              forceUpdate();
+            },
+          });
+        }
       );
 
     e.target.reset();
@@ -173,6 +183,100 @@ function Home() {
       setDropdownOpen(false); // Close dropdown if open
     }
     navigate("/#home");
+  };
+  useEffect(() => {
+    const fetchAllBookings = async () => {
+      const db = getDatabase();
+      const usersRef = ref(db, "users");
+      const snapshot = await get(usersRef);
+      const usersData = snapshot.val();
+      let allBookings = [];
+      console.log("Users Data:", usersData); // Log to check usersData
+
+      if (usersData) {
+        Object.keys(usersData).forEach((userId) => {
+          const userData = usersData[userId];
+          if (userData.bookings) {
+            Object.keys(userData.bookings).forEach((bookingId) => {
+              const booking = userData.bookings[bookingId];
+              allBookings.push({
+                userId,
+                bookingId,
+                ...booking,
+              });
+            });
+          }
+        });
+      }
+      console.log("All Bookings:", allBookings);
+      setBookedSlots(allBookings);
+    };
+
+    fetchAllBookings();
+  }, []);
+  
+
+  const renderRatedBookings = () => {
+    const ratedBookings = bookedSlots.filter(
+      (booking) => booking.status === "Rated" && booking.rating > 3
+    );
+
+    return ratedBookings.map((booking) => (
+      <div key={booking.bookingId}>
+        <div className="testimonial-box">
+          <img
+            className="testimonial-avatar"
+            src={`${booking.pet.imageUrl}`}
+            alt="User Avatar"
+          />
+          <div className="testimonial-content">
+            <div style={{
+              fontSize: "3rem",
+              color: "var(--text-color)"
+            }}>
+
+          Rating:
+            </div>
+           <Box
+          
+                      sx={{
+                        marginTop: "12px",
+                        width: 200,
+                        display: "flex",
+                        alignItems: "center",
+                        float: "right",
+                      }}
+                    >
+                       <Box sx={{ ml: 2, fontSize: "2rem", marginRight: "12px" }}>{booking.rating.toFixed(1)}</Box>
+                      <Rating
+                        name="read-only"
+                        value={booking.rating}
+                        readOnly
+                        sx={{
+                          "& .MuiRating-iconFilled": {
+                            color: "gold",
+                          },
+                        }}
+                      />
+                    </Box>
+            <p className="testimonial-text">
+           <div>
+           <div style={{
+              fontSize: "3rem",
+              color: "var(--text-color)",
+              marginBottom: "20px"
+            }}>
+
+          Review:
+            </div>
+              {booking.review}
+              </div>
+            </p>
+            <p className="testimonial-signature">{booking.username}, {booking.pet.name} </p>
+          </div>
+        </div>
+      </div>
+    ));
   };
 
   return (
@@ -231,9 +335,17 @@ function Home() {
             </span>
             <p className="font_1">
               <span className="text1-about">
-              With over 16 years of experience working in the field of veterinary medicine, I am a passionate veterinarian with a deep understanding of the health and happiness of pet animals. I graduated from Hanoi National University School of Medicine and have worked at many reputable veterinary clinics and veterinary hospitals throughout the area.
-              Through thousands of animal treatment and care cases, I have accumulated valuable experience and diverse professional skills. I am always dedicated and dedicated to caring for each patient, along with dedicated understanding and advice to owners on how to care for and protect their pets' health.
-              
+                With over 16 years of experience working in the field of
+                veterinary medicine, I am a passionate veterinarian with a deep
+                understanding of the health and happiness of pet animals. I
+                graduated from Hanoi National University School of Medicine and
+                have worked at many reputable veterinary clinics and veterinary
+                hospitals throughout the area. Through thousands of animal
+                treatment and care cases, I have accumulated valuable experience
+                and diverse professional skills. I am always dedicated and
+                dedicated to caring for each patient, along with dedicated
+                understanding and advice to owners on how to care for and
+                protect their pets' health.
               </span>
             </p>
           </div>
@@ -245,8 +357,15 @@ function Home() {
             </span>
             <p className="font_1">
               <span className="text1-about">
-              In addition to my daily work, I also regularly participate in community education activities to share my knowledge and experience with the community, while creating high awareness of health issues and disease prevention for people. animal.
-              My mission is to bring peace and happiness to every family through health care for their pets. With enthusiasm and extensive knowledge, I am committed to continuing to contribute to the development of the field of veterinary medicine and bring the best care services to the community.
+                In addition to my daily work, I also regularly participate in
+                community education activities to share my knowledge and
+                experience with the community, while creating high awareness of
+                health issues and disease prevention for people. animal. My
+                mission is to bring peace and happiness to every family through
+                health care for their pets. With enthusiasm and extensive
+                knowledge, I am committed to continuing to contribute to the
+                development of the field of veterinary medicine and bring the
+                best care services to the community.
               </span>
             </p>
           </div>
@@ -256,53 +375,31 @@ function Home() {
               src="https://static.wixstatic.com/media/84770f_e57bb42011fe4e91992f1ceeece2a7b3~mv2_d_4000_3947_s_4_2.jpg/v1/fill/w_526,h_519,al_c,q_80,usm_0.66_1.00_0.01,enc_auto/84770f_e57bb42011fe4e91992f1ceeece2a7b3~mv2_d_4000_3947_s_4_2.jpg"
               fetchpriority="high"
             ></img>
-            
           </div>
         </div>
         <div className="font_2" data-aos="zoom-in-up">
           <h3>What Our Happy Clients Say</h3>
         </div>
-        <div class="testimonial-container" data-aos="fade-up">
-          <div class="testimonial-box">
-            <img
-              class="testimonial-avatar"
-              src="https://static.wixstatic.com/media/c837a6_5a8f08d69ed14df69f51095a389122ea~mv2.png/v1/fill/w_113,h_113,al_c,q_85,usm_0.66_1.00_0.01,enc_auto/test_3_2.png"
-              alt="User Avatar"
-            />
-            <div class="testimonial-content">
-              <p class="testimonial-text">
-              “Dr.Sin is not only a great veterinarian but also a wonderful companion for both me and my pets.”
-              </p>
-              <p class="testimonial-signature">Dani, Pacific Heights</p>
-            </div>
-          </div>
-          <div class="testimonial-box2" data-aos="fade-up" data-aos-delay="400">
-            <img
-              class="testimonial-avatar2"
-              src="https://static.wixstatic.com/media/c837a6_05f52a6820f34cba9902e759b418b5b6~mv2.png/v1/fill/w_113,h_113,al_c,q_85,usm_0.66_1.00_0.01,enc_auto/test_1.png"
-              alt="User Avatar"
-            />
-            <div class="testimonial-content2">
-              <p class="testimonial-text2">
-              “Dr. Mice always shows great care and dedication to my pets, and I couldn't be happier with her service.”
-              </p>
-              <p class="testimonial-signature2">Devivine, Monorita</p>
-            </div>
-          </div>
-          <div class="testimonial-box3" data-aos="fade-up" data-aos-delay="800">
-            <img
-              class="testimonial-avatar3"
-              src="https://static.wixstatic.com/media/c837a6_6a568fac61d1476898f4ea6cccbef66c~mv2.png/v1/fill/w_118,h_113,al_c,q_85,usm_0.66_1.00_0.01,enc_auto/test_2.png"
-              alt="User Avatar"
-            />
-            <div class="testimonial-content3">
-              <p class="testimonial-text3">
-              The clinic is professional in caring for my pets. I always feel secure when bringing my pets to this clinic”
-              </p>
-              <p class="testimonial-signature3">Robin, Cleranomic</p>
-            </div>
-          </div>
-        </div>
+        <div>
+      <div className="testimonial-container" data-aos="fade-up">
+        <Swiper
+          spaceBetween={50}
+          slidesPerView={4}
+          loop={true}
+          autoplay={{
+            delay: 2500,
+            disableOnInteraction: false,
+          }}
+          pagination={{ clickable: true }}
+          navigation={true}
+          modules={[Autoplay, Pagination, Navigation]}
+        >
+          {renderRatedBookings().map((slideContent, index) => (
+            <SwiperSlide key={index}>{slideContent}</SwiperSlide>
+          ))}
+        </Swiper>
+      </div>
+    </div>
       </section>
       <section className="services" id="services">
         <div className="font_3" data-aos="zoom-in-down">
@@ -314,11 +411,12 @@ function Home() {
 
         <div class="card-container">
           <div class="card" data-aos="fade-right" onClick={book}>
-            
             <h2>GROOMING</h2>
-           
+
             <p>
-              This service includes bathing, hair cutting and eye cleaning, combing, and skin examinations, requiring the groomer to understand the pet's temperament.
+              This service includes bathing, hair cutting and eye cleaning,
+              combing, and skin examinations, requiring the groomer to
+              understand the pet's temperament.
             </p>
             <img
               class="card-avatar"
@@ -326,14 +424,14 @@ function Home() {
               alt="User Avatar"
             />
             <div class="pricing">30 min: $21.00 | 60 min: $36.00</div>
-            
           </div>
           <div class="card" data-aos="fade-up" onClick={book}>
-            
             <h2>CHECK UP</h2>
-            
+
             <p>
-              This service involves a comprehensive physical examination of the pet's body, including measurements of temperature, blood pressure, heart rate and weight
+              This service involves a comprehensive physical examination of the
+              pet's body, including measurements of temperature, blood pressure,
+              heart rate and weight
             </p>
             <img
               class="card-avatar"
@@ -341,14 +439,14 @@ function Home() {
               alt="User Avatar"
             />
             <div class="pricing">$50.00</div>
-            
           </div>
           <div class="card" data-aos="fade-left" onClick={book}>
-            
             <h2>Vaccination</h2>
-          
+
             <p>
-              Pet immunizations are crucial for preventative pet healthcare, protecting against harmful illnesses, and are widely discussed among veterinarians and pet owners
+              Pet immunizations are crucial for preventative pet healthcare,
+              protecting against harmful illnesses, and are widely discussed
+              among veterinarians and pet owners
             </p>
             <img
               class="card-avatar"
@@ -356,16 +454,14 @@ function Home() {
               alt="User Avatar"
             />
             <div class="pricing">$36.00</div>
-            
           </div>
           <div class="card" data-aos="fade-right" onClick={book}>
-            
             <h2>PET VETERINARY</h2>
-           
+
             <p>
-              
-This service offers complete medical care for animals,
-including the identification and management of diseases, traumas, and other health issues.
+              This service offers complete medical care for animals, including
+              the identification and management of diseases, traumas, and other
+              health issues.
             </p>
             <img
               class="card-avatar"
@@ -373,7 +469,6 @@ including the identification and management of diseases, traumas, and other heal
               alt="User Avatar"
             />
             <div class="pricing">30 min: $21.00 | 60 min: $36.00</div>
-            
           </div>
         </div>
         <div className="font_4" data-aos="flip-up">
@@ -481,19 +576,20 @@ including the identification and management of diseases, traumas, and other heal
             </p>
           </div>
           <img
-  className="image-70"
-  src="https://cdn.prod.website-files.com/6139cf517cd6d26ff1548b86/6353420dafc1661ee0ee3b4e_pet%20insurance%20(2).png"
-  alt="Petotum"
-  style={{
-    opacity: 1,
-    transform: 'translate3d(0px, 0px, 0px) scale3d(1, 1, 1) rotateX(0deg) rotateY(0deg) rotateZ(0deg) skew(0deg, 0deg)',
-    transformStyle: 'preserve-3d'
-  }}
-  sizes="(max-width: 479px) 100vw, (max-width: 767px) 83vw, (max-width: 991px) 85vw, (max-width: 1600px) 45vw, 1000px"
-  data-w-id="abefafda-0c43-e7a4-fa4b-7ff2c7fd5cc9"
-  loading="lazy"
-  srcSet="https://cdn.prod.website-files.com/6139cf517cd6d26ff1548b86/6353420dafc1661ee0ee3b4e_pet%20insurance%20(2)-p-500.png 500w, https://cdn.prod.website-files.com/6139cf517cd6d26ff1548b86/6353420dafc1661ee0ee3b4e_pet%20insurance%20(2)-p-800.png 800w, https://cdn.prod.website-files.com/6139cf517cd6d26ff1548b86/6353420dafc1661ee0ee3b4e_pet%20insurance%20(2)-p-1080.png 1080w, https://cdn.prod.website-files.com/6139cf517cd6d26ff1548b86/6353420dafc1661ee0ee3b4e_pet%20insurance%20(2)-p-1600.png 1600w, https://cdn.prod.website-files.com/6139cf517cd6d26ff1548b86/6353420dafc1661ee0ee3b4e_pet%20insurance%20(2)-p-2000.png 2000w, https://cdn.prod.website-files.com/6139cf517cd6d26ff1548b86/6353420dafc1661ee0ee3b4e_pet%20insurance%20(2).png 2880w"
-/>
+            className="image-70"
+            src="https://cdn.prod.website-files.com/6139cf517cd6d26ff1548b86/6353420dafc1661ee0ee3b4e_pet%20insurance%20(2).png"
+            alt="Petotum"
+            style={{
+              opacity: 1,
+              transform:
+                "translate3d(0px, 0px, 0px) scale3d(1, 1, 1) rotateX(0deg) rotateY(0deg) rotateZ(0deg) skew(0deg, 0deg)",
+              transformStyle: "preserve-3d",
+            }}
+            sizes="(max-width: 479px) 100vw, (max-width: 767px) 83vw, (max-width: 991px) 85vw, (max-width: 1600px) 45vw, 1000px"
+            data-w-id="abefafda-0c43-e7a4-fa4b-7ff2c7fd5cc9"
+            loading="lazy"
+            srcSet="https://cdn.prod.website-files.com/6139cf517cd6d26ff1548b86/6353420dafc1661ee0ee3b4e_pet%20insurance%20(2)-p-500.png 500w, https://cdn.prod.website-files.com/6139cf517cd6d26ff1548b86/6353420dafc1661ee0ee3b4e_pet%20insurance%20(2)-p-800.png 800w, https://cdn.prod.website-files.com/6139cf517cd6d26ff1548b86/6353420dafc1661ee0ee3b4e_pet%20insurance%20(2)-p-1080.png 1080w, https://cdn.prod.website-files.com/6139cf517cd6d26ff1548b86/6353420dafc1661ee0ee3b4e_pet%20insurance%20(2)-p-1600.png 1600w, https://cdn.prod.website-files.com/6139cf517cd6d26ff1548b86/6353420dafc1661ee0ee3b4e_pet%20insurance%20(2)-p-2000.png 2000w, https://cdn.prod.website-files.com/6139cf517cd6d26ff1548b86/6353420dafc1661ee0ee3b4e_pet%20insurance%20(2).png 2880w"
+          />
         </div>
         <div className="form-contact" data-aos="flip-right">
           <h2 className="heading">
@@ -538,14 +634,18 @@ including the identification and management of diseases, traumas, and other heal
             <input type="submit" value="Send Message" className="btn" />
           </form>
         </div>
-
       </section>
       <footer className="footer">
         <div className="footer-container">
           <div className="footer-section">
-          <a href="#home" onClick={homePage} className="logo" style={{textDecoration: "none", color: '#7b2cbf'}}>
-        <FontAwesomeIcon icon={faPaw} /> Pet Center
-        </a>
+            <a
+              href="#home"
+              onClick={homePage}
+              className="logo"
+              style={{ textDecoration: "none", color: "#7b2cbf" }}
+            >
+              <FontAwesomeIcon icon={faPaw} /> Pet Center
+            </a>
             <div className="footer-info">
               <p>Address: Nha Van Hoa Sinh Vien Lang Dai Hoc Thu Duc</p>
               <p>Hotline: 0762 029 029</p>

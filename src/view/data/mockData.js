@@ -5,8 +5,9 @@ import { tokens } from "../../theme";
 
 let updatedDataTeam = [];
 export let mockDataTeam = [];
-export let mockTransactions = [];
 export let mockPieData = [];
+export let mockBarData = [];
+export let mockTransactions = [];
 export let mockLineData = [
   {
     id: "User",
@@ -22,27 +23,47 @@ const getMockTransactions = () => {
   let transactions = [];
   let currentYear = new Date();
   let year = currentYear.getFullYear();
+
   mockDataTeam.forEach((user) => {
     for (const bookingId in user.bookings) {
-      const booking = user.bookings[bookingId];
-      let inputStr = booking.bookingId;
-      console.log(inputStr);
-      let strippedStr = inputStr.slice(2);
+      if (user.bookings.hasOwnProperty(bookingId)) {
+        const booking = user.bookings[bookingId];
+        let inputStr = booking.bookingId;
+        console.log(inputStr);
 
-      let day = strippedStr.slice(0, 2);
-      let month = strippedStr.slice(2, 4);
-
-      let formattedDate = `${year}-${month}-${day}`;
-      transactions.push({
-        bookingID: booking.bookingId,
-        user: user.username,
-        date: formattedDate,
-        status: booking.status,
-        cost: booking.totalPaid || 0,
-      });
+        let strippedStr = inputStr.slice(2);
+        let day = strippedStr.slice(0, 2);
+        let month = strippedStr.slice(2, 4);
+        let hour = strippedStr.slice(4, 6);
+        let minute = strippedStr.slice(6, 8);
+        let second = strippedStr.slice(8, 10);
+        let formattedDate = `${day}-${month}-${year}-${hour}:${minute}:${second}`;
+        transactions.push({
+          bookingID: booking.bookingId,
+          user: user.username,
+          date: formattedDate,
+          status: booking.status,
+          cost: booking.totalPaid || 0,
+        });
+      } else {
+        console.warn(
+          `Skipping booking with undefined bookingId for user: ${user.username}`
+        );
+      }
     }
   });
-  transactions.sort((a, b) => new Date(b.date) - new Date(a.date));
+
+  transactions.sort((a, b) => {
+    let [dayA, monthA, yearA, timeA] = a.date.split("-");
+    let [hourA, minuteA, secondA] = timeA.split(":");
+    let dateA = new Date(yearA, monthA - 1, dayA, hourA, minuteA, secondA);
+
+    let [dayB, monthB, yearB, timeB] = b.date.split("-");
+    let [hourB, minuteB, secondB] = timeB.split(":");
+    let dateB = new Date(yearB, monthB - 1, dayB, hourB, minuteB, secondB);
+
+    return dateB - dateA;
+  });
   return transactions;
 };
 
@@ -70,8 +91,9 @@ const fetchUsers = () => {
 
         mockDataTeam = updatedDataTeam;
         mockTransactions = getMockTransactions();
-        getMonthsRevenue();
+        getMockLineData();
         mockPieData = getMockPieData();
+        mockBarData = getMockBarData();
       } else {
         console.log("No data available");
       }
@@ -82,17 +104,18 @@ const fetchUsers = () => {
   );
 };
 
-const getMonthsRevenue = () => {
+const getMockLineData = () => {
   const currentYear = new Date().getFullYear();
-  console.log(currentYear);
   const monthlyTotals = Array(12).fill(0);
 
   updatedDataTeam.forEach((user) => {
     for (const bookingId in user.bookings) {
       if (user.bookings.hasOwnProperty(bookingId)) {
         const booking = user.bookings[bookingId];
+        if (!["Paid", "Checked-in", "Rated"].includes(booking.status)) continue;
+
         const bookingDate = new Date(booking.date);
-        if (bookingDate.getFullYear() == currentYear) {
+        if (bookingDate.getFullYear() === currentYear) {
           const month = bookingDate.getMonth();
           const totalPaid = booking.totalPaid || 0;
           monthlyTotals[month] += totalPaid;
@@ -105,250 +128,203 @@ const getMonthsRevenue = () => {
     y: total.toString(),
   }));
 };
+
 const getMockPieData = () => {
-  let gCount = 0;
-  let cCount = 0;
-  let pCount = 0;
-  let vCount = 0;
+  let serviceCounts = {};
 
   updatedDataTeam.forEach((user) => {
     for (const bookingId in user.bookings) {
       if (user.bookings.hasOwnProperty(bookingId)) {
         const booking = user.bookings[bookingId];
+        if (!["Paid", "Checked-in", "Rated"].includes(booking.status)) continue;
+
         booking.services.forEach((serviceName) => {
-          console.log(serviceName);
-          if (serviceName === "Grooming") {
-            gCount++;
-          } else if (serviceName === "Check-up") {
-            cCount++;
-          } else if (serviceName === "Pet Veterinary") {
-            pCount++;
+          if (serviceCounts[serviceName]) {
+            serviceCounts[serviceName]++;
           } else {
-            vCount++;
+            serviceCounts[serviceName] = 1;
           }
         });
       }
     }
   });
 
-  return [
-    {
-      id: "Grooming",
-      label: "Grooming",
-      value: gCount,
-      color: "hsl(104, 70%, 50%)",
-    },
-    {
-      id: "Check-up",
-      label: "Check-up",
-      value: cCount,
-      color: "hsl(162, 70%, 50%)",
-    },
-    {
-      id: "Pet Veterinary",
-      label: "Pet Veterinary",
-      value: pCount,
-      color: "hsl(291, 70%, 50%)",
-    },
-    {
-      id: "Vaccination",
-      label: "Vaccination",
-      value: vCount,
-      color: "hsl(229, 70%, 50%)",
-    },
-  ];
+  const pieData = Object.keys(serviceCounts).map((serviceName) => ({
+    id: serviceName,
+    label: serviceName,
+    value: serviceCounts[serviceName],
+    color: `hsl(${Math.floor(Math.random() * 360)}, 70%, 50%)`,
+  }));
+
+  return pieData;
+};
+
+const getMockBarData = () => {
+  const currentYear = new Date().getFullYear();
+  const barData = [];
+  for (let month = 0; month < 12; month++) {
+    let monthData = {
+      months: (month + 1).toString(),
+      Grooming: 0,
+      Vaccination: 0,
+      Pet_Veterinary: 0,
+      Check_up: 0,
+    };
+
+    updatedDataTeam.forEach((user) => {
+      for (const bookingId in user.bookings) {
+        if (user.bookings.hasOwnProperty(bookingId)) {
+          const booking = user.bookings[bookingId];
+          if (!["Paid", "Checked-in", "Rated"].includes(booking.status))
+            continue;
+
+          const bookingDate = new Date(booking.date);
+          if (
+            bookingDate.getFullYear() === currentYear &&
+            bookingDate.getMonth() === month
+          ) {
+            booking.services.forEach((serviceName) => {
+              if (serviceName === "Pet Veterinary") serviceName = "Pet_Veterinary";
+              if (serviceName === "Check-up") serviceName = "Check_up";
+              monthData[serviceName]++;
+            });
+          }
+        }
+      }
+    });
+
+    barData.push(monthData);
+  }
+
+  return barData;
 };
 
 fetchUsers();
 
-export const mockBarData = [];
-export const mockDataContacts = [
-  {
-    id: 1,
-    name: "Jon Snow",
-    email: "jonsnow@gmail.com",
-    age: 35,
-    phone: "(665)121-5454",
-    address: "0912 Won Street, Alabama, SY 10001",
-    city: "New York",
-    zipCode: "10001",
-    registrarId: 123512,
-  },
-  {
-    id: 2,
-    name: "Cersei Lannister",
-    email: "cerseilannister@gmail.com",
-    age: 42,
-    phone: "(421)314-2288",
-    address: "1234 Main Street, New York, NY 10001",
-    city: "New York",
-    zipCode: "13151",
-    registrarId: 123512,
-  },
-  {
-    id: 3,
-    name: "Jaime Lannister",
-    email: "jaimelannister@gmail.com",
-    age: 45,
-    phone: "(422)982-6739",
-    address: "3333 Want Blvd, Estanza, NAY 42125",
-    city: "New York",
-    zipCode: "87281",
-    registrarId: 4132513,
-  },
-  {
-    id: 4,
-    name: "Anya Stark",
-    email: "anyastark@gmail.com",
-    age: 16,
-    phone: "(921)425-6742",
-    address: "1514 Main Street, New York, NY 22298",
-    city: "New York",
-    zipCode: "15551",
-    registrarId: 123512,
-  },
-  {
-    id: 5,
-    name: "Daenerys Targaryen",
-    email: "daenerystargaryen@gmail.com",
-    age: 31,
-    phone: "(421)445-1189",
-    address: "11122 Welping Ave, Tenting, CD 21321",
-    city: "Tenting",
-    zipCode: "14215",
-    registrarId: 123512,
-  },
-  {
-    id: 6,
-    name: "Ever Melisandre",
-    email: "evermelisandre@gmail.com",
-    age: 150,
-    phone: "(232)545-6483",
-    address: "1234 Canvile Street, Esvazark, NY 10001",
-    city: "Esvazark",
-    zipCode: "10001",
-    registrarId: 123512,
-  },
-  {
-    id: 7,
-    name: "Ferrara Clifford",
-    email: "ferraraclifford@gmail.com",
-    age: 44,
-    phone: "(543)124-0123",
-    address: "22215 Super Street, Everting, ZO 515234",
-    city: "Evertin",
-    zipCode: "51523",
-registrarId: 123512,
-  },
-  {
-    id: 8,
-    name: "Rossini Frances",
-    email: "rossinifrances@gmail.com",
-    age: 36,
-    phone: "(222)444-5555",
-    address: "4123 Ever Blvd, Wentington, AD 142213",
-    city: "Esteras",
-    zipCode: "44215",
-    registrarId: 512315,
-  },
-  {
-    id: 9,
-    name: "Harvey Roxie",
-    email: "harveyroxie@gmail.com",
-    age: 65,
-    phone: "(444)555-6239",
-    address: "51234 Avery Street, Cantory, ND 212412",
-    city: "Colunza",
-    zipCode: "111234",
-    registrarId: 928397,
-  },
-  {
-    id: 10,
-    name: "Enteri Redack",
-    email: "enteriredack@gmail.com",
-    age: 42,
-    phone: "(222)444-5555",
-    address: "4123 Easer Blvd, Wentington, AD 142213",
-    city: "Esteras",
-    zipCode: "44215",
-    registrarId: 533215,
-  },
-  {
-    id: 11,
-    name: "Steve Goodman",
-    email: "stevegoodmane@gmail.com",
-    age: 11,
-    phone: "(444)555-6239",
-    address: "51234 Fiveton Street, CunFory, ND 212412",
-    city: "Colunza",
-    zipCode: "1234",
-    registrarId: 92197,
-  },
-];
+// export const mockBarData = [
 
-export const mockDataInvoices = [
-  {
-    id: 1,
-    name: "Jon Snow",
-    email: "jonsnow@gmail.com",
-    cost: "21.24",
-    phone: "(665)121-5454",
-    date: "03/12/2022",
-  },
-  {
-    id: 2,
-    name: "Cersei Lannister",
-    email: "cerseilannister@gmail.com",
-    cost: "1.24",
-    phone: "(421)314-2288",
-    date: "06/15/2021",
-  },
-  {
-    id: 3,
-    name: "Jaime Lannister",
-    email: "jaimelannister@gmail.com",
-    cost: "11.24",
-    phone: "(422)982-6739",
-    date: "05/02/2022",
-  },
-  {
-    id: 4,
-    name: "Anya Stark",
-    email: "anyastark@gmail.com",
-    cost: "80.55",
-    phone: "(921)425-6742",
-    date: "03/21/2022",
-  },
-  {
-    id: 5,
-    name: "Daenerys Targaryen",
-    email: "daenerystargaryen@gmail.com",
-    cost: "1.24",
-    phone: "(421)445-1189",
-    date: "01/12/2021",
-  },
-  {
-    id: 6,
-    name: "Ever Melisandre",
-    email: "evermelisandre@gmail.com",
-    cost: "63.12",
-    phone: "(232)545-6483",
-    date: "11/02/2022",
-  },
-  {
-    id: 7,
-    name: "Ferrara Clifford",
-    email: "ferraraclifford@gmail.com",
-    cost: "52.42",
-    phone: "(543)124-0123",
-    date: "02/11/2022",
-  },
-  {
-    id: 8,
-    name: "Rossini Frances",
-    email: "rossinifrances@gmail.com",
-    cost: "21.24",
-    phone: "(222)444-5555",
-    date: "05/02/2021",
-  },
-];
+//   {
+//     months: "1",
+//     Grooming: 137,
+//     Vaccination: 96,
+//     Pet_Veterinary: 72,
+//     Check_up: 140,
+//   },
+//   {
+//     months: "2",
+//     Grooming: 137,
+//     Vaccination: 96,
+//     Pet_Veterinary: 72,
+//     Check_up: 140,
+//   },
+//   {
+//     months: "3",
+//     Grooming: 137,
+//     groomingColor: "hsl(229, 70%, 50%)",
+//     Vaccination: 96,
+//     burgerColor: "hsl(296, 70%, 50%)",
+//     Pet_Veterinary: 72,
+//     kebabColor: "hsl(97, 70%, 50%)",
+//     Check_up: 140,
+//     donutColor: "hsl(340, 70%, 50%)",
+//   },
+//   {
+//     months: "4",
+//     Grooming: 137,
+//     groomingColor: "hsl(229, 70%, 50%)",
+//     Vaccination: 96,
+//     burgerColor: "hsl(296, 70%, 50%)",
+//     Pet_Veterinary: 72,
+//     kebabColor: "hsl(97, 70%, 50%)",
+//     Check_up: 140,
+//     donutColor: "hsl(340, 70%, 50%)",
+//   },
+//   {
+//     months: "5",
+//     Grooming: 137,
+//     groomingColor: "hsl(229, 70%, 50%)",
+//     Vaccination: 96,
+//     burgerColor: "hsl(296, 70%, 50%)",
+//     Pet_Veterinary: 72,
+//     kebabColor: "hsl(97, 70%, 50%)",
+//     Check_up: 140,
+//     donutColor: "hsl(340, 70%, 50%)",
+//   },
+//   {
+//     months: "6",
+//     Grooming: 137,
+//     groomingColor: "hsl(229, 70%, 50%)",
+//     Vaccination: 96,
+//     burgerColor: "hsl(296, 70%, 50%)",
+//     Pet_Veterinary: 72,
+//     kebabColor: "hsl(97, 70%, 50%)",
+//     Check_up: 140,
+//     donutColor: "hsl(340, 70%, 50%)",
+//   },
+//   {
+//     months: "7",
+//     Grooming: 137,
+//     groomingColor: "hsl(229, 70%, 50%)",
+//     Vaccination: 96,
+//     burgerColor: "hsl(296, 70%, 50%)",
+//     Pet_Veterinary: 72,
+//     kebabColor: "hsl(97, 70%, 50%)",
+//     Check_up: 140,
+//     donutColor: "hsl(340, 70%, 50%)",
+//   },
+//   {
+//     months: "8",
+//     Grooming: 137,
+//     groomingColor: "hsl(229, 70%, 50%)",
+//     Vaccination: 96,
+//     burgerColor: "hsl(296, 70%, 50%)",
+//     Pet_Veterinary: 72,
+//     kebabColor: "hsl(97, 70%, 50%)",
+//     Check_up: 140,
+//     donutColor: "hsl(340, 70%, 50%)",
+//   },
+//   {
+//     months: "9",
+//     Grooming: 137,
+//     groomingColor: "hsl(229, 70%, 50%)",
+//     Vaccination: 96,
+//     burgerColor: "hsl(296, 70%, 50%)",
+//     Pet_Veterinary: 72,
+//     kebabColor: "hsl(97, 70%, 50%)",
+//     Check_up: 140,
+//     donutColor: "hsl(340, 70%, 50%)",
+//   },
+//   {
+//     months: "10",
+//     Grooming: 137,
+//     groomingColor: "hsl(229, 70%, 50%)",
+//     Vaccination: 96,
+//     burgerColor: "hsl(296, 70%, 50%)",
+//     Pet_Veterinary: 72,
+//     kebabColor: "hsl(97, 70%, 50%)",
+//     Check_up: 140,
+//     donutColor: "hsl(340, 70%, 50%)",
+//   },
+//   {
+//     months: "11",
+//     Grooming: 137,
+//     groomingColor: "hsl(229, 70%, 50%)",
+//     Vaccination: 96,
+//     burgerColor: "hsl(296, 70%, 50%)",
+//     Pet_Veterinary: 72,
+//     kebabColor: "hsl(97, 70%, 50%)",
+//     Check_up: 140,
+//     donutColor: "hsl(340, 70%, 50%)",
+//   },
+//   {
+//     months: "12",
+//     Grooming: 137,
+//     groomingColor: "hsl(229, 70%, 50%)",
+//     Vaccination: 96,
+//     burgerColor: "hsl(296, 70%, 50%)",
+//     Pet_Veterinary: 72,
+//     kebabColor: "hsl(97, 70%, 50%)",
+//     Check_up: 140,
+//     donutColor: "hsl(340, 70%, 50%)",
+//   },
+// ];

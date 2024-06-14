@@ -97,8 +97,6 @@ const SelectDateTime = () => {
   }, []);
 
   useEffect(() => {
-    console.log("Selected Date:", date);
-    console.log("Selected Vet:", vet);
     console.log("Booked Slots:", bookedSlots);
   }, [date, vet, bookedSlots]);
 
@@ -106,22 +104,12 @@ const SelectDateTime = () => {
   const afternoonSlots = generateTimeSlots(720, 1080, 15); // 12:00 PM to 4:45 PM
 
   const availableVets = date ? vets.filter((vet) => vet.schedule[date]) : [];
-  console.log(availableVets)
-  console.log('Vets:', vets);
-console.log('Date:', date);
 vets.forEach(vet => console.log('Vet Schedule:', vet.schedule));
   const handleNext = async () => {
     if (date && vet && selectedTime) {
       const selectedVet = vets.find((v) => v.name === vet);
 
-      // Extracting the names of the selected services
       const serviceNames = selectedServices.map((service) => service.name);
-
-      // Add debugging logs to check the values
-      console.log("Selected Vet UID:", selectedVet.uid);
-      console.log("Selected Date:", date);
-      console.log("Selected Time:", selectedTime);
-      console.log("Selected Service Names:", serviceNames);
 
       if (!selectedPet.name || serviceNames.length === 0) {
         alert(
@@ -148,8 +136,6 @@ vets.forEach(vet => console.log('Vet Schedule:', vet.schedule));
     }
   };
 
-  console.log(bookedSlots);
-
   const tileDisabled = ({ date }) => {
     const today = new Date();
     return date < today.setHours(0, 0, 0, 0);
@@ -163,7 +149,6 @@ vets.forEach(vet => console.log('Vet Schedule:', vet.schedule));
   }
   
   const renderTimeSlots = (slots) => {
-    console.log(bookedSlots)
     return slots.map((slot, index) => {
       const isBooked = bookedSlots.some(
         (bookedSlot) =>

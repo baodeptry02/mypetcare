@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { Box, Button, IconButton, Typography, useTheme } from "@mui/material";
+import { Box, Typography, useTheme } from "@mui/material";
 import { tokens } from "../../../theme";
 import { mockTransactions, mockDataTeam } from "../../data/mockData";
 import PointOfSaleIcon from "@mui/icons-material/PointOfSale";
@@ -16,6 +16,69 @@ const Dashboard = () => {
   const [dailyRevenue, setDailyRevenue] = useState(0);
   const [monthlyRevenue, setMonthlyRevenue] = useState(0);
   const [yearlyRevenue, setYearlyRevenue] = useState(0);
+  const [dailyRevenueChange, setDailyRevenueChange] = useState("0%");
+  const [monthlyRevenueChange, setMonthlyRevenueChange] = useState("0%");
+  const [yearlyRevenueChange, setYearlyRevenueChange] = useState("0%");
+  const [selectedDate, setSelectedDate] = useState("");
+
+  const getTotalPaid = (date, type) => {
+    let totalPaid = 0;
+    let currentYear = new Date().getFullYear();
+
+    mockDataTeam.forEach((user) => {
+      for (const bookingId in user.bookings) {
+        const booking = user.bookings[bookingId];
+
+        if (!["Paid", "Checked-in", "Rated"].includes(booking.status)) continue;
+
+        let inputStr = booking.bookingId;
+        let strippedStr = inputStr.slice(2);
+        let day = strippedStr.slice(0, 2);
+        let month = strippedStr.slice(2, 4);
+        let formattedDate = `${currentYear}-${month}-${day}`;
+
+        if (type === "date" && date === formattedDate) {
+          totalPaid += booking.totalPaid || 0;
+        } else if (type === "month" && formattedDate.startsWith(date)) {
+          totalPaid += booking.totalPaid || 0;
+        } else if (type === "year" && formattedDate.startsWith(date)) {
+          totalPaid += booking.totalPaid || 0;
+        }
+      }
+    });
+
+    return totalPaid;
+  };
+
+  const getPreviousDay = () => {
+    const currentDate = new Date();
+    const previousDay = new Date(
+      currentDate.setDate(currentDate.getDate() - 1)
+    );
+    const year = previousDay.getFullYear();
+    const month = String(previousDay.getMonth() + 1).padStart(2, "0");
+    const day = String(previousDay.getDate()).padStart(2, "0");
+    return { year, month, day, previousDay: `${year}-${month}-${day}` };
+  };
+
+  const getPreviousMonth = () => {
+    const currentDate = new Date();
+    const previousMonth = new Date(
+      currentDate.setMonth(currentDate.getMonth() - 1)
+    );
+    const year = previousMonth.getFullYear();
+    const month = String(previousMonth.getMonth() + 1).padStart(2, "0");
+    return { year, month };
+  };
+
+  const getPreviousYear = () => {
+    const currentDate = new Date();
+    const previousYear = new Date(
+      currentDate.setFullYear(currentDate.getFullYear() - 1)
+    );
+    const year = previousYear.getFullYear();
+    return year;
+  };
 
   useEffect(() => {
     const getCurrentDate = () => {
@@ -26,59 +89,109 @@ const Dashboard = () => {
       return { year, month, day, currentDate: `${year}-${month}-${day}` };
     };
 
-    const getTotalPaid = (date, type) => {
-      let totalPaid = 0;
-      let currentYear = new Date();
-      let year = currentYear.getFullYear();
-      mockDataTeam.forEach((user) => {
-        for (const bookingId in user.bookings) {
-          const booking = user.bookings[bookingId];
-          let inputStr = booking.bookingId;
+    const updateRevenue = () => {
+      const currentDate = getCurrentDate();
+      const previousDay = getPreviousDay();
+      const previousMonth = getPreviousMonth();
+      const previousYear = getPreviousYear();
 
-          let strippedStr = inputStr.slice(2);
+      // Daily Revenue
+      const totalPaidForDate = getTotalPaid(currentDate.currentDate, "date");
+      const totalPaidForPreviousDay = getTotalPaid(
+        previousDay.previousDay,
+        "date"
+      );
+      setDailyRevenue(totalPaidForDate.toLocaleString() + ",000");
 
-          let day = strippedStr.slice(0, 2);
-          let month = strippedStr.slice(2, 4);
+      const dailyPercentageChange =
+        totalPaidForPreviousDay === 0
+          ? "N/A"
+          : ((totalPaidForDate - totalPaidForPreviousDay) /
+              totalPaidForPreviousDay) *
+            100;
+      setDailyRevenueChange(
+        totalPaidForPreviousDay === 0
+          ? "N/A"
+          : `${dailyPercentageChange.toFixed(2)}%`
+      );
 
-          let formattedDate = `${year}-${month}-${day}`;
-          console.log(formattedDate);
-          if (formattedDate) {
-            if (type === "date" && date === formattedDate) {
-              totalPaid += booking.totalPaid || 0;
-            } else if (type === "month" && formattedDate.startsWith(date)) {
-              totalPaid += booking.totalPaid || 0;
-            } else if (type === "year" && formattedDate.startsWith(date)) {
-              totalPaid += booking.totalPaid || 0;
-            }
-          }
-        }
-      });
+      // Monthly Revenue
+      const totalPaidForMonth = getTotalPaid(
+        `${currentDate.year}-${currentDate.month}`,
+        "month"
+      );
+      const totalPaidForPreviousMonth = getTotalPaid(
+        `${previousMonth.year}-${previousMonth.month}`,
+        "month"
+      );
+      setMonthlyRevenue(totalPaidForMonth.toLocaleString() + ",000");
 
-      return totalPaid;
+      const monthlyPercentageChange =
+        totalPaidForPreviousMonth === 0
+          ? "N/A"
+          : ((totalPaidForMonth - totalPaidForPreviousMonth) /
+              totalPaidForPreviousMonth) *
+            100;
+      setMonthlyRevenueChange(
+        totalPaidForPreviousMonth === 0
+          ? "N/A"
+          : `${monthlyPercentageChange.toFixed(2)}%`
+      );
+
+      // Yearly Revenue
+      const totalPaidForYear = getTotalPaid(currentDate.year, "year");
+      const totalPaidForPreviousYear = getTotalPaid(previousYear, "year");
+      setYearlyRevenue(totalPaidForYear.toLocaleString() + ",000");
+
+      const yearlyPercentageChange =
+        totalPaidForPreviousYear === 0
+          ? "N/A"
+          : ((totalPaidForYear - totalPaidForPreviousYear) /
+              totalPaidForPreviousYear) *
+            100;
+      setYearlyRevenueChange(
+        totalPaidForPreviousYear === 0
+          ? "N/A"
+          : `${yearlyPercentageChange.toFixed(2)}%`
+      );
     };
 
-    const currentDate = getCurrentDate();
+    // Initial update
+    updateRevenue();
 
-    const totalPaidForDate = getTotalPaid(currentDate.currentDate, "date");
-    setDailyRevenue(totalPaidForDate.toLocaleString() + ",000");
+    // Set interval to update revenue periodically
+    const intervalId = setInterval(updateRevenue, 60); // Update every 60 seconds
 
-    const totalPaidForMonth = getTotalPaid(
-      `${currentDate.year}-${currentDate.month}`,
-      "month"
-    );
-    setMonthlyRevenue(totalPaidForMonth.toLocaleString() + ",000");
-
-    const totalPaidForYear = getTotalPaid(currentDate.year, "year");
-    setYearlyRevenue(totalPaidForYear.toLocaleString() + ",000");
+    // Cleanup interval on component unmount
+    return () => clearInterval(intervalId);
   }, []);
+
+  useEffect(() => {
+    if (selectedDate) {
+      const totalPaidForSelectedDate = getTotalPaid(selectedDate, "date");
+      setDailyRevenue(totalPaidForSelectedDate.toLocaleString() + ",000");
+    }
+  }, [selectedDate]);
+
+  const handleDateChange = (event) => {
+    setSelectedDate(event.target.value);
+  };
 
   return (
     <Box m="20px">
       {/* HEADER */}
-<Box display="flex" justifyContent="space-between" alignItems="center">
+      <Box display="flex" justifyContent="space-between" alignItems="center">
         <Header title="DASHBOARD" subtitle="Welcome to your dashboard" />
       </Box>
-<input></input>
+  <div className="date-filter-container">
+        <h1>Filter by day:</h1>
+        <input
+          className="date-Filter-Revenue"
+          type="date"
+          onChange={handleDateChange}
+          value={selectedDate}
+        ></input>
+      </div>
       {/* GRID & CHARTS */}
       <Box
         display="grid"
@@ -98,7 +211,7 @@ const Dashboard = () => {
             title={`${dailyRevenue} VND`}
             subtitle="Daily Revenue"
             progress="0.75"
-            increase="+14%"
+            increase={dailyRevenueChange}
             icon={
               <PointOfSaleIcon
                 sx={{ color: colors.greenAccent[600], fontSize: "26px" }}
@@ -117,7 +230,7 @@ const Dashboard = () => {
             title={`${monthlyRevenue} VND`}
             subtitle="Monthly Revenue"
             progress="0.50"
-            increase="+21%"
+            increase={monthlyRevenueChange}
             icon={
               <PointOfSaleIcon
                 sx={{ color: colors.greenAccent[600], fontSize: "26px" }}
@@ -136,7 +249,7 @@ const Dashboard = () => {
             title={`${yearlyRevenue} VND`}
             subtitle="Yearly Revenue"
             progress="0.30"
-            increase="+5%"
+            increase={yearlyRevenueChange}
             icon={
               <PointOfSaleIcon
                 sx={{ color: colors.greenAccent[600], fontSize: "26px" }}
@@ -184,7 +297,7 @@ const Dashboard = () => {
                 color={colors.grey[100]}
               >
                 Revenue Generated
-</Typography>
+              </Typography>
               <Typography
                 variant="h3"
                 fontWeight="bold"
@@ -195,7 +308,7 @@ const Dashboard = () => {
             </Box>
           </Box>
           <Box height="250px" m="-20px 0 0 0">
-            <LineChart isDashboard={true} yearlyRevenue={yearlyRevenue} />
+            <LineChart isDashboard={true} />
           </Box>
         </Box>
         <Box
@@ -226,7 +339,7 @@ const Dashboard = () => {
             fontWeight="600"
             sx={{ padding: "30px 30px 0 30px" }}
           >
-            Sales Quantity
+            Sales Quantity thống kê số lượng dịch vụ by month
           </Typography>
           <Box height="250px" mt="-20px">
             <BarChart isDashboard={true} />
@@ -280,7 +393,7 @@ const Dashboard = () => {
               <Box flex="1" textAlign="center">
                 <Typography
                   color={
-transaction.status === "cancelled"
+                    transaction.status === "cancelled"
                       ? "red"
                       : colors.greenAccent[500]
                   }

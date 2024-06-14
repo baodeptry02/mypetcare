@@ -7,7 +7,7 @@ import { toast, ToastContainer } from 'react-toastify';
 import useForceUpdate from '../../hooks/useForceUpdate';
 import {RiInformationLine} from '@remixicon/react';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
-import {faInfoCircle, faPaw, faBirthdayCake, faPalette, faArrowsAlt, faDog, faCat, faSyringe, faCheck, faCalendar, faUserMd, faClock, faMoneyBill, faCaretLeft } from '@fortawesome/free-solid-svg-icons'
+import {faInfoCircle, faPaw, faBirthdayCake, faPalette, faArrowsAlt, faDog, faCat, faSyringe, faCheck, faCalendar, faUserMd, faClock, faMoneyBill, faCaretLeft, faEllipsis } from '@fortawesome/free-solid-svg-icons'
 
 const BookingConfirm = () => {
   const { selectedPet, selectedServices, selectedDateTime } = useContext(BookingContext);
@@ -103,7 +103,12 @@ const BookingConfirm = () => {
       await set(ref(db, `users/${selectedDateTime.vet.uid}/schedule/${selectedDateTime.date}`), bookedSlots);
     } catch (error) {
       console.error("Error adding booking to database:", error);
-      toast.error("An error occurred while processing your booking. Please try again later.");
+      toast.error("An error occurred while processing your booking. Please try again later.", {
+        autoClose: 2000,
+        onClose: () => {
+          forceUpdate();
+        }
+      });
     }
   };
 
@@ -205,36 +210,31 @@ const BookingConfirm = () => {
             )}
             <div className="pet-info-detail-inline">
               <p className="pet-info-detail">
-              <FontAwesomeIcon className="icon" icon={faPaw}/>
-                <strong>Name:</strong>
+                <strong> <FontAwesomeIcon className="icon" icon={faPaw}/>Name:</strong>
                 <span className="pet-info-value">{selectedPet.name}</span>
               </p>
               <p className="pet-info-detail">
-              <FontAwesomeIcon className="icon" icon={faBirthdayCake}/>
-                <strong>Age:</strong>
+                <strong> <FontAwesomeIcon className="icon" icon={faBirthdayCake}/>Age:</strong>
                 <span className="pet-info-value">{selectedPet.age}</span>
               </p>
             </div>
             <div className="pet-info-detail-inline">
               <p className="pet-info-detail">
-              <FontAwesomeIcon  className="icon"icon={faPalette}/>
-                <strong>Color:</strong>
+                <strong><FontAwesomeIcon  className="icon"icon={faPalette}/>Color:</strong>
                 <span className="pet-info-value">{selectedPet.color}</span>
               </p>
               <p className="pet-info-detail">
-              <FontAwesomeIcon  className="icon"icon={faArrowsAlt}/>
-                <strong>Size:</strong>
+                <strong><FontAwesomeIcon  className="icon"icon={faArrowsAlt}/>Size:</strong>
                 <span className="pet-info-value">{selectedPet.size}</span>
               </p>
             </div>
             <div className="pet-info-detail-inline">
               <p className="pet-info-detail">
-                {selectedPet.type === "Dog" &&  <FontAwesomeIcon className="icon" icon={faDog}/>}
+                <strong>                {selectedPet.type === "Dog" &&  <FontAwesomeIcon className="icon" icon={faDog}/>}
                 {selectedPet.type === "Cat" &&  <FontAwesomeIcon className="icon" icon={faCat}/>}
                 {selectedPet.type !== "Dog" && selectedPet.type !== "Cat" && (
-                  <span className="pet-info-value">Other</span>
-                )}
-                <strong>Type:</strong>
+                  <FontAwesomeIcon className="icon" icon={faEllipsis}/>
+                )}Type:</strong>
                 <span className="pet-info-value">{selectedPet.type}</span>
               </p>
               {/* <p className="pet-info-detail">

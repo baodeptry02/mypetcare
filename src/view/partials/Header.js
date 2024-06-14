@@ -79,26 +79,6 @@ function Header({ user, currentPath }) {
 
       onValue(userRef, (snapshot) => {
         const data = snapshot.val();
-        const creationTime = new Date(data.creationTime)
-        const comparisonDate = new Date("2024-06-01");
-        console.log(creationTime)
-        if (creationTime >= comparisonDate) {
-          console.log("This is a new user.");
-        } else {
-          console.log("This is an existing user.");
-        }
-        // console.log(data.schedule)
-        // Object.entries(data.schedule).forEach(([date, bookings]) => {
-        //   console.log(`Date: ${date}`);
-        
-          
-        //   bookings.forEach((booking, index) => {
-        //     console.log(`  Booking ${index + 1}:`);
-        //     console.log(`    Time: ${booking.time}`);
-        //     console.log(`    Pet Name: ${booking.petName}`);
-        //     console.log(`    Service: ${booking.services}`);
-        //   });
-        // });
         if (data && data.role) {
           setRole(data.role);
         } else {
@@ -116,7 +96,6 @@ function Header({ user, currentPath }) {
       setHeaderVisible(true); // Ensure header is visible even if user is not logged in
     }
   }, [user]);
-  console.log()
 
   const homePage = () => {
     if (dropdownOpen) {
@@ -173,11 +152,16 @@ function Header({ user, currentPath }) {
     toggleDropdown();
     navigate("/manager");
   };
+  const vetDashboard = () => {
+    toggleDropdown();
+    navigate("/vet/dashboard");
+  };
   const shouldShowHeader =
     !location.pathname.startsWith("/admin") &&
     !location.pathname.startsWith("/manager") &&
     !location.pathname.startsWith("/veterinarian") &&
-    !location.pathname.startsWith("/booking-details");
+    !location.pathname.startsWith("/booking-details") &&
+    !location.pathname.startsWith("/rate-booking");
     
 
   if (!shouldShowHeader) {
@@ -235,9 +219,9 @@ function Header({ user, currentPath }) {
               {role === "manager" && (
                 <div onClick={managerDashboard}>Manager Dashboard</div>
               )}
-              {/* {role === "admin" && (
-                <div onClick={adminDashboard}>Admin Dashboard</div>
-              )} */}
+              {role === "veterinarian" && (
+                <div onClick={vetDashboard}>Vet Dashboard</div>
+              )}
               <div onClick={logout}>Logout</div>
             </div>
             </div>

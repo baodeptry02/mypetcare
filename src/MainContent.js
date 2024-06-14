@@ -20,6 +20,7 @@ import Footer from "./view/partials/Footer";
 import NotFound from "../src/view/invalidPage/404Page"
 import { auth } from "./Components/firebase/firebase";
 import "./App.css";
+import Rating from "./view/booking/RateBooking"
 
 function MainContent() {
   const location = useLocation();
@@ -74,11 +75,12 @@ function MainContent() {
               <Route path="/pet/add/details" element={<AddPetNext />} />
               <Route path="/pet-details/:petId" element={<PetDetail />} />
               <Route path="/book/*" element={<Book />} />
+              <Route path="/manage-booking" element={<ManageBooking />} />
+              <Route path="/booking-details/:bookingId" element={<BookingDetails />} />
+              <Route path="/rate-booking/:bookingId" element={<Rating />} />
               <Route path="/qr" element={<QrCodePage />} />
               <Route path="/transaction-history" element={<Transaction />} />
               <Route path="/reset" element={<ForgotPassword />} />
-              <Route path="/manage-booking" element={<ManageBooking />} />
-              <Route path="/booking-details/:bookingId" element={<BookingDetails />} />
               <Route path="*" element={<NotFound />} />
             </Routes>
           </div>

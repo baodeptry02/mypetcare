@@ -6,6 +6,7 @@ import "react-toastify/dist/ReactToastify.css";
 import { useNavigate } from "react-router-dom";
 import { Pagination } from "@mui/material";
 import { makeStyles } from "@mui/styles";
+import useForceUpdate from "../../hooks/useForceUpdate";
 
 const useStyles = makeStyles({
   pagination: {
@@ -47,6 +48,7 @@ const ManageBookings = () => {
   const [bookingsPerPage] = useState(5);
   const navigate = useNavigate();
   const classes = useStyles();
+  const forceUpdate = useForceUpdate()
 
   useEffect(() => {
     if (!user) {
@@ -63,14 +65,19 @@ const ManageBookings = () => {
         const unpaid = [];
         Object.keys(data).forEach((key) => {
           const booking = { ...data[key], key }; // Add the key to the booking object for updating later
-          if (booking.status === "Paid" || booking.status === "Cancelled" || booking.status === "Checked-in") {
+          if (
+            booking.status === "Paid" ||
+            booking.status === "Cancelled" ||
+            booking.status === "Rated" ||
+            booking.status === "Checked-in"
+          ) {
             paid.push(booking);
           } else if (booking.status === "Pending Payment") {
             unpaid.push(booking);
           }
         });
         // Sort paid bookings with cancelled at bottom
-        paid.sort((a, b) => (a.status === "Cancelled" ? 1 : -1));
+        paid.sort((a, b) => statusToNumber(a.status) - statusToNumber(b.status));
         setPaidBookings(paid);
         setUnpaidBookings(unpaid);
       } else {
@@ -86,53 +93,79 @@ const ManageBookings = () => {
   const handleCancel = (booking) => {
     setConfirmCancel(booking);
   };
-
+  const handleRating = (booking) => {
+    navigate(`/rate-booking/${booking.key}`);
+  }
+  const statusToNumber = status => {
+    switch (status) {
+      case 'Paid':
+        return 1;
+      case 'Checked-in':
+        return 2;
+      case 'Rated':
+        return 3;
+      case 'Cancelled':
+        return 4;
+      default:
+        return 5;
+    }
+  };
   const confirmCancellation = async (booking) => {
     if (confirmCancel) {
       const user = auth.currentUser;
       const db = getDatabase();
-      const bookingRef = ref(db, `users/${user.uid}/bookings/${confirmCancel.key}`);
-      const vetScheduleRef = ref(db, `users/${confirmCancel.vet.uid}/schedule/${confirmCancel.date}`);
+      const bookingRef = ref(
+        db,
+        `users/${user.uid}/bookings/${confirmCancel.key}`
+      );
+      const vetScheduleRef = ref(
+        db,
+        `users/${confirmCancel.vet.uid}/schedule/${confirmCancel.date}`
+      );
       const vetScheduleSnapshot = await get(vetScheduleRef);
       const vetSchedule = vetScheduleSnapshot.val();
-      
-      const updatedSchedule = vetSchedule.map(slot => {
+
+      const updatedSchedule = vetSchedule.map((slot) => {
         if (slot.time === confirmCancel.time && slot.status === 1) {
           return { ...slot, status: 0 };
         }
         return slot;
       });
-  
+
       try {
         const refundAmount = confirmCancel.totalPaid * 0.75;
-  
+
         const userRef = ref(db, `users/${user.uid}`);
         const snapshot = await get(userRef);
         const userData = snapshot.val();
         console.log(typeof userData.accountBalance);
         const updatedBalance = userData.accountBalance + refundAmount;
-  
+
         await update(bookingRef, { status: "Cancelled" });
-  
+
         await update(userRef, { accountBalance: updatedBalance });
 
         await set(vetScheduleRef, updatedSchedule);
-  
+
         const updatedPaidBookings = paidBookings.map((booking) => {
           if (booking.key === confirmCancel.key) {
             return { ...booking, status: "Cancelled" };
           }
           return booking;
         });
-  
+
         // Sort the updated list so cancelled bookings are at the bottom
         updatedPaidBookings.sort((a, b) => (a.status === "Cancelled" ? 1 : -1));
         setPaidBookings(updatedPaidBookings);
 
         // Show success message
-        toast.success("Booking cancelled. Refund processed successfully!");
-  
-        // Reset confirmCancel state
+        toast.success("Booking successful! Please check your booking section.", {
+          autoClose: 2000,
+          onClose: () => {
+            forceUpdate();
+          }
+        });
+
         setConfirmCancel(null);
       } catch (error) {
         console.error("Error cancelling booking:", error);
@@ -142,8 +175,6 @@ const ManageBookings = () => {
       }
     }
   };
-  
-  
 
   const toggleBookings = () => {
     setShowPaid(!showPaid);
@@ -159,7 +190,7 @@ const ManageBookings = () => {
     indexOfFirstBooking,
     indexOfLastBooking
   );
-  console.log(currentPaidBookings.length)
+  console.log(currentPaidBookings.length);
   const currentUnpaidBookings = unpaidBookings.slice(
     indexOfFirstBooking,
     indexOfLastBooking
@@ -200,41 +231,106 @@ const ManageBookings = () => {
                   </tr>
                 </thead>
                 <tbody>
-                <tr class="ant-table-placeholder"><td class="ant-table-cell" colspan="9"><div class="css-kghr11 ant-empty ant-empty-normal"><div class="ant-empty-image"><svg width="64" height="41" viewBox="0 0 64 41" xmlns="http://www.w3.org/2000/svg"><g transform="translate(0 1)" fill="none" fill-rule="evenodd"><ellipse fill="#f5f5f5" cx="32" cy="33" rx="32" ry="7"></ellipse><g fill-rule="nonzero" stroke="#d9d9d9"><path d="M55 12.76L44.854 1.258C44.367.474 43.656 0 42.907 0H21.093c-.749 0-1.46.474-1.947 1.257L9 12.761V22h46v-9.24z"></path><path d="M41.613 15.931c0-1.605.994-2.93 2.227-2.931H55v18.137C55 33.26 53.68 35 52.05 35h-40.1C10.32 35 9 33.259 9 31.137V13h11.16c1.233 0 2.227 1.323 2.227 2.928v.022c0 1.605 1.005 2.901 2.237 2.901h14.752c1.232 0 2.237-1.308 2.237-2.913v-.007z" fill="#fafafa"></path></g></g></svg></div><div class="ant-empty-description">No data</div></div></td></tr>
-                  {currentPaidBookings.map((booking, index) => (
-                    <tr
-                      key={booking.key}
-                      className={
-                        booking.status === "Cancelled" ? "cancelled-booking" : ""
-                      }
-                      style={{
-                        textDecoration: booking.status === "Cancelled" ? "line-through" : "none",
-                      }}
-                    >
-                      <td>{indexOfFirstBooking + index + 1}</td>
-                      <td>{booking.bookingId}</td>
-                      <td>{booking.date}</td>
-                      <td>{booking.time}</td>
-                      <td>{booking.status || "Pending"}</td>
-                      <td>
-                        <button
-                          className="detail-button"
-                          onClick={() =>
-                            navigate(`/booking-details/${booking.key}`)
-                          }
-                        >
-                          Details
-                        </button>
-                        <button
-                          className="cancel-button cancel-button-booking"
-                          onClick={() => handleCancel(booking)}
-                          disabled={booking.status === "Cancelled" || booking.status === "Pending" || booking.status === "Checked-in"}
-                        >
-                          Cancel
-                        </button>
+                  {currentPaidBookings.length > 0 ? (
+                    currentPaidBookings.map((booking, index) => (
+                      <tr
+                        key={booking.key}
+                        className={
+                          booking.status === "Cancelled"
+                            ? "cancelled-booking"
+                            : ""
+                        }
+                        style={{
+                          textDecoration:
+                            booking.status === "Cancelled"
+                              ? "line-through"
+                              : "none",
+                        }}
+                      >
+                        <td>{indexOfFirstBooking + index + 1}</td>
+                        <td>{booking.bookingId}</td>
+                        <td>{booking.date}</td>
+                        <td>{booking.time}</td>
+                        <td>{booking.status}</td>
+                        <td>
+                          <button
+                            className="detail-button"
+                            onClick={() =>
+                              navigate(`/booking-details/${booking.key}`)
+                            }
+                          >
+                            Details
+                          </button>
+                          <button
+                            className="cancel-button cancel-button-booking"
+                            onClick={() => handleCancel(booking)}
+                            disabled={
+                              booking.status === "Cancelled" ||
+                              booking.status === "Pending" ||
+                              booking.status === "Rated" ||
+                              booking.status === "Checked-in"
+                            }
+                          >
+                            Cancel
+                          </button>
+                          <button
+                            className="rate-button rate-button-booking"
+                            onClick={() => handleRating(booking)}
+                            disabled={
+                              booking.status === "Cancelled" ||
+                              booking.status === "Rated" ||
+                              booking.status === "Paid" 
+                            }
+                          >
+                            Rate
+                          </button>
+                        </td>
+                      </tr>
+                    ))
+                  ) : (
+                    <tr class="no-data">
+                      <td colspan="6">
+                        <div class="no-data-image">
+                          <div class="ant-table-placeholder">
+                            <div class="ant-table-cell">
+                              <div class="css-kghr11 ant-empty ant-empty-normal">
+                                <div class="ant-empty-image">
+                                  <svg
+                                    width="64"
+                                    height="41"
+                                    viewBox="0 0 64 41"
+                                    xmlns="http://www.w3.org/2000/svg"
+                                  >
+                                    <g
+                                      transform="translate(0 1)"
+                                      fill="none"
+                                      fill-rule="evenodd"
+                                    >
+                                      <ellipse
+                                        fill="#f5f5f5"
+                                        cx="32"
+                                        cy="33"
+                                        rx="32"
+                                        ry="7"
+                                      ></ellipse>
+                                      <g fill-rule="nonzero" stroke="#d9d9d9">
+                                        <path d="M55 12.76L44.854 1.258C44.367.474 43.656 0 42.907 0H21.093c-.749 0-1.46.474-1.947 1.257L9 12.761V22h46v-9.24z"></path>
+                                        <path
+                                          d="M41.613 15.931c0-1.605.994-2.93 2.227-2.931H55v18.137C55 33.26 53.68 35 52.05 35h-40.1C10.32 35 9 33.259 9 31.137V13h11.16c1.233 0 2.227 1.323 2.227 2.928v.022c0 1.605 1.005 2.901 2.237 2.901h14.752c1.232 0 2.237-1.308 2.237-2.913v-.007z"
+                                          fill="#fafafa"
+                                        ></path>
+                                      </g>
+                                    </g>
+                                  </svg>
+                                </div>
+                                <div class="ant-empty-description">No data</div>
+                              </div>
+                            </div>
+                          </div>
+                        </div>
                       </td>
                     </tr>
-                  ))}
+                  )}
                 </tbody>
               </table>
               {paidBookings.length > bookingsPerPage && (
@@ -280,29 +376,87 @@ const ManageBookings = () => {
                     <th>Date</th>
                     <th>Time</th>
                     <th>Status</th>
-                    <th>Action</th>
+                    <th className="action">Action</th>
                   </tr>
                 </thead>
                 <tbody>
-                  {currentUnpaidBookings.map((booking, index) => (
-                    <tr key={booking.key}>
-                      <td>{indexOfFirstBooking + index + 1}</td>
-                      <td>{booking.bookingId}</td>
-                      <td>{booking.date}</td>
-                      <td>{booking.time}</td>
-                      <td>{booking.status}</td>
-                      <td>
-                        <button
-                          className="detail-button"
-                          onClick={() =>
-                            navigate(`/booking-details/${booking.key}`)
-                          }
-                        >
-                          Show Details
-                        </button>
+                  {currentUnpaidBookings.length > 0 ? (
+                    currentUnpaidBookings.map((booking, index) => (
+                      <tr
+                        key={booking.key}
+                        className={
+                          booking.status === "Cancelled"
+                            ? "cancelled-booking"
+                            : ""
+                        }
+                        style={{
+                          textDecoration:
+                            booking.status === "Cancelled"
+                              ? "line-through"
+                              : "none",
+                        }}
+                      >
+                        <td>{indexOfFirstBooking + index + 1}</td>
+                        <td>{booking.bookingId}</td>
+                        <td>{booking.date}</td>
+                        <td>{booking.time}</td>
+                        <td>{booking.status || "Pending"}</td>
+                        <td>
+                          <button
+                            className="detail-button"
+                            onClick={() =>
+                              navigate(`/booking-details/${booking.key}`)
+                            }
+                          >
+                            Details
+                          </button>
+                        </td>
+                      </tr>
+                    ))
+                  ) : (
+                    <tr class="no-data">
+                      <td colspan="6">
+                        <div class="no-data-image">
+                          <div class="ant-table-placeholder">
+                            <div class="ant-table-cell">
+                              <div class="css-kghr11 ant-empty ant-empty-normal">
+                                <div class="ant-empty-image">
+                                  <svg
+                                    width="64"
+                                    height="41"
+                                    viewBox="0 0 64 41"
+                                    xmlns="http://www.w3.org/2000/svg"
+                                  >
+                                    <g
+                                      transform="translate(0 1)"
+                                      fill="none"
+                                      fill-rule="evenodd"
+                                    >
+                                      <ellipse
+                                        fill="#f5f5f5"
+                                        cx="32"
+                                        cy="33"
+                                        rx="32"
+                                        ry="7"
+                                      ></ellipse>
+                                      <g fill-rule="nonzero" stroke="#d9d9d9">
+                                        <path d="M55 12.76L44.854 1.258C44.367.474 43.656 0 42.907 0H21.093c-.749 0-1.46.474-1.947 1.257L9 12.761V22h46v-9.24z"></path>
+                                        <path
+                                          d="M41.613 15.931c0-1.605.994-2.93 2.227-2.931H55v18.137C55 33.26 53.68 35 52.05 35h-40.1C10.32 35 9 33.259 9 31.137V13h11.16c1.233 0 2.227 1.323 2.227 2.928v.022c0 1.605 1.005 2.901 2.237 2.901h14.752c1.232 0 2.237-1.308 2.237-2.913v-.007z"
+                                          fill="#fafafa"
+                                        ></path>
+                                      </g>
+                                    </g>
+                                  </svg>
+                                </div>
+                                <div class="ant-empty-description">No data</div>
+                              </div>
+                            </div>
+                          </div>
+                        </div>
                       </td>
                     </tr>
-                  ))}
+                  )}
                 </tbody>
               </table>
               {unpaidBookings.length > bookingsPerPage && (
@@ -323,6 +477,9 @@ const ManageBookings = () => {
                     page={currentPage}
                     onChange={handlePageChange}
                     color="primary"
+                    variant="outlined"
+                    shape="rounded"
+                    size="large"
                     className={classes.pagination}
                   />
                 </>
@@ -331,6 +488,7 @@ const ManageBookings = () => {
           )}
         </div>
       )}
+
       <ToastContainer autoClose={3000} />
       <div className="toggle-button">
         <button onClick={toggleBookings}>
