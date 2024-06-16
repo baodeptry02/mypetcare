@@ -38,7 +38,10 @@ function Home() {
   const [backgroundImage, setBackgroundImage] = useState("");
   const forceUpdate = useForceUpdate();
   const [dropdownOpen, setDropdownOpen] = useState(false);
+<<<<<<< HEAD
   const [bookedSlots, setBookedSlots] = useState([]);
+=======
+>>>>>>> 234a45ca0f115a634ebbe1b016295b3cee383826
 
   useEffect(() => {
     const interval = setInterval(() => {
@@ -184,6 +187,7 @@ function Home() {
     }
     navigate("/#home");
   };
+<<<<<<< HEAD
   useEffect(() => {
     const fetchAllBookings = async () => {
       const db = getDatabase();
@@ -278,6 +282,8 @@ function Home() {
       </div>
     ));
   };
+=======
+>>>>>>> 234a45ca0f115a634ebbe1b016295b3cee383826
 
   return (
     <div>
@@ -335,6 +341,7 @@ function Home() {
             </span>
             <p className="font_1">
               <span className="text1-about">
+<<<<<<< HEAD
                 With over 16 years of experience working in the field of
                 veterinary medicine, I am a passionate veterinarian with a deep
                 understanding of the health and happiness of pet animals. I
@@ -346,6 +353,11 @@ function Home() {
                 dedicated to caring for each patient, along with dedicated
                 understanding and advice to owners on how to care for and
                 protect their pets' health.
+=======
+              With over 16 years of experience working in the field of veterinary medicine, I am a passionate veterinarian with a deep understanding of the health and happiness of pet animals. I graduated from Hanoi National University School of Medicine and have worked at many reputable veterinary clinics and veterinary hospitals throughout the area.
+              Through thousands of animal treatment and care cases, I have accumulated valuable experience and diverse professional skills. I am always dedicated and dedicated to caring for each patient, along with dedicated understanding and advice to owners on how to care for and protect their pets' health.
+              
+>>>>>>> 234a45ca0f115a634ebbe1b016295b3cee383826
               </span>
             </p>
           </div>
@@ -357,6 +369,7 @@ function Home() {
             </span>
             <p className="font_1">
               <span className="text1-about">
+<<<<<<< HEAD
                 In addition to my daily work, I also regularly participate in
                 community education activities to share my knowledge and
                 experience with the community, while creating high awareness of
@@ -366,6 +379,10 @@ function Home() {
                 knowledge, I am committed to continuing to contribute to the
                 development of the field of veterinary medicine and bring the
                 best care services to the community.
+=======
+              In addition to my daily work, I also regularly participate in community education activities to share my knowledge and experience with the community, while creating high awareness of health issues and disease prevention for people. animal.
+              My mission is to bring peace and happiness to every family through health care for their pets. With enthusiasm and extensive knowledge, I am committed to continuing to contribute to the development of the field of veterinary medicine and bring the best care services to the community.
+>>>>>>> 234a45ca0f115a634ebbe1b016295b3cee383826
               </span>
             </p>
           </div>
@@ -375,11 +392,13 @@ function Home() {
               src="https://static.wixstatic.com/media/84770f_e57bb42011fe4e91992f1ceeece2a7b3~mv2_d_4000_3947_s_4_2.jpg/v1/fill/w_526,h_519,al_c,q_80,usm_0.66_1.00_0.01,enc_auto/84770f_e57bb42011fe4e91992f1ceeece2a7b3~mv2_d_4000_3947_s_4_2.jpg"
               fetchpriority="high"
             ></img>
+            
           </div>
         </div>
         <div className="font_2" data-aos="zoom-in-up">
           <h3>What Our Happy Clients Say</h3>
         </div>
+<<<<<<< HEAD
         <div>
       <div className="testimonial-container" data-aos="fade-up">
         <Swiper
@@ -400,6 +419,49 @@ function Home() {
         </Swiper>
       </div>
     </div>
+=======
+        <div class="testimonial-container" data-aos="fade-up">
+          <div class="testimonial-box">
+            <img
+              class="testimonial-avatar"
+              src="https://static.wixstatic.com/media/c837a6_5a8f08d69ed14df69f51095a389122ea~mv2.png/v1/fill/w_113,h_113,al_c,q_85,usm_0.66_1.00_0.01,enc_auto/test_3_2.png"
+              alt="User Avatar"
+            />
+            <div class="testimonial-content">
+              <p class="testimonial-text">
+              “Dr.Sin is not only a great veterinarian but also a wonderful companion for both me and my pets.”
+              </p>
+              <p class="testimonial-signature">Dani, Pacific Heights</p>
+            </div>
+          </div>
+          <div class="testimonial-box2" data-aos="fade-up" data-aos-delay="400">
+            <img
+              class="testimonial-avatar2"
+              src="https://static.wixstatic.com/media/c837a6_05f52a6820f34cba9902e759b418b5b6~mv2.png/v1/fill/w_113,h_113,al_c,q_85,usm_0.66_1.00_0.01,enc_auto/test_1.png"
+              alt="User Avatar"
+            />
+            <div class="testimonial-content2">
+              <p class="testimonial-text2">
+              “Dr. Mice always shows great care and dedication to my pets, and I couldn't be happier with her service.”
+              </p>
+              <p class="testimonial-signature2">Devivine, Monorita</p>
+            </div>
+          </div>
+          <div class="testimonial-box3" data-aos="fade-up" data-aos-delay="800">
+            <img
+              class="testimonial-avatar3"
+              src="https://static.wixstatic.com/media/c837a6_6a568fac61d1476898f4ea6cccbef66c~mv2.png/v1/fill/w_118,h_113,al_c,q_85,usm_0.66_1.00_0.01,enc_auto/test_2.png"
+              alt="User Avatar"
+            />
+            <div class="testimonial-content3">
+              <p class="testimonial-text3">
+              The clinic is professional in caring for my pets. I always feel secure when bringing my pets to this clinic”
+              </p>
+              <p class="testimonial-signature3">Robin, Cleranomic</p>
+            </div>
+          </div>
+        </div>
+>>>>>>> 234a45ca0f115a634ebbe1b016295b3cee383826
       </section>
       <section className="services" id="services">
         <div className="font_3" data-aos="zoom-in-down">
@@ -409,6 +471,7 @@ function Home() {
         </div>
         <div className="big-line"></div>
 
+<<<<<<< HEAD
         <div className="card-container">
           <div className="card" data-aos="fade-right" onClick={book}>
             <h2>GROOMING</h2>
@@ -417,12 +480,22 @@ function Home() {
               This service includes bathing, hair cutting and eye cleaning,
               combing, and skin examinations, requiring the groomer to
               understand the pet's temperament.
+=======
+        <div class="card-container">
+          <div class="card" data-aos="fade-right" onClick={book}>
+            
+            <h2>GROOMING</h2>
+           
+            <p>
+              This service includes bathing, hair cutting and eye cleaning, combing, and skin examinations, requiring the groomer to understand the pet's temperament.
+>>>>>>> 234a45ca0f115a634ebbe1b016295b3cee383826
             </p>
             <img
               className="card-avatar"
               src="https://bpanimalhospital.com/wp-content/uploads/shutterstock_1547371985.jpg"
               alt="User Avatar"
             />
+<<<<<<< HEAD
             <div className="pricing">30 min: $21.00 | 60 min: $36.00</div>
           </div>
           <div className="card" data-aos="fade-up" onClick={book}>
@@ -432,12 +505,24 @@ function Home() {
               This service involves a comprehensive physical examination of the
               pet's body, including measurements of temperature, blood pressure,
               heart rate and weight
+=======
+            <div class="pricing">30 min: $21.00 | 60 min: $36.00</div>
+            
+          </div>
+          <div class="card" data-aos="fade-up" onClick={book}>
+            
+            <h2>CHECK UP</h2>
+            
+            <p>
+              This service involves a comprehensive physical examination of the pet's body, including measurements of temperature, blood pressure, heart rate and weight
+>>>>>>> 234a45ca0f115a634ebbe1b016295b3cee383826
             </p>
             <img
               className="card-avatar"
               src="https://www.cherrycreekvet.com/blog/wp-content/uploads/2024/03/iStock-1445008380-3-1-2000x1333.jpg"
               alt="User Avatar"
             />
+<<<<<<< HEAD
             <div className="pricing">$50.00</div>
           </div>
           <div className="card" data-aos="fade-left" onClick={book}>
@@ -469,6 +554,42 @@ function Home() {
               alt="User Avatar"
             />
             <div className="pricing">30 min: $21.00 | 60 min: $36.00</div>
+=======
+            <div class="pricing">$50.00</div>
+            
+          </div>
+          <div class="card" data-aos="fade-left" onClick={book}>
+            
+            <h2>Vaccination</h2>
+          
+            <p>
+              Pet immunizations are crucial for preventative pet healthcare, protecting against harmful illnesses, and are widely discussed among veterinarians and pet owners
+            </p>
+            <img
+              class="card-avatar"
+              src="https://media.istockphoto.com/id/966384466/vi/anh/c%E1%BA%AFt-h%C3%ACnh-%E1%BA%A3nh-ng%C6%B0%E1%BB%9Di-%C4%91%C3%A0n-%C3%B4ng-c%E1%BA%A7m-beagle-trong-khi-b%C3%A1c-s%C4%A9-th%C3%BA-y-ti%C3%AAm-b%E1%BA%B1ng-%E1%BB%91ng-ti%C3%AAm-v%C3%A0o-n%C3%B3.jpg?s=612x612&w=0&k=20&c=ViUs_0PoS5B26q7ScYHNx21sj8hMlcburn_H_aREbSM="
+              alt="User Avatar"
+            />
+            <div class="pricing">$36.00</div>
+            
+          </div>
+          <div class="card" data-aos="fade-right" onClick={book}>
+            
+            <h2>PET VETERINARY</h2>
+           
+            <p>
+              
+This service offers complete medical care for animals,
+including the identification and management of diseases, traumas, and other health issues.
+            </p>
+            <img
+              class="card-avatar"
+              src="https://media.istockphoto.com/id/1171733307/vi/anh/b%C3%A1c-s%C4%A9-th%C3%BA-y-v%E1%BB%9Bi-ch%C3%B3-v%C3%A0-m%C3%A8o-ch%C3%B3-con-v%C3%A0-m%C3%A8o-con-t%E1%BA%A1i-b%C3%A1c-s%C4%A9.jpg?s=612x612&w=0&k=20&c=eZRCsHMznU16Nr89IkT6ETLH3Enzt9TwBUx4mIxZhzE="
+              alt="User Avatar"
+            />
+            <div class="pricing">30 min: $21.00 | 60 min: $36.00</div>
+            
+>>>>>>> 234a45ca0f115a634ebbe1b016295b3cee383826
           </div>
         </div>
         <div className="font_4" data-aos="flip-up">
@@ -638,6 +759,7 @@ function Home() {
       <footer className="footer">
         <div className="footer-container">
           <div className="footer-section">
+<<<<<<< HEAD
             <a
               href="#home"
               onClick={homePage}
@@ -646,6 +768,11 @@ function Home() {
             >
               <FontAwesomeIcon icon={faPaw} /> Pet Center
             </a>
+=======
+          <a href="#home" onClick={homePage} className="logo" style={{textDecoration: "none", color: '#7b2cbf'}}>
+        <FontAwesomeIcon icon={faPaw} /> Pet Center
+        </a>
+>>>>>>> 234a45ca0f115a634ebbe1b016295b3cee383826
             <div className="footer-info">
               <p>Address: Nha Van Hoa Sinh Vien Lang Dai Hoc Thu Duc</p>
               <p>Hotline: 0762 029 029</p>

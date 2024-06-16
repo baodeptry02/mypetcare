@@ -352,7 +352,6 @@ a {
   cursor: default;
   cursor: pointer;
 }
-
 .navbar a {
   font-size: 20px;
   color: var(--text-color);
@@ -2861,8 +2860,8 @@ text-decoration: underline;
     background-color: #717171;
 }
 
-.dot {
-    background-color: #717171;
+.dot.active {
+    background-color: rgb(28, 26, 26);
   }
 
   .about-container {
@@ -3023,7 +3022,11 @@ text-decoration: underline;
   gap: 20px;
   justify-content: center;
   margin-bottom: 50px;
+<<<<<<< HEAD
   cursor: pointer
+=======
+  cursor: pointer;
+>>>>>>> 234a45ca0f115a634ebbe1b016295b3cee383826
 }
 
 .services .card {
@@ -3059,12 +3062,12 @@ text-decoration: underline;
   margin-top: 20px;
 }
 .big-line{
-    width: 800px;
-    height: 2px;
-    background-color: white;
-    margin: 10px auto;
-    margin-top: 20px;
-    margin-bottom: 50px;
+  width: 800px;
+  height: 2px;
+  background-color: white;
+  margin: 10px auto;
+  margin-top: 20px;
+  margin-bottom: 50px;
 }
 
 .services .card p {
@@ -3098,6 +3101,7 @@ box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2); /* Tăng bóng đổ khi phóng to */
 }
 
 .card-btn {
+<<<<<<< HEAD
     margin-top: 30px;
     display: inline-block;
     background: var(--neon-color);
@@ -3115,6 +3119,8 @@ box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2); /* Tăng bóng đổ khi phóng to */
     font-weight: 600;
 }
 .card-btn:hover {
+=======
+>>>>>>> 234a45ca0f115a634ebbe1b016295b3cee383826
   margin-top: 30px;
   display: inline-block;
   background: var(--neon-color);
