@@ -598,6 +598,7 @@ span {
     top: 10px !important;
   }
   .account-title {
+    font-family: 'Candara';
     margin: 12px 0 !important;
   }
   .container.container-update {
@@ -843,6 +844,11 @@ label {
   overflow: hidden;
   width: 360px;
   text-align: left;
+  transition: transform 0.3s ease-in-out;
+}
+.pet-card:hover{
+  transform: scale(1.1);
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
 }
 
 .pet-card-image img {
@@ -1707,11 +1713,9 @@ table td {
 .container.pet-container {
   width: 680px;
 }
-/* .update-account-page {
-  background-size: cover;
-  background-repeat: no-repeat;
-  background-image: url("https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRcnh7BIHeqS4Jai0PAKjwM8XVBu5rE-x3nnA&s");
-} */
+.update-account-page {
+  margin-right: 500px;
+}
 a.btn:hover {
   cursor: pointer;
 }
@@ -3949,7 +3953,6 @@ background: #EBEFF2;
 }
 .section.pet-general-info {
   margin-top: 20px;
-  display: flex;
   width: 100%;
   align-items: center;
   justify-content: space-around;
@@ -3957,7 +3960,8 @@ background: #EBEFF2;
 .pet-info {
   height: 100%;
   min-width: 150px;
-  text-align: center;
+  display: flex;
+  justify-content: space-evenly;
 }
 .pet-info p {
   font-size: 2.4rem;
@@ -4468,3 +4472,65 @@ tr.ant-table-placeholder {
   background-color: #c82333;
 }
 
+.account-input {
+  display: flex;
+  align-items: center; /* Aligns label and input vertically */
+  margin-bottom: 16px; /* Adjust spacing as needed */
+}
+
+.account-input label {
+  font-weight: bold;
+  margin-right: 8px; /* Adjust spacing as needed */
+  color: #374151; /* Text color */
+}
+
+.account-input input {
+  width: 100%;
+  padding: 8px 12px; /* Adjust padding as needed */
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  background-color: #f9fafb; /* Background color */
+  outline: none;
+  color: #374151; /* Text color */
+  transition: border-color 0.3s ease;
+}
+
+.account-input input:focus {
+  border-color: #9842ca; /* Border color on focus */
+}
+
+.account-input input[disabled] {
+  background-color: #e9ecef; /* Background color for disabled state */
+  border-color: #ccc; /* Border color for disabled state */
+  opacity: 0.5; /* Opacity for disabled state */
+  cursor: not-allowed; /* Cursor for disabled state */
+}
+
+.info-card {
+  font-family: Arial, sans-serif;
+  background-color: #f5f5f5;
+  justify-content: start;
+  align-items: start;
+  height: 40vh;
+  margin: 0;
+  background-color: white;
+  border-radius: 8px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  padding: 20px;
+  width: 250px;
+  text-align: start;
+}
+.info-card img {
+  width: 40px;
+  height: 40px;
+  margin-bottom: 10px;
+}
+.info-card h2 {
+  font-size: 18px;
+  margin-bottom: 10px;
+}
+.info-card p {
+  font-size: 14px;
+  color: #666;
+  margin-bottom: 10px;
+}

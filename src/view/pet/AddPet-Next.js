@@ -19,7 +19,7 @@ const AddPetNext = () => {
   const [petGender, setPetGender] = useState("male");
   const [petSize, setPetSize] = useState("");
   const [petColor, setPetColor] = useState("");
-  const [petVaccinated, setPetVaccinated] = useState("");
+  const [petWeight, setPetWeight] = useState("");
   const [image, setImage] = useState(null); // State for single image
   const [images, setImages] = useState([]); // State for multiple images
   const [loading, setLoading] = useState(false);
@@ -59,7 +59,7 @@ const AddPetNext = () => {
         gender: petGender,
         size: petSize,
         color: petColor,
-        vaccinated: petVaccinated,
+        weight: petWeight,
         imageUrls: imageUrls,
       });
       toast.success(
@@ -137,11 +137,11 @@ const AddPetNext = () => {
 
   return (
     <div className="parent-container parent-container1">
-      <h2 className="title-add-next-pet">Step 2: Add Pet Info</h2>
-      <p className="des-add-next-pet">Tell us more about your Pet</p>
-      <div className="container container1 pet-container" id="container">
+      <h2 className="title-add-next-pet" style={{ marginTop: "-40px" }}>Step 2: Add Pet Info</h2>
+      <p className="des-add-next-pet" style={{ marginTop: "-40px" }}>Tell us more about your Pet</p>
+      <div className="container container1 pet-container" id="container" style={{ marginTop: "30px" }}>
         <div className="image-group">
-          <div className="flex items-center">
+          <div className="flex items-center" style={{ marginLeft : "700px", width: "300px" }}>
             <label
               htmlFor="petimage"
               className="bg-[#e20074] text-white px-4 py-2 rounded-lg cursor-pointer"
@@ -160,7 +160,7 @@ const AddPetNext = () => {
               <img
                 src={URL.createObjectURL(image)}
                 alt="Pet Preview"
-                className="w-24 h-24 ml-4 rounded-lg object-cover"
+                className="w-12 h-12 ml-4 rounded-lg object-cover"
               />
             )}
             {images.length > 0 && (
@@ -170,7 +170,7 @@ const AddPetNext = () => {
                     key={index}
                     src={URL.createObjectURL(img)}
                     alt={`Pet Preview ${index + 1}`}
-                    className="w-24 h-24 ml-4 rounded-lg object-cover"
+                    className="w-12 h-12 ml-4 rounded-lg object-cover"
                   />
                 ))}
               </div>
@@ -243,15 +243,15 @@ const AddPetNext = () => {
                 />
               </div>
               <div className="flex-item">
-                <label>Pet Vaccinated</label>
+                <label>Pet Weight</label>
                 <input
-                  id="petvaccinated"
+                  id="petweight"
                   type="text"
                   autoComplete="off"
                   required
-                  value={petVaccinated}
+                  value={petWeight}
                   placeholder="Enter your pet vaccinated status"
-                  onChange={(e) => setPetVaccinated(e.target.value)}
+                  onChange={(e) => setPetWeight(e.target.value)}
                   className="w-full mt-2 px-3 py-2 text-gray-500 bg-transparent outline-none border focus:indigo-600 shadow-sm rounded-lg transition duration-300"
                 />
               </div>

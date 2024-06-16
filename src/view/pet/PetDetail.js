@@ -71,6 +71,10 @@ const dogBreeds = [
     type: "",
     breed: "",
     dob: "",
+    size: "",
+    gender: "",
+    color: "",
+    imageUrl: "",
   });
 
   const user = auth.currentUser;
@@ -109,9 +113,13 @@ const dogBreeds = [
             name: petData.name,
             age: petData.age,
             weight: petData.weight,
+            gender: petData.petGender,
+            size: petData.petSize,
+            color: petData.petColor,
             type: petData.type,
             breed: petData.breed,
             dob: petData.dob,
+            imageUrl: petData.imageUrl,
           });
         } else {
           console.log("No data available");
@@ -199,8 +207,8 @@ const dogBreeds = [
         backgroundColor: "#EBEFF2",
       }}
     >
-      <div className="pet-profile-wrapper">
-        <div className="left-panel">
+      <div className="pet-profile-wrapper" style={{ backgroundColor: "#7b2cbf" }}>
+        <div className="left-panel" style={{  }}>
           <img src={pet.imageUrl} alt="Pet Avatar" className="pet-avatar" />
           <div className="owner-info">
             <h3>Pet Parent</h3>
@@ -246,6 +254,18 @@ const dogBreeds = [
                   <div className="pet-info">
                     <p>Weight:</p>
                     <div>{pet.weight || "N/A"}kg</div>
+                  </div>
+                  <div className="pet-info">
+                    <p>Size:</p>
+                    <div>{pet.size || "N/A"}</div>
+                  </div>
+                  <div className="pet-info">
+                    <p>Color:</p>
+                    <div>{pet.color || "N/A"}</div>
+                  </div>
+                  <div className="pet-info">
+                    <p>Gender:</p>
+                    <div>{pet.gender || "N/A"}</div>
                   </div>
                   <div className="pet-info">
                     <p>Type Of Pet:</p>
@@ -317,6 +337,35 @@ const dogBreeds = [
                   value={formData.weight}
                   onChange={handleInputChange}
                 />
+              </div>
+              <div className="form-group">
+                <label>Size</label>
+                <input
+                  type="text"
+                  name="size"
+                  value={formData.size}
+                  onChange={handleInputChange}
+                />
+              </div>
+              <div className="form-group">
+                <label>Color</label>
+                <input
+                  type="text"
+                  name="color"
+                  value={formData.color}
+                  onChange={handleInputChange}
+                />
+              </div>
+              <div className="form-group">
+                <label>Gender</label>
+                <select
+                  name="gender"
+                  value={formData.gender}
+                  onChange={handleTypeChange}
+                >
+                  <option value="Male">Male</option>
+                  <option value="Female">Female</option>
+                </select>
               </div>
               <div className="button-group">
                 <button className="cancel-button" onClick={handleCancelClick}>

@@ -407,10 +407,10 @@ function Home() {
             Your pet deserves to be pampered!
           </h3>
         </div>
-        <div class="big-line"></div>
+        <div className="big-line"></div>
 
-        <div class="card-container">
-          <div class="card" data-aos="fade-right" onClick={book}>
+        <div className="card-container">
+          <div className="card" data-aos="fade-right" onClick={book}>
             <h2>GROOMING</h2>
 
             <p>
@@ -419,13 +419,13 @@ function Home() {
               understand the pet's temperament.
             </p>
             <img
-              class="card-avatar"
+              className="card-avatar"
               src="https://bpanimalhospital.com/wp-content/uploads/shutterstock_1547371985.jpg"
               alt="User Avatar"
             />
-            <div class="pricing">30 min: $21.00 | 60 min: $36.00</div>
+            <div className="pricing">30 min: $21.00 | 60 min: $36.00</div>
           </div>
-          <div class="card" data-aos="fade-up" onClick={book}>
+          <div className="card" data-aos="fade-up" onClick={book}>
             <h2>CHECK UP</h2>
 
             <p>
@@ -434,13 +434,13 @@ function Home() {
               heart rate and weight
             </p>
             <img
-              class="card-avatar"
+              className="card-avatar"
               src="https://www.cherrycreekvet.com/blog/wp-content/uploads/2024/03/iStock-1445008380-3-1-2000x1333.jpg"
               alt="User Avatar"
             />
-            <div class="pricing">$50.00</div>
+            <div className="pricing">$50.00</div>
           </div>
-          <div class="card" data-aos="fade-left" onClick={book}>
+          <div className="card" data-aos="fade-left" onClick={book}>
             <h2>Vaccination</h2>
 
             <p>
@@ -449,13 +449,13 @@ function Home() {
               among veterinarians and pet owners
             </p>
             <img
-              class="card-avatar"
+              className="card-avatar"
               src="https://media.istockphoto.com/id/966384466/vi/anh/c%E1%BA%AFt-h%C3%ACnh-%E1%BA%A3nh-ng%C6%B0%E1%BB%9Di-%C4%91%C3%A0n-%C3%B4ng-c%E1%BA%A7m-beagle-trong-khi-b%C3%A1c-s%C4%A9-th%C3%BA-y-ti%C3%AAm-b%E1%BA%B1ng-%E1%BB%91ng-ti%C3%AAm-v%C3%A0o-n%C3%B3.jpg?s=612x612&w=0&k=20&c=ViUs_0PoS5B26q7ScYHNx21sj8hMlcburn_H_aREbSM="
               alt="User Avatar"
             />
-            <div class="pricing">$36.00</div>
+            <div className="pricing">$36.00</div>
           </div>
-          <div class="card" data-aos="fade-right" onClick={book}>
+          <div className="card" data-aos="fade-right" onClick={book}>
             <h2>PET VETERINARY</h2>
 
             <p>
@@ -464,11 +464,11 @@ function Home() {
               health issues.
             </p>
             <img
-              class="card-avatar"
+              className="card-avatar"
               src="https://media.istockphoto.com/id/1171733307/vi/anh/b%C3%A1c-s%C4%A9-th%C3%BA-y-v%E1%BB%9Bi-ch%C3%B3-v%C3%A0-m%C3%A8o-ch%C3%B3-con-v%C3%A0-m%C3%A8o-con-t%E1%BA%A1i-b%C3%A1c-s%C4%A9.jpg?s=612x612&w=0&k=20&c=eZRCsHMznU16Nr89IkT6ETLH3Enzt9TwBUx4mIxZhzE="
               alt="User Avatar"
             />
-            <div class="pricing">30 min: $21.00 | 60 min: $36.00</div>
+            <div className="pricing">30 min: $21.00 | 60 min: $36.00</div>
           </div>
         </div>
         <div className="font_4" data-aos="flip-up">
@@ -541,7 +541,7 @@ function Home() {
           <img
             src="https://static.wixstatic.com/media/84770f_346b425b1fe54554a98a4425fa8333cb~mv2_d_3760_3760_s_4_2.jpg/v1/fill/w_599,h_599,al_c,q_80,usm_0.66_1.00_0.01,enc_auto/84770f_346b425b1fe54554a98a4425fa8333cb~mv2_d_3760_3760_s_4_2.jpg"
             alt=""
-            class="round-image"
+            className="round-image"
             style={{
               width: "179px",
               height: "178px",

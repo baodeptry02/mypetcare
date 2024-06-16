@@ -230,7 +230,8 @@ label {
 }
 
 .parent-container.parent-container1 {
-  margin-top: 40px;
+  margin-top: 80px;
+  margin-bottom: 80px;
   display: flex;
   justify-content: center;
   align-items: start;
@@ -258,6 +259,8 @@ label {
   grid-gap: 1rem;
 }
 
+
+
 .flex-container {
   display: flex;
   justify-content: space-between;
@@ -269,10 +272,12 @@ label {
   flex-basis: 48%;
 }
 
-.w-full {
-  width: 100%;
+.w-12 {
+  width: 150px;
 }
-
+.h-12 {
+  height: 100px;
+}
 .mt-2 {
   margin-top: 0.5rem;
 }
@@ -322,6 +327,8 @@ label {
 .image-group {
   grid-column: 1 / -1;
   margin-top: 1rem;
+  margin-bottom: 20px;
+  width: 50px;
 }
 
 .submit-pet[type="submit"] {
@@ -329,10 +336,26 @@ label {
   background-color: #e20074;
   color: white;
   padding: 0.75rem 1.25rem;
-  border-radius: 0.5rem;
+  border-radius: 5rem;
   font-size: 0.875rem;
   font-weight: 500;
   transition: background-color 0.3s ease;
+  width: 120px; 
+  position: relative;
+  left: 200px;
+}
+.submit-pet[type="button"]{
+  grid-column: 1 / -1;
+  background-color: #7a1eb3;
+  color: white;
+  padding: 0.75rem 1.25rem;
+  border-radius: 5rem;
+  font-size: 1.3rem;
+  font-weight: 500;
+  transition: background-color 0.3s ease;
+  width: 120px; 
+  position: relative;
+  right: 200px;
 }
 
 .submit-pet[type="submit"]:hover {
@@ -352,8 +375,13 @@ label {
   margin-bottom: 15px;
 }
 .submit-pet{
-  width: 500px;
+  width: 100px;
   height: 50px;
+}
+.submit-add-pet{
+  display: flex;
+  justify-content: space-between; /* Separate buttons with space */
+  margin-top: 20px;
 }
   
 .line {
@@ -365,5 +393,8 @@ label {
   border-radius: 2px; /* Add some border-radius for rounded corners */
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1); /* Add a subtle shadow for depth */
   opacity: 0.7;
+}
+.pet-card{
+  cursor: pointer;
 }
  
