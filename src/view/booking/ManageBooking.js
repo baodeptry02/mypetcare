@@ -7,6 +7,7 @@ import { useNavigate } from "react-router-dom";
 import { Pagination } from "@mui/material";
 import { makeStyles } from "@mui/styles";
 import useForceUpdate from "../../hooks/useForceUpdate";
+import "./ManageBookings.css";
 
 const useStyles = makeStyles({
   pagination: {
@@ -209,9 +210,24 @@ const ManageBookings = () => {
     applyStyles();
   }, [currentPage, classes]);
 
+  const getStatusClassName = (status) => {
+    switch (status) {
+      case "Paid":
+        return "status-paid";
+      case "Pending Payment":
+        return "status-pending";
+      case "Checked-in":
+        return "status-checkedin";
+      case "Cancelled":
+        return "status-cancelled";
+      default:
+        return "";
+    }
+  };
+  
   return (
     <div className="manage-bookings-page">
-      <h2>Manage Bookings</h2>
+      <h2 className="manage-bookings-title">Manage Bookings</h2>
       {showPaid ? (
         <div className="bookings-section">
           <h3>Paid Bookings</h3>
@@ -251,8 +267,10 @@ const ManageBookings = () => {
                         <td>{booking.bookingId}</td>
                         <td>{booking.date}</td>
                         <td>{booking.time}</td>
-                        <td>{booking.status}</td>
-                        <td>
+                        <td className={`status-cell ${getStatusClassName(booking.status)}`}>
+                            {booking.status}
+                        </td>
+                        <td style={{ textAlign: "center" }}>
                           <button
                             className="detail-button"
                             onClick={() =>
@@ -400,7 +418,9 @@ const ManageBookings = () => {
                         <td>{booking.bookingId}</td>
                         <td>{booking.date}</td>
                         <td>{booking.time}</td>
-                        <td>{booking.status || "Pending"}</td>
+                        <td className={`status-cell ${getStatusClassName(booking.status)}`}>
+                            {booking.status || "Pending"}
+                        </td>
                         <td>
                           <button
                             className="detail-button"

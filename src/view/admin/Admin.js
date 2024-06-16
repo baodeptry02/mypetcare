@@ -25,6 +25,7 @@ import Form from "../../view/scenes/form/index";
 import Line from "../../view/scenes/line/index";
 import Pie from "../../view/scenes/pie/index";
 import FAQ from "../../view/scenes/faq/index";
+import Service from "../../view/scenes/services/index";
 import Calendar from "../../view/scenes/calendar/calendar";
 import { auth } from "../../Components/firebase/firebase";
 
@@ -107,6 +108,7 @@ function Admin() {
             <Routes>
               <Route path="dashboard" element={<Dashboard />} />
               <Route path="team" element={<Team />} />
+              <Route path="addService" element={<Service />} />
               <Route path="form" element={<Form />} />
               <Route path="bar" element={<Bar />} />
               <Route path="pie" element={<Pie />} />

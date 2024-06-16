@@ -5,7 +5,6 @@ import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faPaw, faUser } from "@fortawesome/free-solid-svg-icons";
 import { updateProfile } from "firebase/auth";
 import { getDatabase, ref, onValue } from "firebase/database";
-import {RiUserLine} from '@remixicon/react';
 
 
 function Header({ user, currentPath }) {
@@ -19,7 +18,7 @@ function Header({ user, currentPath }) {
   const [headerVisible, setHeaderVisible] = useState(true);
   const location = useLocation();
   const [role, setRole] = useState("");
-  const [isNewUser, setIsNewUser] = useState(false);
+
 
   const toggleDropdown = () => {
     setDropdownOpen(!dropdownOpen);
@@ -159,7 +158,7 @@ function Header({ user, currentPath }) {
   const shouldShowHeader =
     !location.pathname.startsWith("/admin") &&
     !location.pathname.startsWith("/manager") &&
-    !location.pathname.startsWith("/veterinarian") &&
+    !location.pathname.startsWith("/vet") &&
     !location.pathname.startsWith("/booking-details") &&
     !location.pathname.startsWith("/rate-booking");
     

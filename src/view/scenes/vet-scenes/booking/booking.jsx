@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import FullCalendar, { formatDate } from "@fullcalendar/react";
 import dayGridPlugin from "@fullcalendar/daygrid";
 import timeGridPlugin from "@fullcalendar/timegrid";
@@ -12,13 +12,57 @@ import {
   Typography,
   useTheme,
 } from "@mui/material";
-import Header from "../../../Components/dashboardChart/Header";
-import { tokens } from "../../../theme";
+import { getDatabase, ref, get } from "firebase/database";
+import { getAuth } from "firebase/auth";
+import Header from "../../../../Components/dashboardChart/Header";
 
-const Calendar = () => {
-  const theme = useTheme();
-  const colors = tokens(theme.palette.mode);
+const Booking = () => {
   const [currentEvents, setCurrentEvents] = useState([]);
+  const auth = getAuth();
+
+  const convertScheduleToEvents = (schedule) => {
+    const events = [];
+    for (const [date, bookings] of Object.entries(schedule)) {
+      bookings
+        .filter((booking) => booking.status === 1) // Only include bookings with status 1
+        .forEach((booking, index) => {
+          events.push({
+            id: `${date}-${index}`,
+            title: `Booking with ${booking.username}`,
+            start: `${date}T${booking.time}:00`,
+            allDay: false,
+            extendedProps: {
+              services: booking.services.join(", "),
+              petName: booking.petName,
+            },
+          });
+        });
+    }
+    return events;
+  };
+
+  useEffect(() => {
+    const fetchUserData = async () => {
+      try {
+        const currentUser = auth.currentUser;
+        if (currentUser) {
+          const db = getDatabase();
+          const userRef = ref(db, "users/" + currentUser.uid);
+
+          const snapshot = await get(userRef);
+          const data = snapshot.val();
+          if (data && data.schedule) {
+            const events = convertScheduleToEvents(data.schedule);
+            setCurrentEvents(events);
+          }
+        }
+      } catch (error) {
+        console.error("Error fetching user data:", error);
+      }
+    };
+
+    fetchUserData();
+  }, []);
 
   const handleDateClick = (selected) => {
     const title = prompt("Please enter a new title for your event");
@@ -51,41 +95,6 @@ const Calendar = () => {
       <Header title="Calendar" subtitle="Full Calendar Interactive Page" />
 
       <Box display="flex" justifyContent="space-between">
-        {/* CALENDAR SIDEBAR */}
-        <Box
-          flex="1 1 20%"
-          backgroundColor={colors.primary[400]}
-          p="15px"
-          borderRadius="4px"
-        >
-          <Typography variant="h5">Events</Typography>
-          <List>
-            {currentEvents.map((event) => (
-              <ListItem
-                key={event.id}
-                sx={{
-                  backgroundColor: colors.greenAccent[500],
-                  margin: "10px 0",
-                  borderRadius: "2px",
-                }}
-              >
-                <ListItemText
-                  primary={event.title}
-                  secondary={
-                    <Typography>
-                      {formatDate(event.start, {
-                        year: "numeric",
-                        month: "short",
-                        day: "numeric",
-                      })}
-                    </Typography>
-                  }
-                />
-              </ListItem>
-            ))}
-          </List>
-        </Box>
-
         {/* CALENDAR */}
         <Box flex="1 1 100%" ml="15px">
           <FullCalendar
@@ -108,19 +117,7 @@ const Calendar = () => {
             dayMaxEvents={true}
             select={handleDateClick}
             eventClick={handleEventClick}
-            eventsSet={(events) => setCurrentEvents(events)}
-            initialEvents={[
-              {
-                id: "12315",
-                title: "All-day event",
-                date: "2024-06-16",
-              },
-              {
-                id: "5123",
-                title: "Timed event",
-                date: "2022-09-28",
-              },
-            ]}
+            events={currentEvents}
           />
         </Box>
       </Box>
@@ -128,4 +125,4 @@ const Calendar = () => {
   );
 };
 
-export default Calendar;
+export default Booking;

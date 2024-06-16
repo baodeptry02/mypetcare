@@ -176,6 +176,7 @@ const Pet = () => {
                       key={index}
                       className="pet-card"
                       onClick={() => navigate(`/pet-details/${pet.key}`)}
+                      
                     >
                       <div className="pet-card-image">
                         {pet.imageUrl ? (

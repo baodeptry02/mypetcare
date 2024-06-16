@@ -18,6 +18,7 @@ const BookingConfirm = () => {
   const [showModal, setShowModal] = useState(false);
   const navigate = useNavigate();
   const forceUpdate = useForceUpdate();
+  console.log(selectedServices)
 
   useEffect(() => {
     const fetchUserData = async () => {
@@ -67,7 +68,7 @@ const BookingConfirm = () => {
 
   const calculateTotalPaid = () => {
     return selectedServices.reduce((total, service) => {
-      return total + service.price;
+      return total + parseFloat(service.price);
     }, 0);
   };
 
@@ -87,20 +88,6 @@ const BookingConfirm = () => {
     try {
       await push(bookingRef, newBooking);
 
-      const bookingSlotRef = ref(db, `users/${selectedDateTime.vet.uid}/schedule/${selectedDateTime.date}`);
-      const bookingSlotSnapshot = await get(bookingSlotRef);
-      let bookedSlots = Array.isArray(bookingSlotSnapshot.val()) ? bookingSlotSnapshot.val() : [];
-
-      bookedSlots.push({
-        time: selectedDateTime.time,
-        petName: selectedPet.name,
-        services: selectedServices.map(service => service.name),
-        userAccount: user.email,
-        username: username,
-        status: 1,
-      });
-
-      await set(ref(db, `users/${selectedDateTime.vet.uid}/schedule/${selectedDateTime.date}`), bookedSlots);
     } catch (error) {
       console.error("Error adding booking to database:", error);
       toast.error("An error occurred while processing your booking. Please try again later.", {
@@ -137,6 +124,22 @@ const BookingConfirm = () => {
           await update(userRef, { accountBalance: newBalance });
           newBooking.status = "Paid";
           await addToDatabase(newBooking);
+          
+          const db = getDatabase();
+          const bookingSlotRef = ref(db, `users/${selectedDateTime.vet.uid}/schedule/${selectedDateTime.date}`);
+          const bookingSlotSnapshot = await get(bookingSlotRef);
+          let bookedSlots = Array.isArray(bookingSlotSnapshot.val()) ? bookingSlotSnapshot.val() : [];
+    
+          bookedSlots.push({
+            time: selectedDateTime.time,
+            petName: selectedPet.name,
+            services: selectedServices.map(service => service.name),
+            userAccount: user.email,
+            username: username,
+            status: 1,
+          });
+    
+          await set(ref(db, `users/${selectedDateTime.vet.uid}/schedule/${selectedDateTime.date}`), bookedSlots);
 
           toast.success("Booking successful! Please check your booking section.", {
             autoClose: 2000,

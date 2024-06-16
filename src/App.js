@@ -5,26 +5,30 @@ import "react-toastify/dist/ReactToastify.css";
 import { TransactionProvider } from "./Components/context/TransactionContext";
 import MainContent from "./MainContent";
 import "./App.css";
-import { BookingProvider } from './Components/context/BookingContext';
+import { BookingProvider } from "./Components/context/BookingContext";
+import { PetProvider } from "./Components/context/AddPetContext";
+
 
 function App() {
   return (
     <TransactionProvider>
-        <Router>
-      <BookingProvider>
-          <div id="root">
-            <MainContent />
-            <ToastContainer
-                          transition={Slide}
-                          autoClose={1500}
-                          newestOnTop={true}
-                          pauseOnHover={true}
-                          pauseOnFocusLoss={false}
-                          limit={5}
-            />
-          </div>
-      </BookingProvider>
-        </Router>
+      <Router>
+        <BookingProvider>
+          <PetProvider>
+            <div id="root">
+              <MainContent />
+              <ToastContainer
+                transition={Slide}
+                autoClose={1500}
+                newestOnTop={true}
+                pauseOnHover={true}
+                pauseOnFocusLoss={false}
+                limit={5}
+              />
+            </div>
+          </PetProvider>
+        </BookingProvider>
+      </Router>
     </TransactionProvider>
   );
 }

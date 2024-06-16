@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import { auth, provider, database } from "../firebase/firebase"; // Assuming config file with Firebase settings
 import { doCreateUserWithEmailAndPassword } from "../firebase/auth";
 import { signInWithPopup, signInWithEmailAndPassword } from "firebase/auth";
@@ -33,17 +33,13 @@ function SignIn() {
   const [confirmPassword, setconfirmPassword] = useState("");
   const [isRegistering, setIsRegistering] = useState(false);
   const [isCaptchaVerified, setIsCaptchaVerified] = useState(false);
+  const [captchaError, setCaptchaError] = useState(null);
+  const [signInMethod, setSignInMethod] = useState(null);
   const navigate = useNavigate();
   const forceUpdate = useForceUpdate();
-
-  useEffect(() => {
-    const unsubscribe = auth.onAuthStateChanged((user) => {
-      if (user) {
-        navigate("/"); // Redirect to home page if user is already logged in
-      }
-    });
-    return () => unsubscribe();
-  }, [navigate]);
+  const [retry, setRetry] = useState(0);
+  const [isInactive, setIsInactive] = useState(false);
+  const inactivityTimeoutRef = useRef(null);
 
   function addDataBase(userId, email, name, role) {
     const db = getDatabase();
@@ -67,33 +63,39 @@ function SignIn() {
 
   const onChange = (value) => {
     setIsCaptchaVerified(!!value);
+    setCaptchaError(null);
+  };
+  const onErrored = () => {
+    setCaptchaError("Failed to load reCAPTCHA. Please try again.");
+  };
+
+  const onExpired = () => {
+    setIsCaptchaVerified(false);
+    setCaptchaError("reCAPTCHA expired. Please verify again.");
   };
 
   const handleGoogleLogin = async () => {
     try {
       const data = await signInWithPopup(auth, provider);
       const user = data.user;
-  
+
       // Get the creation time from the user's metadata
       const creationTime = user.metadata.creationTime;
-  
+
       const userEmail = user.email;
       const userNamePart = userEmail.split("@")[0];
       const userName = "gg" + userNamePart;
       const userId = user.uid;
       const db = getDatabase();
-      const userRef = ref(db, "users/" + userId);
+      const userRef = ref(db, `users/${userId}`);
       let userRole = "user";
-  
-      // Fetch user data from Firebase
-      const userDataSnapshot = await new Promise((resolve) => {
-        onValue(userRef, (snapshot) => {
-          resolve(snapshot);
-        });
-      });
-  
-      const userData = userDataSnapshot.val();
+
+      const userDataSnapshot = await get(userRef);
+      const userData = userDataSnapshot.exists()
+        ? userDataSnapshot.val()
+        : null;
       let accountStatus = "enable";
+
       // If user does not exist in the database, add the user
       if (!userData) {
         await set(userRef, {
@@ -118,34 +120,32 @@ function SignIn() {
           accountStatus: userData.accountStatus || accountStatus,
           creationTime: userData.creationTime || creationTime, // Add the creation time here
         });
+
+        if (userData.accountBalance === undefined) {
+          await update(userRef, {
+            accountBalance: 0,
+          });
+        }
       }
-  
-      if (userData && userData.accountBalance === undefined) {
-        await update(userRef, {
-          accountBalance: 0,
-        });
-      }
-  
-      switch (userRole) {
-        case "user":
-          navigate("/");
-          break;
-        case "veterinarian":
-          navigate("/veterinarian");
-          break;
-        case "manager":
-          navigate("/manager");
-          break;
-        case "admin":
-          navigate("/admin/dashboard");
-          break;
-        default:
-          navigate("/");
-      }
+      setSignInMethod("google");
+      setIsCaptchaVerified(true);
+
       toast.success("Login successfully. Wish you enjoy our best experience", {
         autoClose: 2000,
         onClose: () => {
-          forceUpdate();
+          switch (userRole) {
+            case "veterinarian":
+              navigate("/veterinarian");
+              break;
+            case "manager":
+              navigate("/manager");
+              break;
+            case "admin":
+              navigate("/admin/dashboard");
+              break;
+            default:
+              navigate("/");
+          }
         },
       });
     } catch (error) {
@@ -158,7 +158,7 @@ function SignIn() {
       });
     }
   };
-  
+
   const onSubmit = async (e) => {
     e.preventDefault();
     if (password !== confirmPassword) {
@@ -195,10 +195,6 @@ function SignIn() {
       });
       return;
     }
-    if (!isCaptchaVerified) {
-      alert("Please complete the captcha before submitting the form.");
-      return;
-    }
 
     if (!isRegistering) {
       setIsRegistering(true);
@@ -225,7 +221,6 @@ function SignIn() {
             onClose: () => {
               setTimeout(() => {
                 forceUpdate();
-                navigate("/signIn");
               }, 2000);
             },
           }
@@ -259,19 +254,16 @@ function SignIn() {
   const handleEmailLogin = async (event) => {
     event.preventDefault();
     setError(null);
-
+  
     if (!isCaptchaVerified) {
       toast.error("Please complete the captcha before submitting the form.");
       return;
     }
-
+  
     try {
-      const userCredential = await signInWithEmailAndPassword(
-        auth,
-        email,
-        password
-      );
+      const userCredential = await signInWithEmailAndPassword(auth, email, password);
       const user = userCredential.user;
+  
       if (!user.emailVerified) {
         toast.error("Please verify your email before logging in.", {
           autoClose: 2000,
@@ -279,43 +271,35 @@ function SignIn() {
             forceUpdate();
           },
         });
-        auth.signOut();
-        navigate("/signIn");
+        await auth.signOut();
         return;
       }
+  
       const userEmail = user.email;
       setUserEmail(userEmail);
       localStorage.setItem("email", userEmail);
       const userId = user.uid;
       const db = getDatabase();
-      const userRef = ref(db, "users/" + userId);
+      const userRef = ref(db, `users/${userId}`);
       let userRole = "user";
       const creationTime = user.metadata.creationTime;
+  
       const creationTimeSnapshot = await get(child(userRef, "creationTime"));
-
       if (!creationTimeSnapshot.exists()) {
-        // If not, store it
         await set(child(userRef, "creationTime"), creationTime);
       }
-
+  
       let accountStatus = "enable";
-
-      const userDataSnapshot = await new Promise((resolve) => {
-        onValue(
-          userRef,
-          (snapshot) => {
-            resolve(snapshot);
-          },
-          { onlyOnce: true }
-        );
-      });
-
-      const userData = userDataSnapshot.val();
-
+  
+      const userDataSnapshot = await get(userRef);
+      const userData = userDataSnapshot.exists()
+        ? userDataSnapshot.val()
+        : null;
+  
       if (!userData) {
         await set(userRef, {
           email: userEmail,
-          username: user.displayName,
+          username: user.displayName || "User",
           role: userRole,
           isVerified: true,
           accountBalance: 0,
@@ -328,62 +312,41 @@ function SignIn() {
             accountBalance: 0,
           });
         }
-
+  
         await update(userRef, {
-          username: user.displayName,
+          username: user.displayName || "User",
           role: userRole,
           isVerified: userData.isVerified,
           accountStatus: userData.accountStatus || accountStatus,
         });
       }
-
-      const petRef = ref(db, "users/" + userId + "/pets");
-      const pets = await new Promise((resolve) => {
-        onValue(
-          petRef,
-          (snapshot) => {
-            const petData = snapshot.val();
-            resolve(petData ? Object.values(petData) : []);
-          },
-          { onlyOnce: true }
-        );
+  
+      toast.success("Login successfully. Wish you enjoy our best experience!", {
+        autoClose: 2000,
+        onClose: () => {
+          switch (userRole) {
+            case "veterinarian":
+              navigate("/veterinarian");
+              break;
+            case "manager":
+              navigate("/manager");
+              break;
+            case "admin":
+              navigate("/admin/dashboard");
+              break;
+            default:
+              navigate("/");
+          }
+        },
       });
-
-      // Lưu dữ liệu thú cưng vào state hoặc localStorage nếu cần
-      localStorage.setItem("pets", JSON.stringify(pets));
-
-      switch (userRole) {
-        case "user":
-          navigate("/");
-          break;
-        case "veterinarian":
-          navigate("/veterinarian");
-          break;
-        case "manager":
-          navigate("/manager");
-          break;
-        case "admin":
-          navigate("/admin/dashboard");
-          break;
-        default:
-          navigate("/");
-      }
-      toast.success("Login successfully. Wish you enjoy our best experience", {
+    } catch (error) {
+      console.error("Error during login:", error);
+      toast.error("Failed to login. Please check your email and password.", {
         autoClose: 2000,
         onClose: () => {
           forceUpdate();
         },
       });
-    } catch (error) {
-      toast.error(
-        "Something went wrong. Please check your email or password and try again!",
-        {
-          autoClose: 2000,
-          onClose: () => {
-            forceUpdate();
-          },
-        }
-      );
     }
   };
 
@@ -416,6 +379,25 @@ function SignIn() {
     });
 
     return () => unsubscribe();
+  }, []);
+  const resetInactivityTimer = () => {
+    clearTimeout(inactivityTimeoutRef.current);
+    inactivityTimeoutRef.current = setTimeout(() => {
+      setIsInactive(true);
+      setCaptchaError("You have been inactive for a while. Please verify reCAPTCHA again.");
+    }, 5 * 60 * 1000); // 5 minutes inactivity timeout
+  };
+
+  const handleRetry = () => {
+    setRetry(retry + 1);
+    setCaptchaError(null);
+    setIsInactive(false);
+    resetInactivityTimer();
+  };
+
+  useEffect(() => {
+    resetInactivityTimer();
+    return () => clearTimeout(inactivityTimeoutRef.current);
   }, []);
 
   return (
@@ -474,10 +456,6 @@ function SignIn() {
                     className="w-full mt-2 px-3 py-2 text-gray-500 bg-transparent outline-none border focus:border-indigo-600 shadow-sm rounded-lg transition duration-300"
                   />
                 </div>
-                <ReCAPTCHA
-                  sitekey="6LfjlPcpAAAAAPLRaxVhKzYI4OYR2mBW_wv6LZwW"
-                  onChange={onChange}
-                />
                 <button
                   type="submit"
                   disabled={isRegistering}
@@ -491,7 +469,7 @@ function SignIn() {
                 </button>
               </form>
             </div>
-            <div class="form-container sign-in">
+            <div className="form-container sign-in">
               <form onSubmit={handleEmailLogin}>
                 <h1>Sign In</h1>
                 <div className="social-icons">
@@ -518,12 +496,22 @@ function SignIn() {
                   onChange={handleChange}
                   required
                 />
-                <a href="/reset">Forget Your Password?</a>
-                <ReCAPTCHA
-                  sitekey="6LfjlPcpAAAAAPLRaxVhKzYI4OYR2mBW_wv6LZwW"
-                  onChange={onChange}
-                />
-                <button>Sign In</button>
+                {!isInactive && (
+                  <ReCAPTCHA
+                    key={retry} // This forces re-rendering of the component on retry
+                    sitekey="6LfjlPcpAAAAAPLRaxVhKzYI4OYR2mBW_wv6LZwW"
+                    onChange={onChange}
+                    onErrored={onErrored}
+                    onExpired={onExpired}
+                  />
+                )}
+                {captchaError && (
+                  <div style={{ color: "red" }}>
+                    {captchaError}
+                    {isInactive && <button onClick={handleRetry}>Retry</button>}
+                  </div>
+                )}
+                <button disabled={!isCaptchaVerified}>Sign In</button>
               </form>
             </div>
             <div className="toggle-container">
@@ -558,7 +546,7 @@ function SignIn() {
           </div>
         </div>
       )}
-        <ToastContainer />
+      <ToastContainer />
       {userEmail && <Home />}
     </div>
   );

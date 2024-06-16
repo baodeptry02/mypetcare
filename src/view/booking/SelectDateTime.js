@@ -155,7 +155,7 @@ vets.forEach(vet => console.log('Vet Schedule:', vet.schedule));
           bookedSlot.vet.name === vet &&
           bookedSlot.date === date &&
           bookedSlot.time === slot.timeString &&
-          (bookedSlot.status === "Paid" || bookedSlot.status === "Checked-in")
+          (bookedSlot.status === "Paid" || bookedSlot.status === "Checked-in" || bookedSlot.status === "Rated" )
       );
   
       console.log(`Slot: ${slot.timeString}, Is Booked: ${isBooked}`);

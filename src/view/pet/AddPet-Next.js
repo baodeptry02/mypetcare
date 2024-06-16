@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useContext, useEffect } from "react";
 import "./AddPet.css"; // Import the CSS file
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
@@ -12,93 +12,66 @@ import {
 } from "firebase/storage";
 import { v4 as uuidv4 } from "uuid";
 import { getAuth } from "firebase/auth"; // Import Firebase auth for getting current user
+import { AddPetContext } from "../../Components/context/AddPetContext";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { faCaretLeft } from "@fortawesome/free-solid-svg-icons";
+import Button from '@mui/material/Button';
+import CloudUploadIcon from '@mui/icons-material/CloudUpload';
+import Box from '@mui/material/Box';
+import useForceUpdate from "../../hooks/useForceUpdate";
 
 const AddPetNext = () => {
-  const [petName, setPetName] = useState("");
-  const [petAge, setPetAge] = useState("");
-  const [petGender, setPetGender] = useState("male");
-  const [petSize, setPetSize] = useState("");
-  const [petColor, setPetColor] = useState("");
-  const [petVaccinated, setPetVaccinated] = useState("");
-  const [image, setImage] = useState(null); // State for single image
-  const [images, setImages] = useState([]); // State for multiple images
+  const { petData, updatePetData, clearPetData } = useContext(AddPetContext);
   const [loading, setLoading] = useState(false);
-  const [petDob, setPetDob] = useState("");
   const navigate = useNavigate();
-  const auth = getAuth(); // Initialize Firebase auth
+  const auth = getAuth(); 
+  const forceUpdate = useForceUpdate()
+  console.log(petData)
 
-  // Handle image selection
-  const handleImageChange = (e) => {
-    if (e.target.files.length === 1) {
-      setImage(e.target.files[0]); // For single image
-    } else {
-      setImages(Array.from(e.target.files)); // For multiple images
-    }
-  };
-
-  // Upload multiple images and return their URLs
-  const uploadImages = async (userId) => {
-    const storage = getStorage();
-    const uploadPromises = images.map((image) => {
-      const imageRef = storageRef(storage, `pets/${userId}/${uuidv4()}`);
-      return uploadBytes(imageRef, image).then((snapshot) =>
-        getDownloadURL(snapshot.ref)
-      );
-    });
-    return Promise.all(uploadPromises);
-  };
-
-  // Add pet data to the Firebase Realtime Database
-  const addDataBase = async (userId, imageUrls) => {
+  const addDataBase = async (userId, imageUrl) => {
     try {
       const db = getDatabase();
       const newPetRef = push(ref(db, `users/${userId}/pets`));
       await set(newPetRef, {
-        name: petName,
-        age: petAge,
-        gender: petGender,
-        size: petSize,
-        color: petColor,
-        vaccinated: petVaccinated,
-        imageUrls: imageUrls,
+        name: petData.name,
+        age: petData.age,
+        type: petData.type,
+        weight: petData.weight,
+        imageUrl: imageUrl,
+        dob: petData.dob,
       });
-      toast.success(
-        "Pet added successfully. You can view it in your collection!"
-      );
+      toast.success("Pet added successfully. You can view it in your collection!", {
+        autoClose: 2000,
+        onClose: () => {
+          forceUpdate()
+          setTimeout(() => {
+            navigate("/pet");
+          }, 2000); // Delay for 2 seconds (2000 milliseconds)
+        }
+      });
+      clearPetData()
     } catch (error) {
       toast.error("Error adding pet: " + error.message);
     }
   };
+  
 
-  // Handle form submission
   const handleSubmit = (e) => {
     e.preventDefault();
     setLoading(true);
     const user = auth.currentUser;
     if (user) {
-      if (images.length > 0) {
-        // Upload multiple images to Firebase Storage
-        uploadImages(user.uid)
-          .then((imageUrls) => {
-            addDataBase(user.uid, imageUrls);
-            setLoading(false);
-          })
-          .catch((error) => {
-            console.error("Error uploading images:", error);
-            setLoading(false);
-          });
-      } else if (image) {
-        // Upload single image to Firebase Storage
+      if (petData.image) {
         const storage = getStorage();
         const storageReference = storageRef(
           storage,
           `pets/${user.uid}/${uuidv4()}`
         );
-        uploadBytes(storageReference, image)
+        uploadBytes(storageReference, petData.image)
           .then((snapshot) => {
             getDownloadURL(snapshot.ref)
               .then((url) => {
-                addDataBase(user.uid, [url]); // Call add to database with the URL of the image
+                addDataBase(user.uid, url);
                 setLoading(false);
               })
               .catch((error) => {
@@ -111,28 +84,56 @@ const AddPetNext = () => {
             setLoading(false);
           });
       } else {
-        // If no image is provided, still add to the database with empty image URLs
-        addDataBase(user.uid, []);
+        addDataBase(user.uid, "");
         setLoading(false);
       }
     } else {
       toast.error("User not logged in.");
       setLoading(false);
     }
-  };
-  const calculateAge = (dob) => {
-    const birthDate = new Date(dob);
-    const difference = Date.now() - birthDate.getTime();
-    const ageDate = new Date(difference);
-    return Math.abs(ageDate.getUTCFullYear() - 1970);
+    
   };
 
-  // Hàm xử lý khi người dùng thay đổi ngày sinh
+  const calculateAge = (dob) => {
+    const birthDate = new Date(dob);
+    const now = new Date();
+    let age = now.getFullYear() - birthDate.getFullYear();
+    const monthDiff = now.getMonth() - birthDate.getMonth();
+  
+    if (monthDiff < 0 || (monthDiff === 0 && now.getDate() < birthDate.getDate())) {
+      age--;
+    }
+  
+    return age;
+  };
+
   const handleDobChange = (event) => {
     const dob = event.target.value;
     const age = calculateAge(dob);
-    setPetAge(age); // Cập nhật tuổi thú cưng dựa trên ngày sinh
-    setPetDob(dob); // Cập nhật ngày sinh thú cưng
+    updatePetData("age", age); // Update pet age based on DOB
+    updatePetData("dob", dob); // Update pet DOB
+  };
+  const VisuallyHiddenInput = ({ ...props }) => (
+    <input
+      {...props}
+      style={{
+        margin: "0 auto",
+        padding: "10px",
+        width: '1px',
+        height: '1px',
+        padding: 0,
+        overflow: 'hidden',
+        border: 0,
+        clip: 'rect(0, 0, 0, 0)',
+        whiteSpace: 'nowrap',
+        clipPath: 'inset(100%)',
+      }}
+    />
+  );
+  const handleImageChange = (e) => {
+    if (e.target.files[0]) {
+      updatePetData("image", e.target.files[0]); // For single image
+    }
   };
 
   return (
@@ -140,43 +141,45 @@ const AddPetNext = () => {
       <h2 className="title-add-next-pet">Step 2: Add Pet Info</h2>
       <p className="des-add-next-pet">Tell us more about your Pet</p>
       <div className="container container1 pet-container" id="container">
-        <div className="image-group">
-          <div className="flex items-center">
-            <label
-              htmlFor="petimage"
-              className="bg-[#e20074] text-white px-4 py-2 rounded-lg cursor-pointer"
-            >
-              Upload Photo
-            </label>
-            <input
-              id="petimage"
-              type="file"
-              accept="image/*"
-              multiple
-              onChange={handleImageChange}
-              className="hidden"
+      <div className="image-group" style={{ position: 'relative', textAlign: 'center' }}>
+      <Box display="flex" flexDirection="column" alignItems="center">
+        <Button
+          component="label"
+          variant="contained"
+          startIcon={<CloudUploadIcon />}
+          sx={{
+            backgroundColor: '#e20074',
+            color: 'white',
+            padding: "12px",
+            marginTop: "12px",
+            '&:hover': {
+              backgroundColor: "#c10065",
+              color: '#fff',
+            },
+          }}
+        >
+          Upload Photo
+          <VisuallyHiddenInput
+            id="petimage"
+            type="file"
+            accept="image/*"
+            onChange={handleImageChange}
+          />
+        </Button>
+        {!petData.image && <p>No image uploaded yet.</p>}
+        {petData.image && (
+          <Box display="flex" flexDirection="column" alignItems="center" mt={4}>
+            <img
+              style={{ width: '180px', height: '150px' }}
+              src={URL.createObjectURL(petData.image)}
+              alt="Pet Preview"
+              className="rounded-lg object-cover"
             />
-            {image && (
-              <img
-                src={URL.createObjectURL(image)}
-                alt="Pet Preview"
-                className="w-24 h-24 ml-4 rounded-lg object-cover"
-              />
-            )}
-            {images.length > 0 && (
-              <div className="flex flex-wrap mt-2">
-                {Array.from(images).map((img, index) => (
-                  <img
-                    key={index}
-                    src={URL.createObjectURL(img)}
-                    alt={`Pet Preview ${index + 1}`}
-                    className="w-24 h-24 ml-4 rounded-lg object-cover"
-                  />
-                ))}
-              </div>
-            )}
-          </div>
-        </div>
+            <p>Image Preview</p>
+          </Box>
+        )}
+      </Box>
+    </div>
         <form
           onSubmit={handleSubmit}
           className="grid-container grid-container1"
@@ -190,9 +193,9 @@ const AddPetNext = () => {
                   id="petname"
                   type="text"
                   autoComplete="off"
-                  value={petName}
+                  value={petData.petName}
                   placeholder="Enter your pet name"
-                  onChange={(e) => setPetName(e.target.value)}
+                  onChange={(e) => updatePetData("name", e.target.value)}
                   className="w-full mt-2 px-3 py-2 text-gray-500 bg-transparent outline-none border focus:indigo-600 shadow-sm rounded-lg transition duration-300"
                 />
               </div>
@@ -200,80 +203,52 @@ const AddPetNext = () => {
             <div className="flex-container">
               <div className="flex-item">
                 <label>D.O.B</label>
-                <input type="date" value={petDob} onChange={handleDobChange} />
-              </div>
-              <div className="flex-item">
-                <label>Pet Size</label>
                 <input
-                  required
-                  id="petsize"
-                  type="text"
-                  autoComplete="off"
-                  value={petSize}
-                  placeholder="Enter your pet size"
-                  onChange={(e) => setPetSize(e.target.value)}
-                  className="w-full mt-2 px-3 py-2 text-gray-500 bg-transparent outline-none border focus:indigo-600 shadow-sm rounded-lg transition duration-300"
-                />
-              </div>
-            </div>
-            <div className="flex-item">
-              <label htmlFor="petgender">Gender</label>
-              <select
-                id="petgender"
-                value={petGender}
-                onChange={(e) => setPetGender(e.target.value)}
-                className="input-field"
-              >
-                <option value="male">Male</option>
-                <option value="female">Female</option>
-              </select>
-            </div>
-            <div className="flex-container">
-              <div className="flex-item">
-                <label>Pet Color</label>
-                <input
-                  id="petcolor"
-                  type="text"
-                  autoComplete="off"
-                  required
-                  value={petColor}
-                  placeholder="Enter your pet color"
-                  onChange={(e) => setPetColor(e.target.value)}
-                  className="w-full mt-2 px-3 py-2 text-gray-500 bg-transparent outline-none border focus:indigo-600 shadow-sm rounded-lg transition duration-300"
+                  type="date"
+                  value={petData.dob}
+                  onChange={handleDobChange}
                 />
               </div>
               <div className="flex-item">
-                <label>Pet Vaccinated</label>
+                <label>Pet Weight</label>
                 <input
-                  id="petvaccinated"
-                  type="text"
-                  autoComplete="off"
                   required
-                  value={petVaccinated}
-                  placeholder="Enter your pet vaccinated status"
-                  onChange={(e) => setPetVaccinated(e.target.value)}
+                  id="petweight"
+                  type="number"
+                  autoComplete="off"
+                  value={petData.petWeight}
+                  placeholder="Enter your pet weight"
+                  onChange={(e) => updatePetData("weight", e.target.value)}
                   className="w-full mt-2 px-3 py-2 text-gray-500 bg-transparent outline-none border focus:indigo-600 shadow-sm rounded-lg transition duration-300"
                 />
               </div>
             </div>
           </div>
           <div>
-            <button type="submit" disabled={loading} className="submit-pet">
-              {loading ? (
-                "Uploading..."
-              ) : (
-                <span style={{ fontSize: "12px", color: "white" }}>
-                  Add Pet
-                </span>
-              )}
-            </button>
-            <button
-              type="button"
-              className="submit-pet"
-              onClick={() => navigate(-1)}
+            <div
+              style={{
+                display: "flex",
+                justifyContent: "center",
+              }}
             >
-              Back
-            </button>
+              <button className="submit-pet back-button" onClick={() => navigate(-1)}>
+                {" "}
+                <FontAwesomeIcon
+                  className="icon-left"
+                  icon={faCaretLeft}
+                />{" "}
+                BACK
+              </button>
+              <button type="submit" disabled={loading} className="submit-pet">
+                {loading ? (
+                  "Uploading..."
+                ) : (
+                  <span style={{ fontSize: "12px", color: "white" }}>
+                    Add Pet
+                  </span>
+                )}
+              </button>
+            </div>
           </div>
         </form>
       </div>

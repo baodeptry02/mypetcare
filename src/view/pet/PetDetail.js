@@ -6,8 +6,8 @@ import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faPenToSquare } from "@fortawesome/free-solid-svg-icons";
 import SparkleButton from "../../hooks/sparkleButton";
 import Calendar from "react-calendar";
-import { toast, ToastContainer } from 'react-toastify';
-import useForceUpdate from '../../hooks/useForceUpdate';
+import { toast, ToastContainer } from "react-toastify";
+import useForceUpdate from "../../hooks/useForceUpdate";
 
 const PetDetail = () => {
   const { petId } = useParams();
@@ -16,42 +16,166 @@ const PetDetail = () => {
   const [isEditMode, setIsEditMode] = useState(false);
   const forceUpdate = useForceUpdate();
   const catBreeds = [
-    'Domestic Short Hair', 'Domestic Long Hair', 'Abyssinian', 'American Bobtail', 
-    'American Curl', 'American Shorthair', 'American Wirehair', 'Balinese', 
-    'Bengal', 'Birman', 'Bombay', 'British Shorthair', 'Burmese', 'Chartreux', 
-    'Chausie', 'Cornish Rex', 'Devon Rex', 'Donskoy', 'Egyptian Mau', 'Oriental', 'Persian', 'Peterbald', 'Pixiebob', 'Ragdoll', 'Russian Blue', 
-            'Savannah', 'Scottish Fold', 'Selkirk Rex', 'Serengeti', 'Siberian', 
-            'Siamese', 'Singapura', 'Snowshoe', 'Sokoke', 'Somali', 'Sphynx', 'Thai', 
-            'Tonkinese', 'Toyger', 'Turkish Angora', 'Turkish Van'
-        ];
+    "Domestic Short Hair",
+    "Domestic Long Hair",
+    "Abyssinian",
+    "American Bobtail",
+    "American Curl",
+    "American Shorthair",
+    "American Wirehair",
+    "Balinese",
+    "Bengal",
+    "Birman",
+    "Bombay",
+    "British Shorthair",
+    "Burmese",
+    "Chartreux",
+    "Chausie",
+    "Cornish Rex",
+    "Devon Rex",
+    "Donskoy",
+    "Egyptian Mau",
+    "Oriental",
+    "Persian",
+    "Peterbald",
+    "Pixiebob",
+    "Ragdoll",
+    "Russian Blue",
+    "Savannah",
+    "Scottish Fold",
+    "Selkirk Rex",
+    "Serengeti",
+    "Siberian",
+    "Siamese",
+    "Singapura",
+    "Snowshoe",
+    "Sokoke",
+    "Somali",
+    "Sphynx",
+    "Thai",
+    "Tonkinese",
+    "Toyger",
+    "Turkish Angora",
+    "Turkish Van",
+  ];
 
-const dogBreeds = [
-            'Domestic Dog', 'Affenpinscher', 'Afghan Hound', 'Akita', 'Alaskan Malamute', 
-            'American Staffordshire terrier', 'American Water Spaniel', 'Australian cattle dog', 
-            'Australian shepherd', 'Australian terrier', 'Basenji', 'Basset Hound', 'Beagle', 
-            'Bearded Collie', 'Bedlington Terrier', 'Bernese Mountain Dog', 'Bichon Frise', 
-            'Black And Tan Coonhound', 'Bloodhound', 'Border Collie', 'Border Terrier', 'Borzoi', 
-            'Boston Terrier', 'Bouvier Des Flandres', 'Boxer', 'Briard', 'Brittany', 
-            'Brussels Griffon', 'Bull Terrier', 'Bulldog', 'Bullmastiff', 'Cairn Terrier', 
-            'Canaan Dog', 'Chesapeake Bay Retriever', 'Chihuahua', 'Chinese Crested', 
-            'Chinese Shar-pei', 'Chow Chow', 'Clumber Spaniel', 'Cocker Spaniel', 'Collie', 
-            'Curly-coated Retriever', 'Dachshund', 'Dalmatian', 'Doberman Pinscher', 
-            'English Cocker Spaniel', 'English Setter', 'English Springer Spaniel', 
-            'English Toy Spaniel', 'Eskimo Dog', 'Finnish Spitz', 'Flat-coated Retriever', 
-            'Fox Terrier', 'Foxhound', 'French Bulldog', 'German Shepherd', 'German Shorthaired pointer', 
-            'German Wirehaired pointer', 'Golden Retriever', 'Gordon Setter', 'Great Dane', 
-            'Greyhound', 'Irish Setter', 'Irish Water Spaniel', 'Irish Wolfhound', 'Jack Russell Terrier', 
-            'Japanese Spaniel', 'Keeshond', 'Kerry Blue Terrier', 'Komondor', 'Kuvasz', 
-            'Labrador Retriever', 'Lakeland Terrier', 'Lhasa Apso', 'Maltese', 'Manchester Terrier', 
-            'Mastiff', 'Mexican Hairless', 'Newfoundland', 'Norwegian Elkhound', 'Norwich Terrier', 
-            'Otterhound', 'Papillon', 'Pekingese', 'Pointer', 'Pomeranian', 'Poodle', 'Pug', 
-            'Puli', 'Rhodesian Ridgeback', 'Rottweiler', 'Saint Bernard', 'Saluki', 'Samoyed', 
-            'Schipperke', 'Schnauzer', 'Scottish Deerhound', 'Scottish Terrier', 'Sealyham Terrier', 
-            'Shetland Sheepdog', 'Shih Tzu', 'Siberian Husky', 'Silky Terrier', 'Skye Terrier', 
-            'Staffordshire Bull Terrier', 'Soft-coated Wheaten Terrier', 'Sussex Spaniel', 
-            'Spitz', 'Tibetan Terrier', 'Vizsla', 'Weimaraner', 'Welsh Terrier', 
-            'West Highland White Terrier', 'Whippet', 'Yorkshire Terrier'
-        ];
+  const dogBreeds = [
+    "Domestic Dog",
+    "Affenpinscher",
+    "Afghan Hound",
+    "Akita",
+    "Alaskan Malamute",
+    "American Staffordshire terrier",
+    "American Water Spaniel",
+    "Australian cattle dog",
+    "Australian shepherd",
+    "Australian terrier",
+    "Basenji",
+    "Basset Hound",
+    "Beagle",
+    "Bearded Collie",
+    "Bedlington Terrier",
+    "Bernese Mountain Dog",
+    "Bichon Frise",
+    "Black And Tan Coonhound",
+    "Bloodhound",
+    "Border Collie",
+    "Border Terrier",
+    "Borzoi",
+    "Boston Terrier",
+    "Bouvier Des Flandres",
+    "Boxer",
+    "Briard",
+    "Brittany",
+    "Brussels Griffon",
+    "Bull Terrier",
+    "Bulldog",
+    "Bullmastiff",
+    "Cairn Terrier",
+    "Canaan Dog",
+    "Chesapeake Bay Retriever",
+    "Chihuahua",
+    "Chinese Crested",
+    "Chinese Shar-pei",
+    "Chow Chow",
+    "Clumber Spaniel",
+    "Cocker Spaniel",
+    "Collie",
+    "Curly-coated Retriever",
+    "Dachshund",
+    "Dalmatian",
+    "Doberman Pinscher",
+    "English Cocker Spaniel",
+    "English Setter",
+    "English Springer Spaniel",
+    "English Toy Spaniel",
+    "Eskimo Dog",
+    "Finnish Spitz",
+    "Flat-coated Retriever",
+    "Fox Terrier",
+    "Foxhound",
+    "French Bulldog",
+    "German Shepherd",
+    "German Shorthaired pointer",
+    "German Wirehaired pointer",
+    "Golden Retriever",
+    "Gordon Setter",
+    "Great Dane",
+    "Greyhound",
+    "Irish Setter",
+    "Irish Water Spaniel",
+    "Irish Wolfhound",
+    "Jack Russell Terrier",
+    "Japanese Spaniel",
+    "Keeshond",
+    "Kerry Blue Terrier",
+    "Komondor",
+    "Kuvasz",
+    "Labrador Retriever",
+    "Lakeland Terrier",
+    "Lhasa Apso",
+    "Maltese",
+    "Manchester Terrier",
+    "Mastiff",
+    "Mexican Hairless",
+    "Newfoundland",
+    "Norwegian Elkhound",
+    "Norwich Terrier",
+    "Otterhound",
+    "Papillon",
+    "Pekingese",
+    "Pointer",
+    "Pomeranian",
+    "Poodle",
+    "Pug",
+    "Puli",
+    "Rhodesian Ridgeback",
+    "Rottweiler",
+    "Saint Bernard",
+    "Saluki",
+    "Samoyed",
+    "Schipperke",
+    "Schnauzer",
+    "Scottish Deerhound",
+    "Scottish Terrier",
+    "Sealyham Terrier",
+    "Shetland Sheepdog",
+    "Shih Tzu",
+    "Siberian Husky",
+    "Silky Terrier",
+    "Skye Terrier",
+    "Staffordshire Bull Terrier",
+    "Soft-coated Wheaten Terrier",
+    "Sussex Spaniel",
+    "Spitz",
+    "Tibetan Terrier",
+    "Vizsla",
+    "Weimaraner",
+    "Welsh Terrier",
+    "West Highland White Terrier",
+    "Whippet",
+    "Yorkshire Terrier",
+  ];
 
   const [selectedBreeds, setSelectedBreeds] = useState(catBreeds);
 
@@ -71,6 +195,7 @@ const dogBreeds = [
     type: "",
     breed: "",
     dob: "",
+    gender: "",
   });
 
   const user = auth.currentUser;
@@ -112,6 +237,7 @@ const dogBreeds = [
             type: petData.type,
             breed: petData.breed,
             dob: petData.dob,
+            gender: petData.gender,
           });
         } else {
           console.log("No data available");
@@ -135,7 +261,7 @@ const dogBreeds = [
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;
-    console.log(value)
+    console.log(value);
     setFormData((prevData) => ({
       ...prevData,
       [name]: value || "",
@@ -144,7 +270,7 @@ const dogBreeds = [
   const handleUpdateClick = async () => {
     const updatedFormData = { ...formData };
 
-    Object.keys(updatedFormData).forEach(key => {
+    Object.keys(updatedFormData).forEach((key) => {
       if (updatedFormData[key] === undefined) {
         updatedFormData[key] = "";
       }
@@ -153,18 +279,15 @@ const dogBreeds = [
     try {
       const db = getDatabase();
       const petRef = ref(db, `users/${user.uid}/pets/${petId}`);
-      await update(petRef, updatedFormData);
+      await toast.promise(update(petRef, updatedFormData), {
+        success: "Update successful! Please check your pet information again!.",
+      });
       setPet(updatedFormData);
       setIsEditMode(false);
-      toast.success("Update successful! Please check your pet information again!.", {
-        autoClose: 2000,
-        onClose: () => {
-          forceUpdate();
-          setTimeout(() => {
-            window.location.reload(); 
-          }, 500); 
-        }
-      });
+      forceUpdate();
+      setTimeout(() => {
+        window.location.reload();
+      }, 2500);
     } catch (error) {
       console.error("Error updating pet details:", error);
     }
@@ -252,6 +375,20 @@ const dogBreeds = [
                     <div>{pet.type || "N/A"}</div>
                   </div>
                 </div>
+                <div className="section pet-general-info">
+                  <div className="pet-info">
+                    <p>D.O.B:</p>
+                    <div>{pet.dob}</div>
+                  </div>
+                  <div className="pet-info">
+                    <p>Breed:</p>
+                    <div>{pet.breed || "N/A"}</div>
+                  </div>
+                  <div className="pet-info">
+                    <p>Gender:</p>
+                    <div>{pet.gender || "N/A"}</div>
+                  </div>
+                </div>
               </div>
               <button
                 className="booking-detail back-button"
@@ -284,6 +421,18 @@ const dogBreeds = [
                 >
                   <option value="Cat">Cat</option>
                   <option value="Dog">Dog</option>
+                </select>
+              </div>
+              <div className="form-group">
+                <label>Gender</label>
+                <select
+                  name="gender"
+                  value={formData.gender}
+                  onChange={handleInputChange}
+                >
+                  
+                  <option value="Male">Male</option>
+                  <option value="Female">Female</option>
                 </select>
               </div>
               <div className="form-group">

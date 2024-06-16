@@ -5,6 +5,8 @@ import { updateProfile } from "firebase/auth";
 import { getDatabase, ref, onValue, update } from "firebase/database";
 import { ToastContainer, toast } from 'react-toastify';
 import useForceUpdate from '../../hooks/useForceUpdate'
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { faIdBadge } from '@fortawesome/free-solid-svg-icons';
 
 function Update() {
   const [email, setEmail] = useState("");
@@ -127,8 +129,8 @@ function Update() {
 
             <div className="mid-form">
               <div className="form-row">
-                <div>
-                  <label>Username</label>
+                <div className="account-input">
+                  <label style={{marginTop: "10px"}}>Username</label>
                   <input
                     id="username"
                     type="text"
@@ -143,8 +145,8 @@ function Update() {
                     className="w-full mt-2 px-3 py-2 text-gray-500 bg-transparent outline-none border focus:indigo-600 shadow-sm rounded-lg transition duration-300"
                   />
                 </div>
-                <div>
-                  <label>Full Name</label>
+                <div className="account-input">
+                  <label style={{marginTop: "10px"}}>FullName</label>
                   <input
                     id="fullname"
                     type="fullname"
@@ -159,8 +161,8 @@ function Update() {
                 </div>
               </div>
               <div className="form-row">
-                <div>
-                  <label>Email</label>
+                <div className="account-input">
+                  <label style={{marginTop: "10px"}}>Email</label>
                   <input
                     id="email"
                     type="email"
@@ -174,8 +176,8 @@ function Update() {
                     disabled
                   />
                 </div>
-                <div>
-                  <label>Phone</label>
+                <div className="account-input">
+                  <label style={{marginTop: "10px"}}>Phone</label>
                   <input
                     id="phone"
                     type="phone"
@@ -190,7 +192,8 @@ function Update() {
                 </div>
               </div>
             </div>
-            <label>Address</label>
+            <div className="account-input">
+            <label style={{marginTop: "20px", marginRight: "20px", marginLeft: "15px"}}>Address</label>
             <input
               id="address"
               type="address"
@@ -202,6 +205,7 @@ function Update() {
               }}
               className="w-full mt-2 px-3 py-2 text-gray-500 bg-transparent outline-none border focus:indigo-600 shadow-sm rounded-lg transition duration-300"
             />
+            </div>
             <div className="update-button-container">
               <button
                 type="submit"
@@ -212,8 +216,8 @@ function Update() {
               </button>
             </div>
           </form>
-        </div>
       </div>
+        </div>
     </div>
   );
 }

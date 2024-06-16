@@ -26,6 +26,8 @@ import { Navigation, Pagination, Autoplay } from 'swiper/modules';
 import 'swiper/css';
 import 'swiper/css/navigation';
 import 'swiper/css/pagination';
+import useViewport from "../../hooks/useViewport";
+
 
 function Home() {
   const typedElement = useRef(null);
@@ -39,6 +41,22 @@ function Home() {
   const forceUpdate = useForceUpdate();
   const [dropdownOpen, setDropdownOpen] = useState(false);
   const [bookedSlots, setBookedSlots] = useState([]);
+  const { width } = useViewport(); // Get the viewport width
+  const [slidesPerView, setSlidesPerView] = useState(4);
+  const [loop, setLoop] = useState(true);
+  const [initialized, setInitialized] = useState(false);
+
+  useEffect(() => {
+    if (width >= 1785) {
+      setSlidesPerView(4);
+    } else if (width >= 991 && width < 1600) {
+      setSlidesPerView(3);
+    } else if (width >= 600 && width < 991) {
+      setSlidesPerView(2);
+    } else {
+      setSlidesPerView(1);
+    }
+  }, [width]);
 
   useEffect(() => {
     const interval = setInterval(() => {
@@ -191,7 +209,7 @@ function Home() {
       const snapshot = await get(usersRef);
       const usersData = snapshot.val();
       let allBookings = [];
-      console.log("Users Data:", usersData); // Log to check usersData
+      // console.log("Users Data:", usersData); 
 
       if (usersData) {
         Object.keys(usersData).forEach((userId) => {
@@ -208,7 +226,7 @@ function Home() {
           }
         });
       }
-      console.log("All Bookings:", allBookings);
+      // console.log("All Bookings:", allBookings);
       setBookedSlots(allBookings);
     };
 
@@ -216,66 +234,63 @@ function Home() {
   }, []);
   
 
+  useEffect(() => {
+    const hasEnoughSlides = bookedSlots.length > slidesPerView;
+    setLoop(hasEnoughSlides);
+  }, [bookedSlots.length, slidesPerView]);
+
   const renderRatedBookings = () => {
     const ratedBookings = bookedSlots.filter(
-      (booking) => booking.status === "Rated" && booking.rating > 3
+      (booking) => booking.status === 'Rated' && booking.rating > 3
     );
 
-    return ratedBookings.map((booking) => (
-      <div key={booking.bookingId}>
+    return ratedBookings.map((booking, index) => (
+      <SwiperSlide key={booking.id} virtualIndex={index}>
         <div className="testimonial-box">
           <img
             className="testimonial-avatar"
-            src={`${booking.pet.imageUrl}`}
+            src={booking.pet.imageUrl}
             alt="User Avatar"
           />
           <div className="testimonial-content">
-            <div style={{
-              fontSize: "3rem",
-              color: "var(--text-color)"
-            }}>
-
-          Rating:
+            <div style={{ fontSize: '3rem', color: 'var(--text-color)' }}>
+              Rating:
             </div>
-           <Box
-          
-                      sx={{
-                        marginTop: "12px",
-                        width: 200,
-                        display: "flex",
-                        alignItems: "center",
-                        float: "right",
-                      }}
-                    >
-                       <Box sx={{ ml: 2, fontSize: "2rem", marginRight: "12px" }}>{booking.rating.toFixed(1)}</Box>
-                      <Rating
-                        name="read-only"
-                        value={booking.rating}
-                        readOnly
-                        sx={{
-                          "& .MuiRating-iconFilled": {
-                            color: "gold",
-                          },
-                        }}
-                      />
-                    </Box>
-            <p className="testimonial-text">
-           <div>
-           <div style={{
-              fontSize: "3rem",
-              color: "var(--text-color)",
-              marginBottom: "20px"
-            }}>
-
-          Review:
-            </div>
-              {booking.review}
+            <Box
+              sx={{
+                marginTop: '12px',
+                width: 200,
+                display: 'flex',
+                alignItems: 'center',
+                float: 'right',
+              }}
+            >
+              <Box sx={{ ml: 2, fontSize: '2rem', marginRight: '12px' }}>
+                {booking.rating.toFixed(1)}
+              </Box>
+              <Rating
+                name="read-only"
+                value={booking.rating}
+                readOnly
+                sx={{
+                  '& .MuiRating-iconFilled': {
+                    color: 'gold',
+                  },
+                }}
+              />
+            </Box>
+            <div className="testimonial-text">
+              <div style={{ fontSize: '3rem', color: 'var(--text-color)', marginBottom: '20px', marginTop: '10px' }}>
+                Review:
               </div>
+              {booking.review}
+            </div>
+            <p className="testimonial-signature">
+              {booking.username}, {booking.pet.name}
             </p>
-            <p className="testimonial-signature">{booking.username}, {booking.pet.name} </p>
           </div>
         </div>
-      </div>
+      </SwiperSlide>
     ));
   };
 
@@ -306,7 +321,7 @@ function Home() {
               alt=""
               width="2400"
               height="559"
-              srcset="https://static.wixstatic.com/media/84770f_cc7fbf222d044cf09028f921a0cfe36e~mv2.png/v1/crop/x_0,y_0,w_5002,h_3009/fill/w_1163,h_699,al_c,q_90,usm_0.66_1.00_0.01,enc_auto/shutterstock_184908566%20copy.png"
+              srcSet="https://static.wixstatic.com/media/84770f_cc7fbf222d044cf09028f921a0cfe36e~mv2.png/v1/crop/x_0,y_0,w_5002,h_3009/fill/w_1163,h_699,al_c,q_90,usm_0.66_1.00_0.01,enc_auto/shutterstock_184908566%20copy.png"
               fetchpriority="high"
             ></img>
           </div>
@@ -325,7 +340,7 @@ function Home() {
               alt=""
               width="410"
               height="410"
-              srcset="https://static.wixstatic.com/media/84770f_ec1b885cde544df1bf299c3d35749700~mv2_d_3848_3848_s_4_2.jpg/v1/fill/w_513,h_513,al_c,q_80,usm_0.66_1.00_0.01,enc_auto/84770f_ec1b885cde544df1bf299c3d35749700~mv2_d_3848_3848_s_4_2.jpg"
+              srcSet="https://static.wixstatic.com/media/84770f_ec1b885cde544df1bf299c3d35749700~mv2_d_3848_3848_s_4_2.jpg/v1/fill/w_513,h_513,al_c,q_80,usm_0.66_1.00_0.01,enc_auto/84770f_ec1b885cde544df1bf299c3d35749700~mv2_d_3848_3848_s_4_2.jpg"
               fetchpriority="high"
             ></img>
           </div>
@@ -381,24 +396,21 @@ function Home() {
           <h3>What Our Happy Clients Say</h3>
         </div>
         <div>
-      <div className="testimonial-container" data-aos="fade-up">
+        <div className="testimonial-container" data-aos="fade-up">
         <Swiper
-          spaceBetween={50}
-          slidesPerView={4}
-          loop={true}
-          autoplay={{
-            delay: 2500,
-            disableOnInteraction: false,
-          }}
-          pagination={{ clickable: true }}
-          navigation={true}
-          modules={[Autoplay, Pagination, Navigation]}
-        >
-          {renderRatedBookings().map((slideContent, index) => (
-            <SwiperSlide key={index}>{slideContent}</SwiperSlide>
-          ))}
-        </Swiper>
-      </div>
+        modules={[Autoplay]}
+      spaceBetween={50}
+      slidesPerView={slidesPerView}
+      loop={loop}
+      autoplay={{
+        delay: 1500,
+        disableOnInteraction: false,
+      }}
+    >
+      {renderRatedBookings()}
+    </Swiper>
+    </div>
+
     </div>
       </section>
       <section className="services" id="services">
@@ -407,10 +419,10 @@ function Home() {
             Your pet deserves to be pampered!
           </h3>
         </div>
-        <div class="big-line"></div>
+        <div className="big-line"></div>
 
-        <div class="card-container">
-          <div class="card" data-aos="fade-right" onClick={book}>
+        <div className="card-container">
+          <div className="card" data-aos="fade-right" onClick={book}>
             <h2>GROOMING</h2>
 
             <p>
@@ -419,13 +431,13 @@ function Home() {
               understand the pet's temperament.
             </p>
             <img
-              class="card-avatar"
+              className="card-avatar"
               src="https://bpanimalhospital.com/wp-content/uploads/shutterstock_1547371985.jpg"
               alt="User Avatar"
             />
-            <div class="pricing">30 min: $21.00 | 60 min: $36.00</div>
+            <div className="pricing">30 min: $21.00 | 60 min: $36.00</div>
           </div>
-          <div class="card" data-aos="fade-up" onClick={book}>
+          <div className="card" data-aos="fade-up" onClick={book}>
             <h2>CHECK UP</h2>
 
             <p>
@@ -434,13 +446,13 @@ function Home() {
               heart rate and weight
             </p>
             <img
-              class="card-avatar"
+              className="card-avatar"
               src="https://www.cherrycreekvet.com/blog/wp-content/uploads/2024/03/iStock-1445008380-3-1-2000x1333.jpg"
               alt="User Avatar"
             />
-            <div class="pricing">$50.00</div>
+            <div className="pricing">$50.00</div>
           </div>
-          <div class="card" data-aos="fade-left" onClick={book}>
+          <div className="card" data-aos="fade-left" onClick={book}>
             <h2>Vaccination</h2>
 
             <p>
@@ -449,13 +461,13 @@ function Home() {
               among veterinarians and pet owners
             </p>
             <img
-              class="card-avatar"
+              className="card-avatar"
               src="https://media.istockphoto.com/id/966384466/vi/anh/c%E1%BA%AFt-h%C3%ACnh-%E1%BA%A3nh-ng%C6%B0%E1%BB%9Di-%C4%91%C3%A0n-%C3%B4ng-c%E1%BA%A7m-beagle-trong-khi-b%C3%A1c-s%C4%A9-th%C3%BA-y-ti%C3%AAm-b%E1%BA%B1ng-%E1%BB%91ng-ti%C3%AAm-v%C3%A0o-n%C3%B3.jpg?s=612x612&w=0&k=20&c=ViUs_0PoS5B26q7ScYHNx21sj8hMlcburn_H_aREbSM="
               alt="User Avatar"
             />
-            <div class="pricing">$36.00</div>
+            <div className="pricing">$36.00</div>
           </div>
-          <div class="card" data-aos="fade-right" onClick={book}>
+          <div className="card" data-aos="fade-right" onClick={book}>
             <h2>PET VETERINARY</h2>
 
             <p>
@@ -464,17 +476,17 @@ function Home() {
               health issues.
             </p>
             <img
-              class="card-avatar"
+              className="card-avatar"
               src="https://media.istockphoto.com/id/1171733307/vi/anh/b%C3%A1c-s%C4%A9-th%C3%BA-y-v%E1%BB%9Bi-ch%C3%B3-v%C3%A0-m%C3%A8o-ch%C3%B3-con-v%C3%A0-m%C3%A8o-con-t%E1%BA%A1i-b%C3%A1c-s%C4%A9.jpg?s=612x612&w=0&k=20&c=eZRCsHMznU16Nr89IkT6ETLH3Enzt9TwBUx4mIxZhzE="
               alt="User Avatar"
             />
-            <div class="pricing">30 min: $21.00 | 60 min: $36.00</div>
+            <div className="pricing">30 min: $21.00 | 60 min: $36.00</div>
           </div>
         </div>
         <div className="font_4" data-aos="flip-up">
           <h3>Pet Moment!</h3>
         </div>
-        <div class="big-line"></div>
+        <div className="big-line"></div>
         <div className="slide-show-container">
           <div
             className="slide-show-background"
@@ -541,7 +553,7 @@ function Home() {
           <img
             src="https://static.wixstatic.com/media/84770f_346b425b1fe54554a98a4425fa8333cb~mv2_d_3760_3760_s_4_2.jpg/v1/fill/w_599,h_599,al_c,q_80,usm_0.66_1.00_0.01,enc_auto/84770f_346b425b1fe54554a98a4425fa8333cb~mv2_d_3760_3760_s_4_2.jpg"
             alt=""
-            class="round-image"
+            className="round-image"
             style={{
               width: "179px",
               height: "178px",
@@ -551,7 +563,7 @@ function Home() {
             width="479"
             height="478"
             srcSet="https://static.wixstatic.com/media/84770f_346b425b1fe54554a98a4425fa8333cb~mv2_d_3760_3760_s_4_2.jpg/v1/fill/w_599,h_599,al_c,q_80,usm_0.66_1.00_0.01,enc_auto/84770f_346b425b1fe54554a98a4425fa8333cb~mv2_d_3760_3760_s_4_2.jpg"
-            fetchPriority="high"
+            fetchpriority="high"
           />
           <div className="quick-question" data-aos="flip-left">
             <p className="quick-question1">
