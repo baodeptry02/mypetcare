@@ -124,6 +124,7 @@ const BookingConfirm = () => {
             userAccount: user.email,
             username: username,
             status: 1,
+            bookingId: bookingId
           });
     
           await set(ref(db, `users/${selectedDateTime.vet.uid}/schedule/${selectedDateTime.date}`), bookedSlots);

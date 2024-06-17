@@ -1,19 +1,17 @@
-import { useState, useEffect } from "react";
-import FullCalendar, { formatDate } from "@fullcalendar/react";
+import React, { useState, useEffect } from "react";
+import FullCalendar from "@fullcalendar/react";
 import dayGridPlugin from "@fullcalendar/daygrid";
 import timeGridPlugin from "@fullcalendar/timegrid";
 import interactionPlugin from "@fullcalendar/interaction";
 import listPlugin from "@fullcalendar/list";
 import {
   Box,
-  List,
-  ListItem,
-  ListItemText,
   Typography,
   useTheme,
 } from "@mui/material";
 import { getDatabase, ref, get } from "firebase/database";
 import { getAuth } from "firebase/auth";
+import { useNavigate } from "react-router-dom";
 import Header from "../../Components/dashboardChart/Header";
 import { tokens } from "../../theme";
 
@@ -22,6 +20,7 @@ const Calendar = () => {
   const colors = tokens(theme.palette.mode);
   const [currentEvents, setCurrentEvents] = useState([]);
   const auth = getAuth();
+  const navigate = useNavigate();
 
   const convertScheduleToEvents = (schedule) => {
     const events = [];
@@ -37,6 +36,7 @@ const Calendar = () => {
             extendedProps: {
               services: booking.services.join(", "),
               petName: booking.petName,
+              bookingId: booking.bookingId, // Pass bookingId for navigation
             },
           });
         });
@@ -84,13 +84,8 @@ const Calendar = () => {
   };
 
   const handleEventClick = (selected) => {
-    if (
-      window.confirm(
-        `Are you sure you want to delete the event '${selected.event.title}'`
-      )
-    ) {
-      selected.event.remove();
-    }
+    const bookingId = selected.event.extendedProps.bookingId; // Assuming bookingId is part of extendedProps
+    navigate(`/booking-details/${bookingId}`);
   };
 
   return (

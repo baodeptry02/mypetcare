@@ -1,25 +1,24 @@
-import { useState, useEffect } from "react";
-import FullCalendar, { formatDate } from "@fullcalendar/react";
+import React, { useState, useEffect } from "react";
+import FullCalendar from "@fullcalendar/react";
 import dayGridPlugin from "@fullcalendar/daygrid";
 import timeGridPlugin from "@fullcalendar/timegrid";
 import interactionPlugin from "@fullcalendar/interaction";
 import listPlugin from "@fullcalendar/list";
-import {
-  Box,
-  Typography,
-} from "@mui/material";
-import { getDatabase, ref, onValue } from "firebase/database";
+import { Box, Typography, useTheme } from "@mui/material";
+import { getDatabase, ref, onValue, get } from "firebase/database";
 import { getAuth } from "firebase/auth";
+import { useNavigate } from "react-router-dom";
 import Header from "../../../../Components/dashboardChart/Header";
 
 const Booking = () => {
   const [currentEvents, setCurrentEvents] = useState([]);
+  const [userEmails, setUserEmails] = useState({});
   const auth = getAuth();
+  const navigate = useNavigate();
 
   const convertScheduleToEvents = (schedule) => {
     const events = [];
     for (const [date, bookings] of Object.entries(schedule)) {
-      // Check if bookings is an array before filtering
       if (Array.isArray(bookings)) {
         bookings
           .filter((booking) => booking.status === 1) // Only include bookings with status 1
@@ -32,16 +31,15 @@ const Booking = () => {
               extendedProps: {
                 services: booking.services.join(", "),
                 petName: booking.petName,
+                email: booking.userAccount, 
+                bookingId: booking.bookingId,
               },
             });
           });
-      } else {
-        console.error(`Bookings for date ${date} is not an array:`, bookings);
       }
     }
     return events;
   };
-  
 
   useEffect(() => {
     const fetchUserData = async () => {
@@ -50,11 +48,26 @@ const Booking = () => {
         if (currentUser) {
           const db = getDatabase();
           const userRef = ref(db, "users/" + currentUser.uid);
+
           onValue(userRef, (snapshot) => {
             const data = snapshot.val();
             if (data && data.schedule) {
               const events = convertScheduleToEvents(data.schedule);
               setCurrentEvents(events);
+            }
+          });
+
+          // Fetch all users to map emails to UIDs
+          const usersRef = ref(db, "users");
+          onValue(usersRef, (snapshot) => {
+            const usersData = snapshot.val();
+            if (usersData) {
+              const emailMap = {};
+              Object.keys(usersData).forEach((uid) => {
+                const user = usersData[uid];
+                emailMap[user.email] = uid;
+              });
+              setUserEmails(emailMap);
             }
           });
         }
@@ -66,29 +79,32 @@ const Booking = () => {
     fetchUserData();
   }, [auth]);
 
-  const handleDateClick = (selected) => {
-    const title = prompt("Please enter a new title for your event");
-    const calendarApi = selected.view.calendar;
-    calendarApi.unselect();
-
-    if (title) {
-      calendarApi.addEvent({
-        id: `${selected.dateStr}-${title}`,
-        title,
-        start: selected.startStr,
-        end: selected.endStr,
-        allDay: selected.allDay,
-      });
-    }
-  };
-
-  const handleEventClick = (selected) => {
-    if (
-      window.confirm(
-        `Are you sure you want to delete the event '${selected.event.title}'`
-      )
-    ) {
-      selected.event.remove();
+  const handleEventClick = async (selected) => {
+    const email = selected.event.extendedProps.email;
+    const bookingId = selected.event.extendedProps.bookingId;
+    console.log(email, bookingId);
+  
+    const userUid = userEmails[email];
+    if (userUid) {
+      const db = getDatabase();
+      const bookingsRef = ref(db, `users/${userUid}/bookings`);
+      const snapshot = await get(bookingsRef);
+      const bookingsData = snapshot.val();
+  
+      if (bookingsData) {
+        const bookingKey = Object.keys(bookingsData).find(
+          (key) => bookingsData[key].bookingId === bookingId
+        );
+        if (bookingKey) {
+          navigate(`/vet/booking/medical-record/${bookingKey}`);
+        } else {
+          console.error("Booking key not found for bookingId:", bookingId);
+        }
+      } else {
+        console.error("No bookings found for user:", userUid);
+      }
+    } else {
+      console.error("User not found for email:", email);
     }
   };
 
@@ -97,16 +113,10 @@ const Booking = () => {
       <Header title="Calendar" subtitle="Full Calendar Interactive Page" />
 
       <Box display="flex" justifyContent="space-between">
-        {/* CALENDAR */}
         <Box flex="1 1 100%" ml="15px">
           <FullCalendar
             height="75vh"
-            plugins={[
-              dayGridPlugin,
-              timeGridPlugin,
-              interactionPlugin,
-              listPlugin,
-            ]}
+            plugins={[dayGridPlugin, timeGridPlugin, interactionPlugin, listPlugin]}
             headerToolbar={{
               left: "prev,next today",
               center: "title",
@@ -117,7 +127,6 @@ const Booking = () => {
             selectable={true}
             selectMirror={true}
             dayMaxEvents={true}
-            select={handleDateClick}
             eventClick={handleEventClick}
             events={currentEvents}
           />
