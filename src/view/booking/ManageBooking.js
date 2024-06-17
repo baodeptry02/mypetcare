@@ -94,9 +94,11 @@ const ManageBookings = () => {
   const handleCancel = (booking) => {
     setConfirmCancel(booking);
   };
+
   const handleRating = (booking) => {
     navigate(`/rate-booking/${booking.key}`);
   }
+
   const statusToNumber = status => {
     switch (status) {
       case 'Paid':
@@ -111,18 +113,13 @@ const ManageBookings = () => {
         return 5;
     }
   };
+
   const confirmCancellation = async (booking) => {
     if (confirmCancel) {
       const user = auth.currentUser;
       const db = getDatabase();
-      const bookingRef = ref(
-        db,
-        `users/${user.uid}/bookings/${confirmCancel.key}`
-      );
-      const vetScheduleRef = ref(
-        db,
-        `users/${confirmCancel.vet.uid}/schedule/${confirmCancel.date}`
-      );
+      const bookingRef = ref(db, `users/${user.uid}/bookings/${confirmCancel.key}`);
+      const vetScheduleRef = ref(db, `users/${confirmCancel.vet.uid}/schedule/${confirmCancel.date}`);
       const vetScheduleSnapshot = await get(vetScheduleRef);
       const vetSchedule = vetScheduleSnapshot.val();
 
@@ -139,40 +136,35 @@ const ManageBookings = () => {
         const userRef = ref(db, `users/${user.uid}`);
         const snapshot = await get(userRef);
         const userData = snapshot.val();
-        console.log(typeof userData.accountBalance);
         const updatedBalance = userData.accountBalance + refundAmount;
 
+        // Optimistically update state before making async calls
+        setPaidBookings((prev) => prev.map((booking) => booking.key === confirmCancel.key ? { ...booking, status: "Cancelled" } : booking));
+
         await update(bookingRef, { status: "Cancelled" });
-
         await update(userRef, { accountBalance: updatedBalance });
-
         await set(vetScheduleRef, updatedSchedule);
 
-        const updatedPaidBookings = paidBookings.map((booking) => {
-          if (booking.key === confirmCancel.key) {
-            return { ...booking, status: "Cancelled" };
-          }
-          return booking;
+        // Sort the updated list so cancelled bookings are at the bottom
+        setPaidBookings((prev) => {
+          const updated = prev.map((booking) => 
+            booking.key === confirmCancel.key ? { ...booking, status: "Cancelled" } : booking
+          );
+          return updated.sort((a, b) => statusToNumber(a.status) - statusToNumber(b.status));
         });
 
-        // Sort the updated list so cancelled bookings are at the bottom
-        updatedPaidBookings.sort((a, b) => (a.status === "Cancelled" ? 1 : -1));
-        setPaidBookings(updatedPaidBookings);
-
         // Show success message
-        toast.success("Booking successful! Please check your booking section.", {
+        toast.success("Cancelled successfully! Please check your booking section.", {
           autoClose: 2000,
           onClose: () => {
-            forceUpdate();
+            forceUpdate(); // Assuming you have a function to force a component re-render
           }
         });
 
         setConfirmCancel(null);
       } catch (error) {
         console.error("Error cancelling booking:", error);
-        toast.error(
-          `An error occurred while processing the cancellation. Details: ${error.message}`
-        );
+        toast.error(`An error occurred while processing the cancellation. Details: ${error.message}`);
       }
     }
   };
@@ -187,15 +179,8 @@ const ManageBookings = () => {
 
   const indexOfLastBooking = currentPage * bookingsPerPage;
   const indexOfFirstBooking = indexOfLastBooking - bookingsPerPage;
-  const currentPaidBookings = paidBookings.slice(
-    indexOfFirstBooking,
-    indexOfLastBooking
-  );
-  console.log(currentPaidBookings.length);
-  const currentUnpaidBookings = unpaidBookings.slice(
-    indexOfFirstBooking,
-    indexOfLastBooking
-  );
+  const currentPaidBookings = paidBookings.slice(indexOfFirstBooking, indexOfLastBooking);
+  const currentUnpaidBookings = unpaidBookings.slice(indexOfFirstBooking, indexOfLastBooking);
 
   const handlePageChange = (event, value) => {
     setCurrentPage(value);

@@ -124,6 +124,7 @@ function Header({ user, currentPath }) {
   const booking = () => {
     toggleDropdown();
     navigate("/manage-booking");
+    window.location.reload();
   };
 
   const login = () => {

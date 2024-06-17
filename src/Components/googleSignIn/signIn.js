@@ -135,7 +135,7 @@ function SignIn() {
         onClose: () => {
           switch (userRole) {
             case "veterinarian":
-              navigate("/veterinarian");
+              navigate("/vet/dashboard");
               break;
             case "manager":
               navigate("/manager");
@@ -326,7 +326,7 @@ function SignIn() {
         onClose: () => {
           switch (userRole) {
             case "veterinarian":
-              navigate("/veterinarian");
+              navigate("/vet/dashboard");
               break;
             case "manager":
               navigate("/manager");

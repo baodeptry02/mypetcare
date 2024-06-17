@@ -44,7 +44,6 @@ const Booking = () => {
         if (currentUser) {
           const db = getDatabase();
           const userRef = ref(db, "users/" + currentUser.uid);
-
           onValue(userRef, (snapshot) => {
             const data = snapshot.val();
             if (data && data.schedule) {

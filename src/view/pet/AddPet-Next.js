@@ -46,7 +46,7 @@ const AddPetNext = () => {
           forceUpdate()
           setTimeout(() => {
             navigate("/pet");
-          }, 2000); // Delay for 2 seconds (2000 milliseconds)
+          }, 500); // Delay for 2 seconds (2000 milliseconds)
         }
       });
       clearPetData()

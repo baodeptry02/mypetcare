@@ -46,21 +46,19 @@ const BookingConfirm = () => {
 
   useEffect(() => {
     if (bookingSuccess) {
-      navigate('/manage-booking');
+      navigate('/');
     }
   }, [bookingSuccess, navigate]);
+  
   useEffect(() => {
-    // Hàm xử lý sự kiện
     const handleBeforeUnload = (event) => {
       event.preventDefault();
       event.returnValue = '';
     };
-  
-    // Thêm sự kiện khi component được mount
+
     window.addEventListener('beforeunload', handleBeforeUnload);
   
     return () => {
-      // Loại bỏ sự kiện khi component unmount
       window.removeEventListener('beforeunload', handleBeforeUnload);
     };
   }, []);
@@ -224,11 +222,11 @@ const BookingConfirm = () => {
             <div className="pet-info-detail-inline">
               <p className="pet-info-detail">
                 <strong><FontAwesomeIcon  className="icon"icon={faPalette}/>Color:</strong>
-                <span className="pet-info-value">{selectedPet.color}</span>
+                <span className="pet-info-value">{selectedPet.color || "N/A"}</span>
               </p>
               <p className="pet-info-detail">
                 <strong><FontAwesomeIcon  className="icon"icon={faArrowsAlt}/>Size:</strong>
-                <span className="pet-info-value">{selectedPet.size}</span>
+                <span className="pet-info-value">{selectedPet.size || "N/A"}</span>
               </p>
             </div>
             <div className="pet-info-detail-inline">

@@ -29,7 +29,6 @@ const getMockTransactions = () => {
       if (user.bookings.hasOwnProperty(bookingId)) {
         const booking = user.bookings[bookingId];
         let inputStr = booking.bookingId;
-        console.log(inputStr);
 
         let strippedStr = inputStr.slice(2);
         let day = strippedStr.slice(0, 2);
