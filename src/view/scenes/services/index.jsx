@@ -1,14 +1,17 @@
 import React, { useState } from 'react';
 import { Box, TextField, Button, Typography } from "@mui/material";
 import { getDatabase, ref, set } from "firebase/database";
+import { toast } from 'react-toastify';
 
 const Services = () => {
-  const [service, setService] = useState({
+  const initialServiceState = {
     name: '',
     price: 0,
     image: '',
     description: ''
-  });
+  };
+
+  const [service, setService] = useState(initialServiceState);
   const db = getDatabase();
   
   const addService = (service) => {
@@ -27,9 +30,10 @@ const Services = () => {
   const handleSubmit = (e) => {
     e.preventDefault();
     addService(service).then(() => {
-      alert("Service added successfully!");
+      toast.success("Service added successfully!");
+      setService(initialServiceState);  // Reset the form to initial state
     }).catch((error) => {
-      alert("Failed to add service: " + error.message);
+      toast.error("Failed to add service: " + error.message);  // Changed alert to toast for consistency
     });
   };
 

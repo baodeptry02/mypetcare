@@ -123,8 +123,11 @@
   }
   
   .detail-button {
-    background-color: var(--info-color); /* Info color */
+    background-color: var(--info-color);
     color: white;
+  }
+  .detail-button:hover {
+    background-color: #2b7979;
   }
   
   .cancel-button {
@@ -224,23 +227,19 @@
   }
   
   .status-paid {
-    background-color: #5cb85c; /* Green */
-    color: #fff;
+    color: #5cb85c; /* Green */
   }
   
   .status-pending {
-    background-color: #f0ad4e; /* Yellow */
-    color: #000;
+    color: #f0ad4e; /* Yellow */
   }
   
   .status-checkedin {
-    background-color: #5bc0de; /* Blue */
-    color: #fff;
+    color: #5bc0de; /* Blue */
   }
   
   .status-cancelled {
-    background-color: #d9534f; /* Red */
-    color: #fff;
+    color: #d9534f; /* Red */
   }
   .rate-button:hover {
     background-color: #239023;

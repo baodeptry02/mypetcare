@@ -6,13 +6,9 @@ import interactionPlugin from "@fullcalendar/interaction";
 import listPlugin from "@fullcalendar/list";
 import {
   Box,
-  List,
-  ListItem,
-  ListItemText,
   Typography,
-  useTheme,
 } from "@mui/material";
-import { getDatabase, ref, get } from "firebase/database";
+import { getDatabase, ref, onValue } from "firebase/database";
 import { getAuth } from "firebase/auth";
 import Header from "../../../../Components/dashboardChart/Header";
 
@@ -49,12 +45,13 @@ const Booking = () => {
           const db = getDatabase();
           const userRef = ref(db, "users/" + currentUser.uid);
 
-          const snapshot = await get(userRef);
-          const data = snapshot.val();
-          if (data && data.schedule) {
-            const events = convertScheduleToEvents(data.schedule);
-            setCurrentEvents(events);
-          }
+          onValue(userRef, (snapshot) => {
+            const data = snapshot.val();
+            if (data && data.schedule) {
+              const events = convertScheduleToEvents(data.schedule);
+              setCurrentEvents(events);
+            }
+          });
         }
       } catch (error) {
         console.error("Error fetching user data:", error);
@@ -62,7 +59,7 @@ const Booking = () => {
     };
 
     fetchUserData();
-  }, []);
+  }, [auth]);
 
   const handleDateClick = (selected) => {
     const title = prompt("Please enter a new title for your event");

@@ -141,7 +141,7 @@ const AddPetNext = () => {
       <h2 className="title-add-next-pet">Step 2: Add Pet Info</h2>
       <p className="des-add-next-pet">Tell us more about your Pet</p>
       <div className="container container1 pet-container" id="container">
-      <div className="image-group" style={{ position: 'relative', textAlign: 'center' }}>
+      <div className="image-group" style={{ position: 'relative', textAlign: 'center', width: "100%" }}>
       <Box display="flex" flexDirection="column" alignItems="center">
         <Button
           component="label"

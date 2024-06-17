@@ -403,7 +403,7 @@ function Home() {
       slidesPerView={slidesPerView}
       loop={loop}
       autoplay={{
-        delay: 1500,
+        delay: 2500,
         disableOnInteraction: false,
       }}
     >

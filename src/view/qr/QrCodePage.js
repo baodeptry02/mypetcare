@@ -36,11 +36,11 @@ const QrCodePage = () => {
         "thanhtoan BK12315234",
         "thanhtoan BK12315234",
         "thanhtoan BK12315234",
-        "thanhtoan " + bookingId, // Ensure this bookingId matches the one you're checking
+        "thanhtoan " + bookingId,
         "thanhtoan BK12315234",
         "thanhtoan BK12315234",
       ],
-      amounts: [0, 1000, 100, 100, 55000, 500, 50000, 120000],
+      amounts: [0, 1000, 100, 100, 220000, 500, 50000, 120000],
     };
   };
 
@@ -146,6 +146,7 @@ const QrCodePage = () => {
               services: selectedServices.map((service) => service.name),
               userAccount: user.email,
               username: username,
+              status: 1,
             });
 
             await set(
@@ -155,6 +156,7 @@ const QrCodePage = () => {
               ),
               bookedSlots
             );
+
             toast.success(
               "Payment successfully! Please your check booking section.",
               {
@@ -162,7 +164,7 @@ const QrCodePage = () => {
                 onClose: () => {
                   setTimeout(() => {
                     forceUpdate();
-                    navigate("/");
+                    navigate("/manage-booking");
                   }, 2000);
                 },
               }

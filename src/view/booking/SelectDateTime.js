@@ -58,6 +58,7 @@ const SelectDateTime = () => {
           uid,
           name: vetsData[uid].fullname,
           schedule: vetsData[uid].schedule || {},
+          specialization: vetsData[uid].specialization
         }));
       setVets(vetsList);
     };
@@ -135,6 +136,7 @@ vets.forEach(vet => console.log('Vet Schedule:', vet.schedule));
       alert("Please select a date, vet, and time.");
     }
   };
+  console.log(availableVets)
 
   const tileDisabled = ({ date }) => {
     const today = new Date();
@@ -213,7 +215,9 @@ vets.forEach(vet => console.log('Vet Schedule:', vet.schedule));
             <option value="">Select a Vet</option>
             {availableVets.map((vet) => (
               <option key={vet.uid} value={vet.name}>
-                {vet.name}
+                {vet.name}   -  {vet.specialization
+
+                }
               </option>
             ))}
           </select>

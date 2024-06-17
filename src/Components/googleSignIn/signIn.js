@@ -496,6 +496,8 @@ function SignIn() {
                   onChange={handleChange}
                   required
                 />
+                <a href="/reset">Forget Your Password?</a>
+
                 {!isInactive && (
                   <ReCAPTCHA
                     key={retry} // This forces re-rendering of the component on retry
