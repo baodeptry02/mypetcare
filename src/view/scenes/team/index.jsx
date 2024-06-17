@@ -107,13 +107,8 @@ function Team() {
       updates.accountBalance = row.accountBalance;
       localStorage.setItem("accountBalance", row.accountBalance);
     }
-    if (row.phone) {
-      if (!validatePhone(row.phone)) {
-        isValid = false;
-        toast.error("Phone number must be 10 digits");
-      } else {
+    if (row.phone){
         updates.phone = row.phone;
-      }
     }
     if (row.role) {
       updates.role = row.role;

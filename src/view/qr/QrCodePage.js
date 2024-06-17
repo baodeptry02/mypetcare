@@ -40,7 +40,7 @@ const QrCodePage = () => {
         "thanhtoan BK12315234",
         "thanhtoan BK12315234",
       ],
-      amounts: [0, 1000, 100, 100, 120000, 500, 50000, 120000],
+      // amounts: [0, 1000, 100, 100, 120000, 500, 50000, 120000],
     };
   };
 
@@ -164,7 +164,8 @@ const QrCodePage = () => {
                 onClose: () => {
                   setTimeout(() => {
                     forceUpdate();
-                    navigate("/");
+                    navigate("/manage-booking");
+                    window.location.reload()
                   }, 500);
                 },
               }

@@ -1,5 +1,6 @@
 import React, { useContext, useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { useHistory } from "react-router-dom";
 import { BookingContext } from '../../Components/context/BookingContext';
 import { getDatabase, ref, push, update, get, set } from "firebase/database";
 import { auth } from "../../Components/firebase/firebase";
@@ -46,22 +47,10 @@ const BookingConfirm = () => {
 
   useEffect(() => {
     if (bookingSuccess) {
-      navigate('/');
+      navigate('/manage-booking');
+      window.location.reload()
     }
   }, [bookingSuccess, navigate]);
-  
-  useEffect(() => {
-    const handleBeforeUnload = (event) => {
-      event.preventDefault();
-      event.returnValue = '';
-    };
-
-    window.addEventListener('beforeunload', handleBeforeUnload);
-  
-    return () => {
-      window.removeEventListener('beforeunload', handleBeforeUnload);
-    };
-  }, []);
   
 
   const calculateTotalPaid = () => {

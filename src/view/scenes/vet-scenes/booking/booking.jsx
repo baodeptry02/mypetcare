@@ -19,23 +19,29 @@ const Booking = () => {
   const convertScheduleToEvents = (schedule) => {
     const events = [];
     for (const [date, bookings] of Object.entries(schedule)) {
-      bookings
-        .filter((booking) => booking.status === 1) // Only include bookings with status 1
-        .forEach((booking, index) => {
-          events.push({
-            id: `${date}-${index}`,
-            title: `Booking with ${booking.username}`,
-            start: `${date}T${booking.time}:00`,
-            allDay: false,
-            extendedProps: {
-              services: booking.services.join(", "),
-              petName: booking.petName,
-            },
+      // Check if bookings is an array before filtering
+      if (Array.isArray(bookings)) {
+        bookings
+          .filter((booking) => booking.status === 1) // Only include bookings with status 1
+          .forEach((booking, index) => {
+            events.push({
+              id: `${date}-${index}`,
+              title: `Booking with ${booking.username}`,
+              start: `${date}T${booking.time}:00`,
+              allDay: false,
+              extendedProps: {
+                services: booking.services.join(", "),
+                petName: booking.petName,
+              },
+            });
           });
-        });
+      } else {
+        console.error(`Bookings for date ${date} is not an array:`, bookings);
+      }
     }
     return events;
   };
+  
 
   useEffect(() => {
     const fetchUserData = async () => {

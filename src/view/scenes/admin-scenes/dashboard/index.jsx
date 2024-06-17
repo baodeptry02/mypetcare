@@ -1,3 +1,4 @@
+
 import React, { useEffect, useState } from "react";
 import { Box, Typography, useTheme } from "@mui/material";
 import { tokens } from "../../../../theme";
@@ -13,13 +14,22 @@ import PieChart from "../../../../Components/dashboardChart/PieChart";
 const Dashboard = () => {
   const theme = useTheme();
   const colors = tokens(theme.palette.mode);
+
+  const getCurrentDate = () => {
+    const currentDate = new Date();
+    const year = currentDate.getFullYear();
+    const month = String(currentDate.getMonth() + 1).padStart(2, "0");
+    const day = String(currentDate.getDate()).padStart(2, "0");
+    return `${year}-${month}-${day}`;
+  };
+
   const [dailyRevenue, setDailyRevenue] = useState(0);
   const [monthlyRevenue, setMonthlyRevenue] = useState(0);
   const [yearlyRevenue, setYearlyRevenue] = useState(0);
   const [dailyRevenueChange, setDailyRevenueChange] = useState("0%");
   const [monthlyRevenueChange, setMonthlyRevenueChange] = useState("0%");
   const [yearlyRevenueChange, setYearlyRevenueChange] = useState("0%");
-  const [selectedDate, setSelectedDate] = useState("");
+  const [selectedDate, setSelectedDate] = useState(getCurrentDate());
   const [isCustomDateSelected, setIsCustomDateSelected] = useState(false);
 
   const getTotalPaid = (date, type) => {
@@ -82,16 +92,8 @@ const Dashboard = () => {
   };
 
   useEffect(() => {
-    const getCurrentDate = () => {
-      const currentDate = new Date();
-      const year = currentDate.getFullYear();
-      const month = String(currentDate.getMonth() + 1).padStart(2, "0");
-      const day = String(currentDate.getDate()).padStart(2, "0");
-      return { year, month, day, currentDate: `${year}-${month}-${day}` };
-    };
-
     const updateRevenue = () => {
-      if (isCustomDateSelected) return; 
+      if (isCustomDateSelected) return;
 
       const currentDate = getCurrentDate();
       const previousDay = getPreviousDay();
@@ -99,7 +101,7 @@ const Dashboard = () => {
       const previousYear = getPreviousYear();
 
       // Daily Revenue
-      const totalPaidForDate = getTotalPaid(currentDate.currentDate, "date");
+      const totalPaidForDate = getTotalPaid(currentDate, "date");
       const totalPaidForPreviousDay = getTotalPaid(
         previousDay.previousDay,
         "date"
@@ -120,7 +122,7 @@ const Dashboard = () => {
 
       // Monthly Revenue
       const totalPaidForMonth = getTotalPaid(
-        `${currentDate.year}-${currentDate.month}`,
+        `${currentDate.split("-")[0]}-${currentDate.split("-")[1]}`,
         "month"
       );
       const totalPaidForPreviousMonth = getTotalPaid(
@@ -142,7 +144,7 @@ const Dashboard = () => {
       );
 
       // Yearly Revenue
-      const totalPaidForYear = getTotalPaid(currentDate.year, "year");
+      const totalPaidForYear = getTotalPaid(currentDate.split("-")[0], "year");
       const totalPaidForPreviousYear = getTotalPaid(previousYear, "year");
       setYearlyRevenue(totalPaidForYear.toLocaleString() + ",000");
 
@@ -161,9 +163,8 @@ const Dashboard = () => {
 
     updateRevenue();
 
-    const intervalId = setInterval(updateRevenue, 60); 
-
-    return () => clearInterval(intervalId);
+    const intervalId = setInterval(updateRevenue, 60);
+return () => clearInterval(intervalId);
   }, [isCustomDateSelected]);
 
   useEffect(() => {

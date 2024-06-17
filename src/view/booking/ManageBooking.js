@@ -157,7 +157,7 @@ const ManageBookings = () => {
         toast.success("Cancelled successfully! Please check your booking section.", {
           autoClose: 2000,
           onClose: () => {
-            forceUpdate(); // Assuming you have a function to force a component re-render
+            forceUpdate();
           }
         });
 
