@@ -110,11 +110,7 @@ function VetDashboard() {
               <Route path="schedule" element={<Schedule />} />
               <Route path="booking" element={<Booking />} />
               <Route
-                path="medical-record/:bookingId"
-                element={<MedicalRecord />}
-              />
-              <Route
-                path="booking/medical-record/:bookingId"
+                path="booking/medical-record/:userId/:bookingId"
                 element={<MedicalRecord />}
               />
             </Routes>

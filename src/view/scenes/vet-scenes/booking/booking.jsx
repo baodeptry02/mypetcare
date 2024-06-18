@@ -68,19 +68,19 @@ const Booking = () => {
     const userId = selected.event.extendedProps.userId;
     const bookingId = selected.event.extendedProps.bookingId;
     console.log(userId, bookingId);
-
+  
     if (userId) {
       const db = getDatabase();
       const bookingsRef = ref(db, `users/${userId}/bookings`);
       const snapshot = await get(bookingsRef);
       const bookingsData = snapshot.val();
-
+  
       if (bookingsData) {
         const bookingKey = Object.keys(bookingsData).find(
           (key) => bookingsData[key].bookingId === bookingId
         );
         if (bookingKey) {
-          navigate(`/vet/booking/medical-record/${bookingKey}`);
+          navigate(`/vet/booking/medical-record/${userId}/${bookingKey}`);
         } else {
           console.error("Booking key not found for bookingId:", bookingId);
         }
@@ -91,6 +91,7 @@ const Booking = () => {
       console.error("User ID not found for event:", selected.event);
     }
   };
+  
 
   return (
     <Box m="20px">

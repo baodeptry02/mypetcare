@@ -16,16 +16,16 @@ import { ToastContainer, toast } from "react-toastify";
 
 import "react-toastify/dist/ReactToastify.css";
 
-import Topbar from "../../Components/dashboardChart/BarChart";
-import Sidebar from "../scenes/admin-scenes/global/Sidebar";
-import Dashboard from "../scenes/admin-scenes/dashboard/index";
-import Team from "../scenes/admin-scenes/team/index";
-import Bar from "../scenes/admin-scenes/bar/index";
-import Form from "../scenes/admin-scenes/form/index";
-import Line from "../scenes/admin-scenes/line/index";
-import Pie from "../scenes/admin-scenes/pie/index";
-import Service from "../scenes/admin-scenes/services/index";
-import Calendar from "../scenes/admin-scenes/calendar/calendar";
+import Topbar from "../../view/scenes/admin-scenes/global/Topbar";
+import Sidebar from "../../view/scenes/admin-scenes/global/Sidebar";
+import Dashboard from "../../view/scenes/admin-scenes/dashboard/index";
+import Team from "../../view/scenes/admin-scenes/team/index";
+import Bar from "../../view/scenes/admin-scenes/bar/index";
+import Form from "../../view/scenes/admin-scenes/form/index";
+import Line from "../../view/scenes/admin-scenes/line/index";
+import Pie from "../../view/scenes/admin-scenes/pie/index";
+import Service from "../../view/scenes/admin-scenes/services/index";
+import Calendar from "../../view/scenes/admin-scenes/calendar/calendar";
 import { auth } from "../../Components/firebase/firebase";
 
 function Admin() {

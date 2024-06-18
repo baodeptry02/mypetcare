@@ -21,14 +21,20 @@ export let mockLineData = [
 
 const getMockTransactions = () => {
   let transactions = [];
-  let currentYear = new Date();
-  let year = currentYear.getFullYear();
+  let currentYear = new Date().getFullYear();
 
   mockDataTeam.forEach((user) => {
     for (const bookingId in user.bookings) {
-      if (user.bookings.hasOwnProperty(bookingId)) {
+      if (user.bookings.hasOwnProperty(bookingId) && user.bookings[bookingId]) {
         const booking = user.bookings[bookingId];
         let inputStr = booking.bookingId;
+
+        let date = booking.date;
+        let bookedYear = date.slice(0, 4);
+        let bookedMonth = date.slice(5, 7);
+        let bookedDay = date.slice(8, 10);
+        let bookedDate = `${bookedDay}-${bookedMonth}-${bookedYear}`;
+        // console.log(bookedDate);
 
         let strippedStr = inputStr.slice(2);
         let day = strippedStr.slice(0, 2);
@@ -36,11 +42,14 @@ const getMockTransactions = () => {
         let hour = strippedStr.slice(4, 6);
         let minute = strippedStr.slice(6, 8);
         let second = strippedStr.slice(8, 10);
-        let formattedDate = `${day}-${month}-${year}-${hour}:${minute}:${second}`;
+        let formattedDate = `${currentYear}-${month}-${day}T${hour}:${minute}:${second}`;
+
         transactions.push({
           bookingID: booking.bookingId,
           user: user.username,
-          date: formattedDate,
+          date: bookedDate,
+          time: booking.time,
+          formattedDate: formattedDate,
           status: booking.status,
           cost: booking.totalPaid || 0,
         });
@@ -52,17 +61,10 @@ const getMockTransactions = () => {
     }
   });
 
-  transactions.sort((a, b) => {
-    let [dayA, monthA, yearA, timeA] = a.date.split("-");
-    let [hourA, minuteA, secondA] = timeA.split(":");
-    let dateA = new Date(yearA, monthA - 1, dayA, hourA, minuteA, secondA);
+  transactions.sort(
+    (a, b) => new Date(b.formattedDate) - new Date(a.formattedDate)
+  );
 
-    let [dayB, monthB, yearB, timeB] = b.date.split("-");
-    let [hourB, minuteB, secondB] = timeB.split(":");
-    let dateB = new Date(yearB, monthB - 1, dayB, hourB, minuteB, secondB);
-
-    return dateB - dateA;
-  });
   return transactions;
 };
 

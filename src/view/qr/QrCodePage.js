@@ -18,10 +18,12 @@ const QrCodePage = () => {
   const { fetchTransactions } = useContext(TransactionContext);
   const [username, setUsername] = useState("");
   const [isLoading, setIsLoading] = useState(true);
-  const [userId, setUserId] = useState("");
   const [accountBalance, setAccountBalance] = useState(0);
   const [totalPaid, setTotalPaid] = useState(0);
   const forceUpdate = useForceUpdate();
+  
+  const userId = auth.currentUser.uid
+  console.log(userId)
 
   const override = css`
     display: block;
@@ -40,7 +42,7 @@ const QrCodePage = () => {
         "thanhtoan BK12315234",
         "thanhtoan BK12315234",
       ],
-      amounts: [0, 1000, 100, 100, 30000, 500, 50000, 120000],
+      amounts: [0, 1000, 100, 100, 120000, 500, 50000, 120000],
     };
   };
 
@@ -57,8 +59,8 @@ const QrCodePage = () => {
           const data = snapshot.val();
           if (snapshot.exists()) {
             setUsername(data.username);
-            setUserId(data.uid);
             setAccountBalance(data.accountBalance || 0);
+            console.log(data)
           }
           if (data && data.bookings) {
             const bookings = data.bookings;
@@ -77,7 +79,6 @@ const QrCodePage = () => {
 
     fetchUserData();
   }, [bookingId]);
-
   useEffect(() => {
     const user = auth.currentUser;
 
@@ -147,7 +148,8 @@ const QrCodePage = () => {
               userAccount: user.email,
               username: username,
               status: 1,
-              bookingId: bookingId
+              bookingId: bookingId,
+              userId: userId
             });
 
             await set(
