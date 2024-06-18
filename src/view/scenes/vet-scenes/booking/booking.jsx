@@ -4,7 +4,7 @@ import dayGridPlugin from "@fullcalendar/daygrid";
 import timeGridPlugin from "@fullcalendar/timegrid";
 import interactionPlugin from "@fullcalendar/interaction";
 import listPlugin from "@fullcalendar/list";
-import { Box, Typography, useTheme } from "@mui/material";
+import { Box } from "@mui/material";
 import { getDatabase, ref, onValue, get } from "firebase/database";
 import { getAuth } from "firebase/auth";
 import { useNavigate } from "react-router-dom";
@@ -12,7 +12,6 @@ import Header from "../../../../Components/dashboardChart/Header";
 
 const Booking = () => {
   const [currentEvents, setCurrentEvents] = useState([]);
-  const [userEmails, setUserEmails] = useState({});
   const auth = getAuth();
   const navigate = useNavigate();
 
@@ -31,7 +30,7 @@ const Booking = () => {
               extendedProps: {
                 services: booking.services.join(", "),
                 petName: booking.petName,
-                email: booking.userAccount, 
+                userId: booking.userId,
                 bookingId: booking.bookingId,
               },
             });
@@ -56,20 +55,6 @@ const Booking = () => {
               setCurrentEvents(events);
             }
           });
-
-          // Fetch all users to map emails to UIDs
-          const usersRef = ref(db, "users");
-          onValue(usersRef, (snapshot) => {
-            const usersData = snapshot.val();
-            if (usersData) {
-              const emailMap = {};
-              Object.keys(usersData).forEach((uid) => {
-                const user = usersData[uid];
-                emailMap[user.email] = uid;
-              });
-              setUserEmails(emailMap);
-            }
-          });
         }
       } catch (error) {
         console.error("Error fetching user data:", error);
@@ -80,17 +65,16 @@ const Booking = () => {
   }, [auth]);
 
   const handleEventClick = async (selected) => {
-    const email = selected.event.extendedProps.email;
+    const userId = selected.event.extendedProps.userId;
     const bookingId = selected.event.extendedProps.bookingId;
-    console.log(email, bookingId);
-  
-    const userUid = userEmails[email];
-    if (userUid) {
+    console.log(userId, bookingId);
+
+    if (userId) {
       const db = getDatabase();
-      const bookingsRef = ref(db, `users/${userUid}/bookings`);
+      const bookingsRef = ref(db, `users/${userId}/bookings`);
       const snapshot = await get(bookingsRef);
       const bookingsData = snapshot.val();
-  
+
       if (bookingsData) {
         const bookingKey = Object.keys(bookingsData).find(
           (key) => bookingsData[key].bookingId === bookingId
@@ -101,10 +85,10 @@ const Booking = () => {
           console.error("Booking key not found for bookingId:", bookingId);
         }
       } else {
-        console.error("No bookings found for user:", userUid);
+        console.error("No bookings found for user:", userId);
       }
     } else {
-      console.error("User not found for email:", email);
+      console.error("User ID not found for event:", selected.event);
     }
   };
 

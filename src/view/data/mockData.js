@@ -97,8 +97,7 @@ const fetchUsers = () => {
         console.log("No data available");
       }
     },
-    (error) => {
-      console.error("Error fetching data: ", error);
+    (error) => {console.error("Error fetching data: ", error);
     }
   );
 };

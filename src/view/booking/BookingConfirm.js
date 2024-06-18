@@ -19,7 +19,9 @@ const BookingConfirm = () => {
   const [showModal, setShowModal] = useState(false);
   const navigate = useNavigate();
   const forceUpdate = useForceUpdate();
-  console.log(selectedServices)
+  const currentUser = auth.currentUser;
+  const userId = currentUser.uid
+  console.log(userId)
 
   useEffect(() => {
     const fetchUserData = async () => {
@@ -36,6 +38,7 @@ const BookingConfirm = () => {
             setUsername(data.username);
             setAccountBalance(data.accountBalance);
           }
+          console.log(data)
         }
       } catch (error) {
         console.error("Error fetching user data:", error);
@@ -124,7 +127,8 @@ const BookingConfirm = () => {
             userAccount: user.email,
             username: username,
             status: 1,
-            bookingId: bookingId
+            bookingId: bookingId,
+            userId: userId
           });
     
           await set(ref(db, `users/${selectedDateTime.vet.uid}/schedule/${selectedDateTime.date}`), bookedSlots);
