@@ -121,6 +121,9 @@ a {
 .parent-container button {
   margin: 20px 0;
 }
+.parent-container {
+  margin-bottom: 32px;
+}
 
 .container button.hidden {
   background-color: transparent;
@@ -562,7 +565,7 @@ span {
 
 @media (min-width: 1785px) {
   .manage-bookings-page {
-    margin-top: 40px !important;
+    margin-top: 100px !important;
   }
   .date-time-selection {
     max-width: 80%;
@@ -1358,8 +1361,7 @@ h6.css-1731sqo-MuiTypography-root {
   margin-top: 20px;
   background-color: #fff;
   margin-bottom: 30px;
-  padding: 0 40px;
-    width: 50vw;
+  max-width: 1000px;
 }
 
 table {
@@ -1396,6 +1398,9 @@ table td {
 }
 .update-button-container {
     text-align: center;
+}
+.update-button-container Button {
+  background-color: #512da8;
 }
 .form-row label {
     padding: 12px;
@@ -2970,7 +2975,7 @@ text-decoration: underline;
     border: 1px solid #cce4f6;
     border-radius: 10px;
     padding: 20px;
-    width: 100%;  /* Adjust width to fit within Swiper slide */
+    width: 100%; /* Adjust width to fit within Swiper slide */
     box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
     text-align: center;
     font-family: Arial, sans-serif;
@@ -2993,6 +2998,14 @@ text-decoration: underline;
     font-size: 24px;
     color: #666;
     margin-bottom: 15px;
+    display: -webkit-box;
+    -webkit-line-clamp: 4;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    min-height: calc(1.5em * 4);
+    line-height: 1.5em; 
+    height: 20rem;
   }
   
   .testimonial-signature {
@@ -3002,6 +3015,7 @@ text-decoration: underline;
     margin-top: 20px;
     margin-bottom: 40px;
   }
+  
   
   /* Optional: Adjustments for Swiper */
   .swiper-button-next,
@@ -3141,10 +3155,7 @@ span.us {
 .signIn {
   background: url("https://app.petotum.com/assets/img/wp/petbg.png") no-repeat right bottom;
 }
-.pet-page {
-  background: url("https://app.petotum.com/assets/img/wp/petbg.png") no-repeat right bottom;
-  background-size: 200px;
-}
+
 .img-pet-manage {
   display: inline-block;
 }

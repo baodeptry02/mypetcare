@@ -142,7 +142,6 @@ const Pet = () => {
   };
 
   return (
-    <div className="pet-page">
       <div className="parent-container ">
         <div className="pet-manage">
           {user ? (
@@ -223,8 +222,6 @@ const Pet = () => {
           )}
         </div>
       </div>
-          {/* <img className="img-pet-manage" src="https://app.petotum.com/assets/img/wp/petbg.png" /> */}
-    </div>
   );
 };
 

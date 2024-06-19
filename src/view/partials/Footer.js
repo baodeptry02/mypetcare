@@ -16,7 +16,9 @@ window.scrollTo({ top: 0, behavior: "smooth" });
 };
 const shouldShowFooter =
 !location.pathname.startsWith("/reset") &&
-!location.pathname.startsWith("/booking-details");
+!location.pathname.startsWith("/booking-details") &&
+!location.pathname.startsWith("/vet") &&
+!location.pathname.startsWith("/admin")
 
 if (!shouldShowFooter) {
 return null; // Don't render the header if it's a login or admin page

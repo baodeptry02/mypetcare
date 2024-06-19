@@ -21,11 +21,9 @@
   
   .manage-bookings-page {
     height: fit-content;
-    padding: 1rem; /* Padding around the form */
-    max-width: 1000px; /* Form width */
-    margin: 2rem auto; /* Centered and with margin from top */
-    background-color: var(--background-color); /* Form background */
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    padding: 1rem 0; 
+    max-width: 900px; 
+    margin: 2rem auto; 
     border-radius: 8px;
     margin-top: 100px;
   }
@@ -240,6 +238,9 @@
   
   .status-cancelled {
     color: #d9534f; /* Red */
+  }
+  .status-rated {
+    color: #ED8E24; /* Red */
   }
   .rate-button:hover {
     background-color: #239023;

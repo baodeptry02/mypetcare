@@ -7,6 +7,7 @@ import { ToastContainer, toast } from 'react-toastify';
 import useForceUpdate from '../../hooks/useForceUpdate'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faIdBadge } from '@fortawesome/free-solid-svg-icons';
+import { TextField, Button, Container, Box, Typography } from '@mui/material';
 
 function Update() {
   const [email, setEmail] = useState("");
@@ -115,109 +116,120 @@ function Update() {
       setUsername(localStorage.getItem('username') || '');
     }
   }, [userUpdated]);
+  const styles = {
+    inputLabel: {
+      fontSize: '1.3rem',
+    },
+    input: {
+      fontSize: '1.1rem',
+    }
+  };
 
   return (
     <div style={{height: "100vh"}} className="update-account-page">
-      <div className="container container-update" id="container">
-        <div className="account">
-          <h3 className="account-title">Update Account</h3>
+      <Container maxWidth="sm" className="container-update" id="container">
+        <Box className="account" sx={{ mt: 8, p: 3, borderRadius: 2 }}>
+          <Typography sx={{textAlign: "left"}} variant="h4" className="account-title" gutterBottom>
+            Update Account
+          </Typography>
           <form onSubmit={handleSubmit}>
-            {/* <label>Account Balance: </label> */}
-            <div className="account-balance-display">
+            <Box className="account-balance-display" sx={{ mb: 2 }}>
               Account Balance: {accountBalance}
-            </div>
-
-            <div className="mid-form">
-              <div className="form-row">
-                <div className="account-input">
-                  <label style={{marginTop: "10px"}}>Username</label>
-                  <input
-                    id="username"
-                    type="text"
-                    autoComplete="off"
-                    required
-                    value={username}
-                    placeholder="Enter your username"
-                    onChange={(e) => {
-                      setUsername(e.target.value);
-                    }}
-                    disabled
-                    className="w-full mt-2 px-3 py-2 text-gray-500 bg-transparent outline-none border focus:indigo-600 shadow-sm rounded-lg transition duration-300"
-                  />
-                </div>
-                <div className="account-input">
-                  <label style={{marginTop: "10px"}}>FullName</label>
-                  <input
-                    id="fullname"
-                    type="fullname"
-                    autoComplete="off"
-                    value={fullname}
-                    placeholder="Enter your full name"
-                    onChange={(e) => {
-                      setFullname(e.target.value);
-                    }}
-                    className="w-full mt-2 px-3 py-2 text-gray-500 bg-transparent outline-none border focus:indigo-600 shadow-sm rounded-lg transition duration-300"
-                  />
-                </div>
-              </div>
-              <div className="form-row">
-                <div className="account-input">
-                  <label style={{marginTop: "10px"}}>Email</label>
-                  <input
-                    id="email"
-                    type="email"
-                    autoComplete="off"
-                    value={email}
-                    placeholder="Enter your email"
-                    onChange={(e) => {
-                      setEmail(e.target.value);
-                    }}
-                    className="w-full mt-2 px-3 py-2 text-gray-500 bg-transparent outline-none border focus:indigo-600 shadow-sm rounded-lg transition duration-300"
-                    disabled
-                  />
-                </div>
-                <div className="account-input">
-                  <label style={{marginTop: "10px"}}>Phone</label>
-                  <input
-                    id="phone"
-                    type="phone"
-                    autoComplete="off"
-                    value={phone}
-                    placeholder="Enter your phone"
-                    onChange={(e) => {
-                      setPhone(e.target.value);
-                    }}
-                    className="w-full mt-2 px-3 py-2 text-gray-500 bg-transparent outline-none border focus:indigo-600 shadow-sm rounded-lg transition duration-300"
-                  />
-                </div>
-              </div>
-            </div>
-            <div className="account-input">
-            <label style={{marginTop: "20px", marginRight: "20px", marginLeft: "15px"}}>Address</label>
-            <input
-              id="address"
-              type="address"
-              autoComplete="off"
-              value={address}
-              placeholder="Enter your address"
-              onChange={(e) => {
-                setAddress(e.target.value);
-              }}
-              className="w-full mt-2 px-3 py-2 text-gray-500 bg-transparent outline-none border focus:indigo-600 shadow-sm rounded-lg transition duration-300"
-            />
-            </div>
-            <div className="update-button-container">
-              <button
+            </Box>
+            
+            <Box className="mid-form" sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
+              <TextField
+                id="username"
+                label="Username"
+                type="text"
+                autoComplete="off"
+                required
+                value={username}
+                placeholder="Enter your username"
+                onChange={(e) => setUsername(e.target.value)}
+                disabled
+                fullWidth
+                variant="outlined"
+                margin="normal"
+                InputLabelProps={{ style: styles.inputLabel }}
+                InputProps={{ style: styles.input }}
+              />
+              <TextField
+                id="fullname"
+                label="Full Name"
+                type="text"
+                autoComplete="off"
+                value={fullname}
+                placeholder="Enter your full name"
+                onChange={(e) => setFullname(e.target.value)}
+                fullWidth
+                variant="outlined"
+                margin="normal"
+                InputLabelProps={{ style: styles.inputLabel }}
+                InputProps={{ style: styles.input }}
+              />
+              </Box>
+              <Box>
+              <TextField
+                id="email"
+                label="Email"
+                type="email"
+                autoComplete="off"
+                value={email}
+                placeholder="Enter your email"
+                onChange={(e) => setEmail(e.target.value)}
+                fullWidth
+                variant="outlined"
+                margin="normal"
+                InputLabelProps={{ style: styles.inputLabel }}
+                InputProps={{ style: styles.input }}
+                disabled
+              />
+              <TextField
+                id="phone"
+                label="Phone"
+                type="text"
+                autoComplete="off"
+                value={phone}
+                placeholder="Enter your phone"
+                onChange={(e) => setPhone(e.target.value)}
+                fullWidth
+                variant="outlined"
+                margin="normal"
+                InputLabelProps={{ style: styles.inputLabel }}
+                InputProps={{ style: styles.input }}
+              />
+              <TextField
+                id="address"
+                label="Address"
+                type="text"
+                autoComplete="off"
+                value={address}
+                placeholder="Enter your address"
+                onChange={(e) => setAddress(e.target.value)}
+                fullWidth
+                variant="outlined"
+                margin="normal"
+                InputLabelProps={{ style: styles.inputLabel }}
+                InputProps={{ style: styles.input }}
+              />
+            </Box>
+              <ToastContainer/>
+  
+            <Box className="update-button-container" sx={{ mt: 3 }}>
+              <Button
                 type="submit"
-                className="update-button"
+                variant="contained"
+                color="primary"
                 disabled={loading}
+                fullWidth
               >
                 {loading ? "Updating..." : "Update"}
-              </button>
-            </div>
+              </Button>
+            </Box>
           </form>
-      </div>
-        </div>
+        </Box>
+      </Container>
     </div>
   );
 }

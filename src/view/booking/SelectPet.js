@@ -134,9 +134,9 @@ const SelectPet = () => {
               </div>
             ) : (
               <div className="pet-list">
-                <h1>Your Pets</h1>
+                <h1>Select Pet</h1>
                 <div className="add-pet-button">
-                  <div onClick={() => navigate('/pet/add')} className="btn">
+                  <div onClick={() => navigate('/pet/add')} className="btn select-pet-btn">
                     <FontAwesomeIcon icon={faPaw} /> Add boss!
                   </div>
                 </div>

@@ -1,8 +1,13 @@
 import React, { useState, useEffect } from "react";
 import { useParams } from "react-router-dom";
-import { getDatabase, ref, get, update } from "firebase/database";
+import { getDatabase, ref, get, update, onValue } from "firebase/database";
 import { Box, TextField, Button, Typography } from "@mui/material";
 import { toast } from 'react-toastify';
+import useForceUpdate from "../../../../hooks/useForceUpdate";
+import { useLocation, useNavigate } from "react-router-dom";
+import { getAuth } from "firebase/auth";
+
+
 
 
 const MedicalRecord = () => {
@@ -12,6 +17,10 @@ const MedicalRecord = () => {
   const [symptoms, setSymptoms] = useState("");
   const [prescription, setPrescription] = useState("");
   const [notes, setNotes] = useState("");
+  const forceUpdate = useForceUpdate();
+  const navigate = useNavigate();
+  const auth = getAuth();
+
 
   useEffect(() => {
     fetchBookingDetails(userId, bookingId);
@@ -65,7 +74,18 @@ const MedicalRecord = () => {
         },
       };
       await update(bookingRef, updatedBookingData);
-      toast.success("Medical history updated successfully!");
+      toast.success(
+        "Medical history updated successfully!",
+        {
+          autoClose: 2000,
+          onClose: () => {
+            setTimeout(() => {
+              forceUpdate();
+              navigate(-1);
+            }, 500);
+          },
+        }
+      );
 
       const petRef = ref(db, `users/${userId}/pets/${booking.pet.key}`);
       const petSnapshot = await get(petRef);
@@ -78,12 +98,53 @@ const MedicalRecord = () => {
       });
       await update(petRef, { medicalHistory: updatedMedicalHistory });
 
-      console.log("Updated pet medical history:", updatedMedicalHistory); // Log updated medical history
+      // Update the doctor's schedule with the isChecked flag
+      const doctorRef = ref(db, "users/" + auth.currentUser.uid);
+      onValue(doctorRef, async (snapshot) => {
+        const doctorData = snapshot.val();
+        if (doctorData && doctorData.schedule) {
+          const schedule = doctorData.schedule;
+          const date = booking.date;
+          if (schedule[date]) {
+            const updatedBookings = schedule[date].map((b) =>
+              b.bookingId === booking.bookingId ? { ...b, isChecked: true } : b
+            );
+            const updatedSchedule = { ...schedule, [date]: updatedBookings };
+            await update(doctorRef, { schedule: updatedSchedule });
+            console.log("Updated doctor's schedule:", updatedSchedule);
+          }
+        }
+      });
+
+      console.log("Updated pet medical history:", updatedMedicalHistory);
     } catch (error) {
       console.error("Error updating medical history:", error);
       toast.error("Error updating medical history. Please try again.");
     }
   };
+  // useEffect(() => {
+  //   const fetchDoctorSchedule = async () => {
+  //     try {
+  //       const currentUser = auth.currentUser;
+  //       if (currentUser) {
+  //         const db = getDatabase();
+  //         const userRef = ref(db, `users/${currentUser.uid}`);
+  //         onValue(userRef, (snapshot) => {
+  //           const data = snapshot.val();
+  //           if (data && data.schedule) {
+  //             const schedule = data.schedule;
+  //             const date = booking.date;
+  //               console.log(schedule[date])
+  //           }
+  //         });
+  //       }
+  //     } catch (error) {
+  //       console.error("Error fetching doctor schedule data:", error);
+  //     }
+  //   };
+
+  //   fetchDoctorSchedule();
+  // }, [auth]);
 
   if (!booking) return <div>Loading...</div>;
 
