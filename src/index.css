@@ -3873,6 +3873,10 @@ background: #EBEFF2;
   left: 50%;
   transform: translate(-50%, -50%);
   width: 80%;
+  flex-wrap: wrap; 
+}
+.table-wrapper {
+  overflow-y: auto;
 }
 .owner-info, .general-info, .medical-info {
   background-color: #fff;
@@ -3958,6 +3962,7 @@ background: #EBEFF2;
 
 .right-panel {
   width: 70%;
+  flex: 1; 
 }
 .section.pet-general-info {
   margin-top: 20px;
@@ -3965,6 +3970,7 @@ background: #EBEFF2;
   width: 100%;
   align-items: center;
   justify-content: space-around;
+  flex-wrap: wrap;
 }
 .pet-info {
   height: 100%;
@@ -3972,6 +3978,8 @@ background: #EBEFF2;
   text-align: center;
   display: flex;
   justify-content: space-evenly;
+  flex-direction: column; /* Stack items vertically */
+  align-items: center;
 }
 .pet-info p {
   font-size: 2.4rem;
@@ -3980,7 +3988,7 @@ background: #EBEFF2;
   color: #CF0070;
 }
 .pet-info div {
-  font-size: 2rem;
+  font-size: 2.4rem;
 }
 .header-pet-info {
   width: 100%;
@@ -4522,6 +4530,38 @@ tr.ant-table-placeholder {
   margin-bottom: 10px;
 }
 .pet-info div {
-  margin-top: 3px;
   margin-left: 8px;
+}
+.scrollable-container {
+  max-height: 350px;
+  overflow-y: auto;
+  padding-right: 15px; 
+}
+
+.section.general-info {
+  margin-bottom: 20px;
+}
+
+.table-wrapper {
+  margin-top: 10px;
+}
+
+.booking-details-table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.booking-details-table tbody tr {
+  border-bottom: 1px solid #ddd;
+}
+
+.key-column {
+  font-weight: bold;
+  text-align: left;
+  padding: 8px;
+}
+
+.value-column {
+  text-align: left;
+  padding: 8px;
 }

@@ -7,11 +7,13 @@ import { tokens } from "../../../../theme";
 import HomeOutlinedIcon from "@mui/icons-material/HomeOutlined";
 import PeopleOutlinedIcon from "@mui/icons-material/PeopleOutlined";
 import CalendarTodayOutlinedIcon from "@mui/icons-material/CalendarTodayOutlined";
-import MedicalServicesIcon from '@mui/icons-material/MedicalServices';
+import MedicalServicesIcon from "@mui/icons-material/MedicalServices";
 import BarChartOutlinedIcon from "@mui/icons-material/BarChartOutlined";
 import PieChartOutlineOutlinedIcon from "@mui/icons-material/PieChartOutlineOutlined";
 import TimelineOutlinedIcon from "@mui/icons-material/TimelineOutlined";
 import MenuOutlinedIcon from "@mui/icons-material/MenuOutlined";
+import { onAuthStateChanged } from "firebase/auth";
+import { auth } from "../../../../Components/firebase/firebase";
 
 const Item = ({ title, to, icon, selected, setSelected }) => {
   const theme = useTheme();
@@ -20,10 +22,11 @@ const Item = ({ title, to, icon, selected, setSelected }) => {
     <MenuItem
       active={selected === title}
       style={{
-        width: '210px',
+        width: "210px",
         color: colors.grey[100],
-        backgroundColor: selected === title ? colors.primary[700] : "transparent",
-        borderRadius: selected === title ? '5px' : '0',
+        backgroundColor:
+          selected === title ? colors.primary[700] : "transparent",
+        borderRadius: selected === title ? "5px" : "0",
       }}
       onClick={() => setSelected(title)}
       icon={icon}
@@ -40,6 +43,23 @@ const Sidebar = () => {
   const [isCollapsed, setIsCollapsed] = useState(false);
   const [selected, setSelected] = useState("Dashboard");
   const location = useLocation();
+  const [username, setUsername] = useState("");
+  const [email, setEmail] = useState("");
+
+  useEffect(() => {
+    const unsubscribe = onAuthStateChanged(auth, (user) => {
+      if (user) {
+        console.log(user);
+        setUsername(user.displayName || user.email);
+        setEmail(user.email);
+      } else {
+        setUsername("");
+        setEmail("");
+      }
+    });
+
+    return () => unsubscribe();
+  }, []);
 
   useEffect(() => {
     switch (location.pathname) {
@@ -213,6 +233,32 @@ const Sidebar = () => {
             />
           </Box>
         </Menu>
+        {!isCollapsed && (
+          <Box textAlign="start" padding="30px" mt="auto">
+            <Box display="flex" alignItems="center">
+              <Box>
+                <Typography
+                  fontSize={20}
+                  fontWeight="bold"
+                  color={colors.grey[100]}
+                >
+                  {username}
+                </Typography>
+                <Typography fontSize={14} color={colors.grey[100]}>
+                  {email}
+                </Typography>
+              </Box>
+              <Box
+                fontSize={20}
+                fontWeight="bold"
+                color={colors.grey[100]}
+                marginLeft={2}
+              >
+                ⋮
+              </Box>
+            </Box>
+          </Box>
+        )}
       </ProSidebar>
     </Box>
   );

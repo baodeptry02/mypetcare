@@ -4,11 +4,11 @@ import { useParams, useNavigate } from "react-router-dom";
 import { auth } from "../../Components/firebase/firebase";
 import Box from "@mui/material/Box";
 import Rating from "@mui/material/Rating";
-import Typography from "@mui/material/Typography";
 
 const BookingDetails = () => {
   const { bookingId } = useParams();
   const [booking, setBooking] = useState(null);
+  const [medicalRecord, setMedicalRecord] = useState(null);
   const user = auth.currentUser;
   const navigate = useNavigate();
   const [value, setValue] = React.useState(null);
@@ -27,7 +27,16 @@ const BookingDetails = () => {
         if (snapshot.exists()) {
           const bookingData = snapshot.val();
           setBooking(bookingData);
-          setValue(bookingData.rating); // Set the rating value from the booking data
+          setValue(bookingData.rating); 
+
+          // Fetch medical record data
+          const medicalRecordRef = ref(db, `users/${user.uid}/bookings/${bookingId}/medicalRecord`);
+          const medicalRecordSnapshot = await get(medicalRecordRef);
+          if (medicalRecordSnapshot.exists()) {
+            setMedicalRecord(medicalRecordSnapshot.val());
+          } else {
+            console.log("No medical record available");
+          }
         } else {
           console.log("No data available");
         }
@@ -38,13 +47,17 @@ const BookingDetails = () => {
 
     fetchBookingDetails();
   }, [user, bookingId]);
+  console.log(medicalRecord)
+
+  const capitalizeWords = (str) => {
+    return str.replace(/\b\w/g, char => char.toUpperCase());
+  };
 
   if (!booking) {
     return <p>Loading booking details...</p>;
   }
 
-  const { pet, vet, date, time, services, totalPaid, amountToPay, status } =
-    booking;
+  const { pet, vet, date, time, services, totalPaid, status } = booking;
   const petName = pet?.name || "N/A";
   const vetName = vet?.name || "N/A";
 
@@ -120,8 +133,26 @@ const BookingDetails = () => {
                   </td>
                 </tr>
               )}
+              
             </tbody>
           </table>
+          {medicalRecord && (
+            <div>
+              <h2>Medical Record</h2>
+              <table className="booking-details-table">
+                      <tbody>
+                        {Object.entries(medicalRecord).map(([key, value]) => (
+                          key !== 'date' && ( 
+                          <tr key={key}>
+                            <td className="key-column">{capitalizeWords(key)}</td>
+                            <td className="value-column">{capitalizeWords(value)}</td>
+                          </tr>
+                          )
+                        ))}
+                      </tbody>
+                    </table>
+                </div>
+              )}
           <button
             className="booking-detail back-button"
             onClick={() => navigate(-1)}

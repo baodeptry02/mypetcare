@@ -15,6 +15,7 @@ const PetDetail = () => {
   const [userData, setUserData] = useState(null);
   const [isEditMode, setIsEditMode] = useState(false);
   const forceUpdate = useForceUpdate();
+  const [medicalHistory, setMedicalHistory] = useState([]);
   const catBreeds = [
     "Domestic Short Hair",
     "Domestic Long Hair",
@@ -240,16 +241,40 @@ const PetDetail = () => {
             gender: petData.gender,
           });
         } else {
-          console.log("No data available");
+          console.log("No pet data available");
         }
       } catch (error) {
         console.error("Error fetching pet details:", error);
       }
     };
 
+    const fetchMedicalHistoryData = async () => {
+      try {
+        const db = getDatabase();
+        const petRef = ref(
+          db,
+          `users/${user.uid}/pets/${petId}/medicalHistory`
+        );
+        const snapshot = await get(petRef);
+        if (snapshot.exists()) {
+          const medicalHistoryData = snapshot.val();
+          setMedicalHistory(medicalHistoryData);
+        } else {
+          console.log("No medical history data available");
+        }
+      } catch (error) {
+        console.error("Error fetching medical history data:", error);
+      }
+    };
+
+    fetchMedicalHistoryData();
     fetchUserData();
     fetchPetDetails();
   }, [user, petId]);
+
+  const capitalize = (str) => {
+    return str.charAt(0).toUpperCase() + str.slice(1);
+  };
 
   const handleEditClick = () => {
     setIsEditMode(true);
@@ -378,7 +403,7 @@ const PetDetail = () => {
                 <div className="section pet-general-info">
                   <div className="pet-info">
                     <p>D.O.B:</p>
-                    <div>{pet.dob}</div>
+                    <div>{pet.dob || "N/A"}</div>
                   </div>
                   <div className="pet-info">
                     <p>Breed:</p>
@@ -390,10 +415,38 @@ const PetDetail = () => {
                   </div>
                 </div>
               </div>
+              <div>
+              <div>
+      <h2>Medical Record</h2>
+      <div className="scrollable-container">
+        {medicalHistory &&
+          medicalHistory.map((record, index) => (
+            <div className="section general-info" key={index}>
+              <h2>{record.date}</h2>
+              <div className="table-wrapper">
+                <table className="booking-details-table">
+                  <tbody>
+                    {Object.entries(record).map(
+                      ([key, value]) =>
+                        key !== "date" && (
+                          <tr key={key}>
+                            <td className="key-column">{capitalize(key)}</td>
+                            <td className="value-column">{capitalize(value.toString())}</td>
+                          </tr>
+                        )
+                    )}
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          ))}
+      </div>
+    </div>
+              </div>
               <button
                 className="booking-detail back-button"
                 onClick={() => navigate(-1)}
-              >
+                >
                 Back
               </button>
             </>
@@ -430,7 +483,6 @@ const PetDetail = () => {
                   value={formData.gender}
                   onChange={handleInputChange}
                 >
-                  
                   <option value="Male">Male</option>
                   <option value="Female">Female</option>
                 </select>
@@ -518,6 +570,7 @@ const PetDetail = () => {
         loading="lazy"
         srcSet="https://cdn.prod.website-files.com/6139cf517cd6d26ff1548b86/6352491844284352957c5405_dog%20(1)-p-500.png 500w, https://cdn.prod.website-files.com/6139cf517cd6d26ff1548b86/6352491844284352957c5405_dog%20(1)-p-800.png 800w, https://cdn.prod.website-files.com/6139cf517cd6d26ff1548b86/6352491844284352957c5405_dog%20(1)-p-1080.png 1080w, https://cdn.prod.website-files.com/6139cf517cd6d26ff1548b86/6352491844284352957c5405_dog%20(1).png 1250w"
       />
+      <ToastContainer />
     </div>
   );
 };
