@@ -17,17 +17,16 @@ import {
 } from "@fortawesome/free-brands-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import useForceUpdate from "../../hooks/useForceUpdate";
-import { getDatabase, get, ref } from "firebase/database";
+import { getDatabase, get, ref, onValue } from "firebase/database";
 import Box from "@mui/material/Box";
 import Rating from "@mui/material/Rating";
-import { Swiper, SwiperSlide } from 'swiper/react';
-import { Navigation, Pagination, Autoplay } from 'swiper/modules';
+import { Swiper, SwiperSlide } from "swiper/react";
+import { Navigation, Pagination, Autoplay } from "swiper/modules";
 // import Swiper and modules styles
-import 'swiper/css';
-import 'swiper/css/navigation';
-import 'swiper/css/pagination';
+import "swiper/css";
+import "swiper/css/navigation";
+import "swiper/css/pagination";
 import useViewport from "../../hooks/useViewport";
-
 
 function Home() {
   const typedElement = useRef(null);
@@ -45,6 +44,7 @@ function Home() {
   const [slidesPerView, setSlidesPerView] = useState(4);
   const [loop, setLoop] = useState(true);
   const [initialized, setInitialized] = useState(false);
+  const [avatar, setAvatar] = useState("")
 
   useEffect(() => {
     if (width >= 1785) {
@@ -106,6 +106,21 @@ function Home() {
 
     return () => unsubscribe();
   }, []);
+
+  useEffect(() => {
+    if (user && user.uid) {
+      const db = getDatabase();
+      const userRef = ref(db, "users/" + user.uid);
+
+      onValue(userRef, (snapshot) => {
+        const data = snapshot.val();
+
+        if (data) {
+          setAvatar(data.avatar)
+        }
+      });
+    } 
+  }, [user]);
 
   const book = () => {
     if (user) {
@@ -209,7 +224,7 @@ function Home() {
       const snapshot = await get(usersRef);
       const usersData = snapshot.val();
       let allBookings = [];
-      // console.log("Users Data:", usersData); 
+      // console.log("Users Data:", usersData);
 
       if (usersData) {
         Object.keys(usersData).forEach((userId) => {
@@ -232,7 +247,7 @@ function Home() {
 
     fetchAllBookings();
   }, []);
-  
+  console.log(user)
 
   useEffect(() => {
     const hasEnoughSlides = bookedSlots.length > slidesPerView;
@@ -241,7 +256,7 @@ function Home() {
 
   const renderRatedBookings = () => {
     const ratedBookings = bookedSlots.filter(
-      (booking) => booking.status === 'Rated' && booking.rating > 3
+      (booking) => booking.status === "Rated" && booking.rating > 3
     );
 
     return ratedBookings.map((booking, index) => (
@@ -249,23 +264,23 @@ function Home() {
         <div className="testimonial-box">
           <img
             className="testimonial-avatar"
-            src={booking.pet.imageUrl}
+            src={avatar}
             alt="User Avatar"
           />
           <div className="testimonial-content">
-            <div style={{ fontSize: '3rem', color: 'var(--text-color)' }}>
+            <div style={{ fontSize: "3rem", color: "var(--text-color)" }}>
               Rating:
             </div>
             <Box
               sx={{
-                marginTop: '12px',
+                marginTop: "12px",
                 width: 200,
-                display: 'flex',
-                alignItems: 'center',
-                float: 'right',
+                display: "flex",
+                alignItems: "center",
+                float: "right",
               }}
             >
-              <Box sx={{ ml: 2, fontSize: '2rem', marginRight: '12px' }}>
+              <Box sx={{ ml: 2, fontSize: "2rem", marginRight: "12px" }}>
                 {booking.rating.toFixed(1)}
               </Box>
               <Rating
@@ -273,14 +288,21 @@ function Home() {
                 value={booking.rating}
                 readOnly
                 sx={{
-                  '& .MuiRating-iconFilled': {
-                    color: 'gold',
+                  "& .MuiRating-iconFilled": {
+                    color: "gold",
                   },
                 }}
               />
             </Box>
             <div className="testimonial-text">
-              <div style={{ fontSize: '3rem', color: 'var(--text-color)', marginBottom: '20px', marginTop: '10px' }}>
+              <div
+                style={{
+                  fontSize: "3rem",
+                  color: "var(--text-color)",
+                  marginBottom: "20px",
+                  marginTop: "10px",
+                }}
+              >
                 Review:
               </div>
               {booking.review}
@@ -396,22 +418,21 @@ function Home() {
           <h3>What Our Happy Clients Say</h3>
         </div>
         <div>
-        <div className="testimonial-container" data-aos="fade-up">
-        <Swiper
-        modules={[Autoplay]}
-      spaceBetween={50}
-      slidesPerView={slidesPerView}
-      loop={loop}
-      autoplay={{
-        delay: 2500,
-        disableOnInteraction: false,
-      }}
-    >
-      {renderRatedBookings()}
-    </Swiper>
-    </div>
-
-    </div>
+          <div className="testimonial-container" data-aos="fade-up">
+            <Swiper
+              modules={[Autoplay]}
+              spaceBetween={50}
+              slidesPerView={slidesPerView}
+              loop={loop}
+              autoplay={{
+                delay: 2500,
+                disableOnInteraction: false,
+              }}
+            >
+              {renderRatedBookings()}
+            </Swiper>
+          </div>
+        </div>
       </section>
       <section className="services" id="services">
         <div className="font_3" data-aos="zoom-in-down">

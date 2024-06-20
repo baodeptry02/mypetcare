@@ -40,7 +40,10 @@ function SignIn() {
   const [retry, setRetry] = useState(0);
   const [isInactive, setIsInactive] = useState(false);
   const inactivityTimeoutRef = useRef(null);
-
+  const [avatar, setAvatar] = useState(
+    "https://icons.veryicon.com/png/o/miscellaneous/user-avatar/user-avatar-male-5.png"
+  );
+  // console.log(avatar)
   function addDataBase(userId, email, name, role) {
     const db = getDatabase();
     set(
@@ -105,7 +108,8 @@ function SignIn() {
           isVerified: true,
           accountBalance: 0,
           accountStatus: accountStatus,
-          creationTime: creationTime, // Add the creation time here
+          creationTime: creationTime,
+          avatar: userData.avatar || avatar,
         });
       } else {
         userRole = userData.role || "user";
@@ -118,7 +122,8 @@ function SignIn() {
           isVerified: true,
           accountBalance: accountBalance,
           accountStatus: userData.accountStatus || accountStatus,
-          creationTime: userData.creationTime || creationTime, // Add the creation time here
+          creationTime: userData.creationTime || creationTime, 
+          avatar: userData.avatar || avatar,
         });
 
         if (userData.accountBalance === undefined) {
@@ -254,16 +259,20 @@ function SignIn() {
   const handleEmailLogin = async (event) => {
     event.preventDefault();
     setError(null);
-  
+
     if (!isCaptchaVerified) {
       toast.error("Please complete the captcha before submitting the form.");
       return;
     }
-  
+
     try {
-      const userCredential = await signInWithEmailAndPassword(auth, email, password);
+      const userCredential = await signInWithEmailAndPassword(
+        auth,
+        email,
+        password
+      );
       const user = userCredential.user;
-  
+
       if (!user.emailVerified) {
         toast.error("Please verify your email before logging in.", {
           autoClose: 2000,
@@ -274,7 +283,7 @@ function SignIn() {
         await auth.signOut();
         return;
       }
-  
+
       const userEmail = user.email;
       setUserEmail(userEmail);
       localStorage.setItem("email", userEmail);
@@ -283,19 +292,19 @@ function SignIn() {
       const userRef = ref(db, `users/${userId}`);
       let userRole = "user";
       const creationTime = user.metadata.creationTime;
-  
+
       const creationTimeSnapshot = await get(child(userRef, "creationTime"));
       if (!creationTimeSnapshot.exists()) {
         await set(child(userRef, "creationTime"), creationTime);
       }
-  
+
       let accountStatus = "enable";
-  
+
       const userDataSnapshot = await get(userRef);
       const userData = userDataSnapshot.exists()
         ? userDataSnapshot.val()
         : null;
-  
+
       if (!userData) {
         await set(userRef, {
           email: userEmail,
@@ -312,15 +321,16 @@ function SignIn() {
             accountBalance: 0,
           });
         }
-  
+
         await update(userRef, {
           username: user.displayName || "User",
           role: userRole,
           isVerified: userData.isVerified,
           accountStatus: userData.accountStatus || accountStatus,
+          avatar: userData.avatar || avatar,
         });
       }
-  
+
       toast.success("Login successfully. Wish you enjoy our best experience!", {
         autoClose: 2000,
         onClose: () => {
@@ -384,7 +394,9 @@ function SignIn() {
     clearTimeout(inactivityTimeoutRef.current);
     inactivityTimeoutRef.current = setTimeout(() => {
       setIsInactive(true);
-      setCaptchaError("You have been inactive for a while. Please verify reCAPTCHA again.");
+      setCaptchaError(
+        "You have been inactive for a while. Please verify reCAPTCHA again."
+      );
     }, 5 * 60 * 1000); // 5 minutes inactivity timeout
   };
 

@@ -1,5 +1,5 @@
-import React, { useState, useEffect } from "react";
-import { Routes, Route, useLocation } from "react-router-dom";
+import React, { useState, useEffect, useRef } from "react";
+import { Routes, Route, useLocation, useNavigate } from "react-router-dom";
 import Home from "./view/partials/Home";
 import SignIn from "./Components/googleSignIn/signIn";
 import Update from "./view/account/Update";
@@ -28,11 +28,13 @@ function MainContent() {
   const location = useLocation();
   const [currentPath, setCurrentPath] = useState("");
   const [loading, setLoading] = useState(false);
-  const [user, setUser] = useState(null);
+  const [isLogin, setIsLogin] = useState(false);
+  const userRef = useRef(null);
+  const navigate = useNavigate()
 
   useEffect(() => {
     const unsubscribe = auth.onAuthStateChanged((currentUser) => {
-      setUser(currentUser);
+      userRef.current = currentUser;
     });
 
     const handleLoading = () => {
@@ -64,12 +66,12 @@ function MainContent() {
       )}
       {!loading && (
         <>
-          <Header user={user} currentPath={currentPath} />
+          <Header user={userRef.current} currentPath={currentPath} />
           <div className="main-content">
             <Routes>
               <Route path="/signIn" element={<SignIn />} />
               <Route path="/" element={<Home />} />
-              <Route path="/account" element={<Update user={user} />} />
+              <Route path="/account" element={<Update user={userRef.current}/>} />
               <Route path="/admin/*" element={<Admin />} />
               <Route path="/vet/*" element={<Vet />} />
               <Route path="/manager" element={<Manager />} />

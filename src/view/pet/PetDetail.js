@@ -348,7 +348,7 @@ const PetDetail = () => {
       }}
     >
       <div className="pet-profile-wrapper">
-        <div className="left-panel">
+        <div className="left-panel pet-detail">
           <img src={pet.imageUrl} alt="Pet Avatar" className="pet-avatar" />
           <div className="owner-info">
             <h3>Pet Parent</h3>
@@ -376,7 +376,7 @@ const PetDetail = () => {
             </div>
           </div>
         </div>
-        <div className="right-panel">
+        <div className="right-panel pet-detail">
           {!isEditMode ? (
             <>
               <div className="section general-info">
@@ -416,37 +416,41 @@ const PetDetail = () => {
                 </div>
               </div>
               <div>
-              <div>
-      <h2>Medical Record</h2>
-      <div className="scrollable-container">
-        {medicalHistory &&
-          medicalHistory.map((record, index) => (
-            <div className="section general-info" key={index}>
-              <h2>{record.date}</h2>
-              <div className="table-wrapper">
-                <table className="booking-details-table">
-                  <tbody>
-                    {Object.entries(record).map(
-                      ([key, value]) =>
-                        key !== "date" && (
-                          <tr key={key}>
-                            <td className="key-column">{capitalize(key)}</td>
-                            <td className="value-column">{capitalize(value.toString())}</td>
-                          </tr>
-                        )
-                    )}
-                  </tbody>
-                </table>
-              </div>
-            </div>
-          ))}
-      </div>
-    </div>
+                <div>
+                  <h2>Medical Record</h2>
+                  <div className="scrollable-container">
+                    {medicalHistory &&
+                      medicalHistory.map((record, index) => (
+                        <div className="section general-info" key={index}>
+                          <h2>{record.date}</h2>
+                          <div className="table-wrapper">
+                            <table className="booking-details-table">
+                              <tbody>
+                                {Object.entries(record).map(
+                                  ([key, value]) =>
+                                    key !== "date" && (
+                                      <tr key={key}>
+                                        <td className="key-column">
+                                          {capitalize(key)}
+                                        </td>
+                                        <td className="value-column">
+                                          {capitalize(value.toString())}
+                                        </td>
+                                      </tr>
+                                    )
+                                )}
+                              </tbody>
+                            </table>
+                          </div>
+                        </div>
+                      ))}
+                  </div>
+                </div>
               </div>
               <button
                 className="booking-detail back-button"
                 onClick={() => navigate(-1)}
-                >
+              >
                 Back
               </button>
             </>
