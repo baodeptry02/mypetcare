@@ -18,7 +18,6 @@ import BookingDetails from "./view/booking/BookingDetails";
 import Header from "./view/partials/Header";
 import Footer from "./view/partials/Footer";
 import NotFound from "../src/view/invalidPage/404Page"
-import FullCalendar from "./Components/vetSchedule/FullCalendar"
 import Vet from "../src/view/vet/VetDashboard"
 import { auth } from "./Components/firebase/firebase";
 import "./App.css";
@@ -84,7 +83,6 @@ function MainContent() {
               <Route path="/booking-details/:bookingId" element={<BookingDetails />} />
               <Route path="/rate-booking/:bookingId" element={<Rating />} />
               <Route path="/qr" element={<QrCodePage />} />
-              <Route path="/vetSchedule" element={<FullCalendar />} />
               <Route path="/transaction-history" element={<Transaction />} />
               <Route path="/reset" element={<ForgotPassword />} />
               <Route path="*" element={<NotFound />} />

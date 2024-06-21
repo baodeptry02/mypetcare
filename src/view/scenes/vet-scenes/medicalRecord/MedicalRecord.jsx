@@ -7,6 +7,11 @@ import {
   Button,
   Typography,
   Grid,
+  Radio,
+  RadioGroup,
+  FormControlLabel,
+  FormControl,
+  FormLabel,
   useTheme,
 } from "@mui/material";
 import { toast } from "react-toastify";
@@ -18,6 +23,8 @@ const MedicalRecord = () => {
   const [symptoms, setSymptoms] = useState("");
   const [prescription, setPrescription] = useState("");
   const [notes, setNotes] = useState("");
+  const [cageRequired, setCageRequired] = useState(false);
+  const theme = useTheme();
 
   useEffect(() => {
     fetchBookingDetails(userId, bookingId);
@@ -37,6 +44,7 @@ const MedicalRecord = () => {
           setSymptoms(data.medicalRecord.symptoms || "");
           setPrescription(data.medicalRecord.prescription || "");
           setNotes(data.medicalRecord.notes || "");
+          setCageRequired(data.medicalRecord.cageRequired || false);
         }
       } else {
         console.error("No booking data found");
@@ -53,6 +61,7 @@ const MedicalRecord = () => {
         symptoms,
         prescription,
         notes,
+        cageRequired,
       });
     } catch (error) {
       console.error("Error saving medical record:", error);
@@ -96,7 +105,7 @@ const MedicalRecord = () => {
   return (
     <Box
       sx={{
-        backgroundColor: "background.paper",
+        backgroundColor: theme.palette.background.paper,
         padding: 4,
         borderRadius: "8px",
         boxShadow: 4,
@@ -107,6 +116,7 @@ const MedicalRecord = () => {
         padding: "20px",
         boxShadow: "0px 0px 10px 0px rgba(0,0,0,0.75)",
         borderRadius: "10px",
+        color: theme.palette.text.primary,
       }}
     >
       <Typography variant="h2" gutterBottom>
@@ -131,10 +141,10 @@ const MedicalRecord = () => {
             fullWidth
             variant="outlined"
             InputLabelProps={{
-              style: { fontSize: "1.2rem" },
+              style: { fontSize: "1.2rem", color: theme.palette.text.primary },
             }}
             InputProps={{
-              style: { fontSize: "1.5rem" },
+              style: { fontSize: "1.5rem", color: theme.palette.text.primary },
             }}
           />
         </Grid>
@@ -148,10 +158,10 @@ const MedicalRecord = () => {
             fullWidth
             variant="outlined"
             InputLabelProps={{
-              style: { fontSize: "1.2rem" },
+              style: { fontSize: "1.2rem", color: theme.palette.text.primary },
             }}
             InputProps={{
-              style: { fontSize: "1.5rem" },
+              style: { fontSize: "1.5rem", color: theme.palette.text.primary },
             }}
           />
         </Grid>
@@ -165,10 +175,10 @@ const MedicalRecord = () => {
             fullWidth
             variant="outlined"
             InputLabelProps={{
-              style: { fontSize: "1.2rem" },
+              style: { fontSize: "1.2rem", color: theme.palette.text.primary },
             }}
             InputProps={{
-              style: { fontSize: "1.5rem" },
+              style: { fontSize: "1.5rem", color: theme.palette.text.primary },
             }}
           />
         </Grid>
@@ -182,12 +192,27 @@ const MedicalRecord = () => {
             fullWidth
             variant="outlined"
             InputLabelProps={{
-              style: { fontSize: "1.2rem" },
+              style: { fontSize: "1.2rem", color: theme.palette.text.primary },
             }}
             InputProps={{
-              style: { fontSize: "1.5rem" },
+              style: { fontSize: "1.5rem", color: theme.palette.text.primary },
             }}
           />
+        </Grid>
+        <Grid item xs={12}>
+          <FormControl component="fieldset">
+            <FormLabel component="legend" style={{ fontSize: "1.2rem", color: theme.palette.text.primary }}>
+              After examination, does the animal need to be kept in a cage?
+            </FormLabel>
+            <RadioGroup
+              row
+              value={cageRequired}
+              onChange={(e) => setCageRequired(e.target.value === 'true')}
+            >
+              <FormControlLabel value={true} control={<Radio />} label="Yes" />
+              <FormControlLabel value={false} control={<Radio />} label="No" />
+            </RadioGroup>
+          </FormControl>
         </Grid>
       </Grid>
       <Box display="flex" justifyContent="center" mt={2}>

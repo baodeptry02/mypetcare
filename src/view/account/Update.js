@@ -2,14 +2,25 @@ import React, { useState, useEffect } from "react";
 import { auth } from "../../Components/firebase/firebase";
 import { useNavigate } from "react-router-dom";
 import { updateProfile } from "firebase/auth";
-import { getDatabase, ref, onValue, update as updateDatabase} from "firebase/database";
+import {
+  getDatabase,
+  ref,
+  onValue,
+  update as updateDatabase,
+} from "firebase/database";
 import { ToastContainer, toast } from "react-toastify";
 import useForceUpdate from "../../hooks/useForceUpdate";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faIdBadge } from "@fortawesome/free-solid-svg-icons";
 import { TextField, Button, Container, Box, Typography } from "@mui/material";
 import { faPenToSquare, faCamera } from "@fortawesome/free-solid-svg-icons";
-import { getStorage, ref as storageRef, uploadBytes, getDownloadURL } from 'firebase/storage';
+import {
+  getStorage,
+  ref as storageRef,
+  uploadBytes,
+  getDownloadURL,
+} from "firebase/storage";
+import RefundModal from './RefundModal';
 
 function Update() {
   const [email, setEmail] = useState("");
@@ -24,15 +35,17 @@ function Update() {
   const [userUpdated, setUserUpdated] = useState(false);
   const navigate = useNavigate();
   const user = auth.currentUser;
-  const forceUpdate = useForceUpdate(); 
+  const forceUpdate = useForceUpdate();
   const [isEditMode, setIsEditMode] = useState(false);
   const [avatar, setAvatar] = useState(
     "https://icons.veryicon.com/png/o/miscellaneous/user-avatar/user-avatar-male-5.png"
   );
   const [gender, setGender] = useState("Male");
   const [join, setJoin] = useState("");
+  const [showModal, setShowModal] = useState(false);
 
-  const timestamp = user && user.metadata ? parseInt(user.metadata.lastLoginAt, 10) : null;
+
+  const timestamp = parseInt(user?.metadata?.lastLoginAt, 10);
   const date = new Date(timestamp);
   const utcHours = date.getUTCHours();
   const vietnamDate = new Date(date.setUTCHours(utcHours));
@@ -47,17 +60,12 @@ function Update() {
     second: "2-digit",
   });
 
-  console.log(user)
-  
 
   useEffect(() => {
     if (user) {
       setUserId(user.uid);
-      setEmail(localStorage.getItem("email") || "");
-      setUsername(localStorage.getItem("username") || "");
-      setPhone("");
-      setAddress("");
-      setDob("");
+      setEmail(localStorage.getItem('email') || '');
+      setUsername(localStorage.getItem('username') || '');
     }
   }, [user]);
 
@@ -76,14 +84,15 @@ function Update() {
           setFullname(data.fullname);
           setAccountBalance(data.accountBalance);
           setJoin(data.creationTime);
+          setDob(data.dob)
           setGender(data.gender || "Male");
           if (data.avatar) {
             setAvatar(data.avatar);
           } else {
             setAvatar(
-              data.gender === 'Female'
-                ? 'https://static.vecteezy.com/system/resources/previews/004/899/833/non_2x/beautiful-girl-with-blue-hair-avatar-of-woman-for-social-network-vector.jpg'
-                : 'https://icons.veryicon.com/png/o/miscellaneous/user-avatar/user-avatar-male-5.png'
+              data.gender === "Female"
+                ? "https://static.vecteezy.com/system/resources/previews/004/899/833/non_2x/beautiful-girl-with-blue-hair-avatar-of-woman-for-social-network-vector.jpg"
+                : "https://icons.veryicon.com/png/o/miscellaneous/user-avatar/user-avatar-male-5.png"
             );
           }
         }
@@ -106,12 +115,12 @@ function Update() {
     event.preventDefault();
     setLoading(true);
     const updates = {
-      phone: phone || "",
-      address: address || "",
-      fullname: fullname || "",
-      gender: gender || "Male",
-      dob: dob || "",
-      avatar: avatar
+      phone: phone || '',
+      address: address || '',
+      fullname: fullname || '',
+      gender: gender || 'Male',
+      dob: dob || '',
+      avatar: avatar,
     };
 
     if (Object.keys(updates).length > 0) {
@@ -124,7 +133,7 @@ function Update() {
             fullname: fullname || "",
             dob: dob || "",
             gender: gender || "Male",
-            avatar: avatar
+            avatar: avatar,
           });
 
           await updateDatabase(ref(getDatabase(), "users/" + userId), updates);
@@ -145,18 +154,14 @@ function Update() {
     setLoading(false);
   };
 
-  useEffect(() => {
-    if (userUpdated) {
-      setUserUpdated(false);
-      setEmail(localStorage.getItem("email") || "");
-      setUsername(localStorage.getItem("username") || "");
-    }
-  }, [userUpdated]);
   const handleImageUpload = async (event) => {
     const file = event.target.files[0];
     if (file) {
       const storage = getStorage();
-      const storageReference = storageRef(storage, `avatars/${userId}/${file.name}`);
+      const storageReference = storageRef(
+        storage,
+        `avatars/${userId}/${file.name}`
+      );
 
       try {
         await uploadBytes(storageReference, file);
@@ -165,36 +170,54 @@ function Update() {
 
         // Update the avatar URL in the database
         const db = getDatabase();
-        await updateDatabase(ref(db, 'users/' + userId), { avatar: downloadURL });
+        await updateDatabase(ref(db, "users/" + userId), {
+          avatar: downloadURL,
+        });
 
-        toast.success('Avatar updated successfully!');
+        toast.success("Avatar updated successfully!");
       } catch (error) {
-        console.error('Error uploading avatar:', error);
-        toast.error('Failed to upload avatar. Please try again.');
+        console.error("Error uploading avatar:", error);
+        toast.error("Failed to upload avatar. Please try again.");
       }
     }
   };
-  const handleRefundButton = () => {}
-
   return (
     <div
-      style={{
-        height: "100%",
-        minHeight: "100vh",
-        position: "relative",
-        width: "100%",
-        backgroundColor: "#EBEFF2",
-      }}
+    style={{
+      height: "100%",
+      minHeight: "100vh",
+      position: "relative",
+      width: "100%",
+      backgroundColor: "#EBEFF2",
+      overflowY: "auto",
+    }}
     >
       <div className="pet-profile-wrapper user-profile-wrapper">
         <div className="left-panel">
-        <div className="avatar-container" style={{ position: 'relative' }}>
-        <img src={avatar} alt="User Avatar" className="user-avatar" />
-        <label htmlFor="file-input" className="upload-icon" style={{ position: 'absolute', top: '120px', left: '0', cursor: 'pointer' }}>
-          <FontAwesomeIcon  style={{ fontSize: '24px', color: '#000' }} icon={faCamera} />
-        </label>
-        <input id="file-input" type="file" style={{ display: 'none' }} onChange={handleImageUpload} />
-      </div>
+          <div className="avatar-container" style={{ position: "relative" }}>
+            <img src={avatar} alt="User Avatar" className="user-avatar" />
+            <label
+              htmlFor="file-input"
+              className="upload-icon"
+              style={{
+                position: "absolute",
+                top: "120px",
+                left: "0",
+                cursor: "pointer",
+              }}
+            >
+              <FontAwesomeIcon
+                style={{ fontSize: "24px", color: "#000" }}
+                icon={faCamera}
+              />
+            </label>
+            <input
+              id="file-input"
+              type="file"
+              style={{ display: "none" }}
+              onChange={handleImageUpload}
+            />
+          </div>
           <div className="owner-info">
             <h3>Information</h3>
             <div style={{ display: "flex" }}>
@@ -219,17 +242,21 @@ function Update() {
               </p>
             </div>
           </div>
-          <h3 style={{
-            color: "#CF0070",
-            margin: "20px 0",
-            fontSize: "2rem"
-          }}>Do you want to refund your account balance?</h3>
-                        <button
-                className="booking-detail back-button"
-                onClick={handleRefundButton}
-              >
-                Click here!
-              </button>
+          <h3
+            style={{
+              color: "#CF0070",
+              margin: "20px 0",
+              fontSize: "2rem",
+            }}
+          >
+            Request to refund your account balance
+          </h3>
+          <button
+            className="booking-detail back-button"
+            onClick={() => setShowModal(true)}
+          >
+            Click here!
+          </button>
         </div>
         <div className="right-panel">
           {!isEditMode ? (
@@ -270,6 +297,8 @@ function Update() {
                       {phone}
                     </p>
                   </div>
+                </div>
+                <div className="section pet-general-info">
                   <div className="user-info">
                     <p>
                       <span>Address: </span>
@@ -364,44 +393,20 @@ function Update() {
           )}
         </div>
       </div>
-      <img
-        className="image-103"
-        src="https://cdn.prod.website-files.com/6139cf517cd6d26ff1548b86/63525e4544284383347d65d1_cat%20insurance%20(1).png"
-        alt=""
-        style={{
-          opacity: 1,
-          transform:
-            "translate3d(0px, 0px, 0px) scale3d(1, 1, 1) rotateX(0deg) rotateY(0deg) rotateZ(0deg) skew(0deg, 0deg)",
-          transformStyle: "preserve-3d",
-          marginRight: "auto",
-          marginTop: "20px",
-          float: "right",
-          zIndex: "1",
-          position: "relative",
-          pointerEvents: "none" /* thêm vào sẽ click dc button bên dưới */,
-        }}
-        sizes="(max-width: 479px) 100vw, (max-width: 991px) 200px, (min-width: 991px) and (max-width: 1600px) 350px, 350px"
-        data-w-id="4d2f337d-e917-b0c0-fbc2-6c9ab2459d23"
-        loading="lazy"
-        srcSet="https://cdn.prod.website-files.com/6139cf517cd6d26ff1548b86/63525e4544284383347d65d1_cat%20insurance%20(1)-p-500.png 500w, https://cdn.prod.website-files.com/6139cf517cd6d26ff1548b86/63525e4544284383347d65d1_cat%20insurance%20(1)-p-800.png 800w, https://cdn.prod.website-files.com/6139cf517cd6d26ff1548b86/63525e4544284383347d65d1_cat%20insurance%20(1)-p-1080.png 1080w, https://cdn.prod.website-files.com/6139cf517cd6d26ff1548b86/63525e4544284383347d65d1_cat%20insurance%20(1).png 1212w"
+      <RefundModal
+            showModal={showModal}
+            setShowModal={setShowModal}
+            userId={userId}
+          />
+     <img
+        className="pet-image-left"
+        src="https://cdn.prod.website-files.com/6139cf517cd6d26ff1548b86/6352491844284352957c5405_dog%20(1).png"
+ alt="a dog looking up"
       />
       <img
-        className="image-99"
-        src="https://cdn.prod.website-files.com/6139cf517cd6d26ff1548b86/6352491844284352957c5405_dog%20(1).png"
-        alt="a dog looking up"
-        style={{
-          opacity: 1,
-          transform:
-            "translate3d(0px, 0px, 0px) scale3d(1, 1, 1) rotateX(0deg) rotateY(0deg) rotateZ(0deg) skew(0deg, 0deg)",
-          transformStyle: "preserve-3d",
-          float: "left",
-          marginBottom: "auto",
-          zIndex: "1000",
-        }}
-        sizes="(max-width: 479px) 100vw, (max-width: 991px) 200px, (min-width: 991px) and (max-width: 1600px) 350px, 400px"
-        data-w-id="a7cc2e85-500e-967b-d8a2-e769496fe301"
-        loading="lazy"
-        srcSet="https://cdn.prod.website-files.com/6139cf517cd6d26ff1548b86/6352491844284352957c5405_dog%20(1)-p-500.png 500w, https://cdn.prod.website-files.com/6139cf517cd6d26ff1548b86/6352491844284352957c5405_dog%20(1)-p-800.png 800w, https://cdn.prod.website-files.com/6139cf517cd6d26ff1548b86/6352491844284352957c5405_dog%20(1)-p-1080.png 1080w, https://cdn.prod.website-files.com/6139cf517cd6d26ff1548b86/6352491844284352957c5405_dog%20(1).png 1250w"
+        className="pet-image-right"
+        src="https://cdn.prod.website-files.com/6139cf517cd6d26ff1548b86/63525e4544284383347d65d1_cat%20insurance%20(1).png"
+        alt="a cat looking down"
       />
       <ToastContainer />
     </div>

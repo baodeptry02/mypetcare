@@ -150,6 +150,7 @@ const ManageBookings = () => {
 
       try {
         const refundAmount = confirmCancel.totalPaid * 0.75;
+        const feeOfCancellation = confirmCancel.totalPaid * 0.25;
 
         const userRef = ref(db, `users/${user.uid}`);
         const snapshot = await get(userRef);
@@ -165,7 +166,7 @@ const ManageBookings = () => {
           )
         );
 
-        await update(bookingRef, { status: "Cancelled" });
+        await update(bookingRef, { status: "Cancelled", feeOfCancellation: feeOfCancellation });
         await update(userRef, { accountBalance: updatedBalance });
         await set(vetScheduleRef, updatedSchedule);
 

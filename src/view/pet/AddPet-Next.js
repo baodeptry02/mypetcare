@@ -110,8 +110,8 @@ const AddPetNext = () => {
   const handleDobChange = (event) => {
     const dob = event.target.value;
     const age = calculateAge(dob);
-    updatePetData("age", age); // Update pet age based on DOB
-    updatePetData("dob", dob); // Update pet DOB
+    updatePetData("age", age); 
+    updatePetData("dob", dob); 
   };
   const VisuallyHiddenInput = ({ ...props }) => (
     <input

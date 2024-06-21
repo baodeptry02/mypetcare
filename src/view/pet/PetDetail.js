@@ -16,7 +16,10 @@ const PetDetail = () => {
   const [isEditMode, setIsEditMode] = useState(false);
   const forceUpdate = useForceUpdate();
   const [medicalHistory, setMedicalHistory] = useState([]);
+  const [petAvatar, setPetAvatart] = useState("")
+
   const catBreeds = [
+    "-- Select Your Cat Breeds --",
     "Domestic Short Hair",
     "Domestic Long Hair",
     "Abyssinian",
@@ -61,6 +64,7 @@ const PetDetail = () => {
   ];
 
   const dogBreeds = [
+    "-- Select Your Dog Breeds --",
     "Domestic Dog",
     "Affenpinscher",
     "Afghan Hound",
@@ -178,7 +182,7 @@ const PetDetail = () => {
     "Yorkshire Terrier",
   ];
 
-  const [selectedBreeds, setSelectedBreeds] = useState(catBreeds);
+  const [selectedBreeds, setSelectedBreeds] = useState(dogBreeds);
 
   const handleTypeChange = (event) => {
     const type = event.target.value;
@@ -231,6 +235,7 @@ const PetDetail = () => {
         if (snapshot.exists()) {
           const petData = snapshot.val();
           setPet(petData);
+            setPetAvatart(petData.imageUrl);
           setFormData({
             name: petData.name,
             age: petData.age,
@@ -239,6 +244,7 @@ const PetDetail = () => {
             breed: petData.breed,
             dob: petData.dob,
             gender: petData.gender,
+            color: petData.color
           });
         } else {
           console.log("No pet data available");
@@ -310,9 +316,6 @@ const PetDetail = () => {
       setPet(updatedFormData);
       setIsEditMode(false);
       forceUpdate();
-      setTimeout(() => {
-        window.location.reload();
-      }, 2500);
     } catch (error) {
       console.error("Error updating pet details:", error);
     }
@@ -345,11 +348,12 @@ const PetDetail = () => {
         position: "relative",
         width: "100%",
         backgroundColor: "#EBEFF2",
+        overflowY: "auto",
       }}
     >
       <div className="pet-profile-wrapper">
         <div className="left-panel pet-detail">
-          <img src={pet.imageUrl} alt="Pet Avatar" className="pet-avatar" />
+          <img src={petAvatar} alt="Pet Avatar" className="pet-avatar" />
           <div className="owner-info">
             <h3>Pet Parent</h3>
             <div style={{ display: "flex" }}>
@@ -476,20 +480,19 @@ const PetDetail = () => {
                   value={formData.type}
                   onChange={handleTypeChange}
                 >
+                  <option value="">-- Select Your Pet Type --</option>
                   <option value="Cat">Cat</option>
                   <option value="Dog">Dog</option>
                 </select>
               </div>
               <div className="form-group">
-                <label>Gender</label>
-                <select
-                  name="gender"
-                  value={formData.gender}
+                <label>Color:</label>
+                <input
+                  type="text"
+                  name="color"
+                  value={formData.color}
                   onChange={handleInputChange}
-                >
-                  <option value="Male">Male</option>
-                  <option value="Female">Female</option>
-                </select>
+                />
               </div>
               <div className="form-group">
                 <label>Breed</label>
@@ -536,43 +539,16 @@ const PetDetail = () => {
         </div>
       </div>
       <img
-        className="image-103"
-        src="https://cdn.prod.website-files.com/6139cf517cd6d26ff1548b86/63525e4544284383347d65d1_cat%20insurance%20(1).png"
-        alt=""
-        style={{
-          opacity: 1,
-          transform:
-            "translate3d(0px, 0px, 0px) scale3d(1, 1, 1) rotateX(0deg) rotateY(0deg) rotateZ(0deg) skew(0deg, 0deg)",
-          transformStyle: "preserve-3d",
-          marginRight: "auto",
-          marginTop: "20px",
-          float: "right",
-          zIndex: "1",
-          position: "relative",
-          pointerEvents: "none" /* thêm vào sẽ click dc button bên dưới */,
-        }}
-        sizes="(max-width: 479px) 100vw, (max-width: 991px) 200px, (min-width: 991px) and (max-width: 1600px) 350px, 350px"
-        data-w-id="4d2f337d-e917-b0c0-fbc2-6c9ab2459d23"
-        loading="lazy"
-        srcSet="https://cdn.prod.website-files.com/6139cf517cd6d26ff1548b86/63525e4544284383347d65d1_cat%20insurance%20(1)-p-500.png 500w, https://cdn.prod.website-files.com/6139cf517cd6d26ff1548b86/63525e4544284383347d65d1_cat%20insurance%20(1)-p-800.png 800w, https://cdn.prod.website-files.com/6139cf517cd6d26ff1548b86/63525e4544284383347d65d1_cat%20insurance%20(1)-p-1080.png 1080w, https://cdn.prod.website-files.com/6139cf517cd6d26ff1548b86/63525e4544284383347d65d1_cat%20insurance%20(1).png 1212w"
+        className="pet-image-left"
+        src="https://cdn.prod.website-files.com/6139cf517cd6d26ff1548b86/6352491844284352957c5405_dog%20(1).png"
+ alt="a dog looking up"
+        sizes="(max-width: 479px) 100vw, (max-width: 991px) 200px, (min-width: 991px) and (max-width: 1600px) 350px, 400px"
       />
       <img
-        className="image-99"
-        src="https://cdn.prod.website-files.com/6139cf517cd6d26ff1548b86/6352491844284352957c5405_dog%20(1).png"
-        alt="a dog looking up"
-        style={{
-          opacity: 1,
-          transform:
-            "translate3d(0px, 0px, 0px) scale3d(1, 1, 1) rotateX(0deg) rotateY(0deg) rotateZ(0deg) skew(0deg, 0deg)",
-          transformStyle: "preserve-3d",
-          float: "left",
-          marginBottom: "auto",
-          zIndex: "1000",
-        }}
+        className="pet-image-right"
+        src="https://cdn.prod.website-files.com/6139cf517cd6d26ff1548b86/63525e4544284383347d65d1_cat%20insurance%20(1).png"
+        alt="a cat looking down"
         sizes="(max-width: 479px) 100vw, (max-width: 991px) 200px, (min-width: 991px) and (max-width: 1600px) 350px, 400px"
-        data-w-id="a7cc2e85-500e-967b-d8a2-e769496fe301"
-        loading="lazy"
-        srcSet="https://cdn.prod.website-files.com/6139cf517cd6d26ff1548b86/6352491844284352957c5405_dog%20(1)-p-500.png 500w, https://cdn.prod.website-files.com/6139cf517cd6d26ff1548b86/6352491844284352957c5405_dog%20(1)-p-800.png 800w, https://cdn.prod.website-files.com/6139cf517cd6d26ff1548b86/6352491844284352957c5405_dog%20(1)-p-1080.png 1080w, https://cdn.prod.website-files.com/6139cf517cd6d26ff1548b86/6352491844284352957c5405_dog%20(1).png 1250w"
       />
       <ToastContainer />
     </div>
