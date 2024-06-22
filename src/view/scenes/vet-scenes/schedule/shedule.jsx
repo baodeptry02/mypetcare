@@ -10,6 +10,7 @@ import { getAuth } from "firebase/auth";
 import { useNavigate } from "react-router-dom";
 import Header from "../../../../Components/dashboardChart/Header";
 import { ToastContainer, toast } from "react-toastify";
+import Clock from 'react-live-clock';
 
 const Schedule = () => {
   const [currentEvents, setCurrentEvents] = useState([]);
@@ -117,8 +118,27 @@ const Schedule = () => {
 
   return (
     <Box m="20px">
-      <Header title="Calendar" subtitle="Full Calendar Interactive Page" />
-
+      <Header title="Schedule" subtitle="All Bookings and Schedules are here!" />
+      <div className="countdown">
+      <div className="box">
+        <span className="num">
+          <Clock format={'HH'} ticking={true} timezone={'Asia/Ho_Chi_Minh'} />
+        </span>
+        <span className="text">Hours</span>
+      </div>
+      <div className="box">
+        <span className="num">
+          <Clock format={'mm'} ticking={true} timezone={'Asia/Ho_Chi_Minh'} />
+        </span>
+        <span className="text">Minutes</span>
+      </div>
+      <div className="box">
+        <span className="num">
+          <Clock format={'ss'} ticking={true} timezone={'Asia/Ho_Chi_Minh'} />
+        </span>
+        <span className="text">Seconds</span>
+      </div>
+    </div>
       <Box display="flex" justifyContent="space-between">
         <Box flex="1 1 100%" ml="15px">
           <FullCalendar

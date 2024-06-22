@@ -123,6 +123,11 @@ a {
 }
 .parent-container {
   margin-bottom: 32px;
+  margin-top: 60px;
+}
+.select-pet-container.parent-container {
+  margin-top: 20px;
+
 }
 
 .container button.hidden {
@@ -3983,9 +3988,13 @@ background: #EBEFF2;
 }
 
 .left-panel {
-  width: 25%;
+  width: 35%;
   margin-right: 20px;
   text-align: center;
+}
+.left-panel.pet-detail {
+  width: 25%;
+  flex: 0.5 1
 }
 
 .pet-avatar {
@@ -4362,6 +4371,7 @@ z-index: 1000000;
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
   max-width: 600px;
   margin: 0 auto;
+  z-index: 100;
 }
 
 .title-container {
@@ -4600,7 +4610,7 @@ tr.ant-table-placeholder {
   margin-left: 8px;
 }
 .scrollable-container {
-  max-height: 280px;
+  max-height: 650px;
   overflow-y: auto;
   padding-right: 15px; 
 }
@@ -4648,5 +4658,103 @@ tr.ant-table-placeholder {
   position: absolute;
   top: 0;
   right: 0;
+  z-index: 1;
+  pointer-events: "none",
 }
 
+.tabs {
+  display: flex;
+  justify-content: center;
+  margin-bottom: 20px;
+}
+
+.tab-button {
+  padding: 10px 20px;
+  margin: 0 5px;
+  border: 1px solid var(--main-color);
+  background-color: #f5f5f5;
+  cursor: pointer;
+  transition: background-color 0.3s, border 0.3s;
+  color: var(--main-color);
+}
+
+.tab-button:hover {
+  background-color: var(--main-color);
+  color: #f5f5f5;
+}
+
+.tab-button.active {
+  background-color: var(--main-color);
+  color: white;
+  border: 1px solid  var(--main-color);
+}
+
+.countdown {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 2rem;
+}
+
+.box {
+  width: 8vmin;
+  height: 9vmin;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: space-evenly;
+  position: relative;
+  margin-bottom: 20px;
+}
+
+span.num {
+  color: #fff;
+  background-color: rgba(255, 255, 255, 0.5);
+  backdrop-filter: blur(12px);
+  height: 100%;
+  width: 100%;
+  display: grid;
+  place-items: center;
+  font-size: 4em;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  border-radius: 0.1em;
+}
+span.num:after {
+  content: "";
+  position: absolute;
+  background-color: rgba(255, 255, 255, 0.05);
+  height: 100%;
+  width: 50%;
+  left: 0;
+  }
+
+span.text {
+  font-size: 1.3em;
+  background-color: #fff;
+  color: #000;
+  display: block;
+  width: 80%;
+  position: relative;
+  text-align: center;
+  bottom: 6px;
+  padding: 0.7em 0;
+  font-weight: 600;
+  border-radius: 0.3em;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+.gif {
+  position: absolute;
+  bottom: 0;
+  right: 0;
+}
+
+#snow {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  pointer-events: none;
+  z-index: 1000;
+}
