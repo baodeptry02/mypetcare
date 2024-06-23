@@ -82,8 +82,9 @@ const Dashboard = () => {
   }, []);
 
   const handleSearch = (event) => {
-    setSearchQuery(event.target.value.toUpperCase());
+    setSearchQuery(event.target.value.toLowerCase());
   };
+
   const filteredBookings = bookings.filter((booking) => {
     const matchesSearchQuery = booking.id.toLowerCase().includes(searchQuery);
     const matchesSelectedDate = selectedDate

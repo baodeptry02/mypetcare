@@ -235,7 +235,7 @@ const ManageBookings = () => {
     setCurrentPage(value);
   };
 
-
+console.log(currentBookings)
 
 
   useEffect(() => {
@@ -429,7 +429,7 @@ const ManageBookings = () => {
                   )}
                 </tbody>
               </table>
-              {currentBookings.length > bookingsPerPage && (
+              {getCurrentBookings().length > bookingsPerPage && (
                 <>
                   <div
                     style={{

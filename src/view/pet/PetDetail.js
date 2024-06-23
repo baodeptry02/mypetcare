@@ -414,8 +414,8 @@ const PetDetail = () => {
                     <div>{pet.breed || "N/A"}</div>
                   </div>
                   <div className="pet-info">
-                    <p>Gender:</p>
-                    <div>{pet.gender || "N/A"}</div>
+                    <p>Color:</p>
+                    <div>{pet.color || "N/A"}</div>
                   </div>
                 </div>
               </div>

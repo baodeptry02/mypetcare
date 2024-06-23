@@ -12,6 +12,8 @@ import BarChartOutlinedIcon from "@mui/icons-material/BarChartOutlined";
 import PieChartOutlineOutlinedIcon from "@mui/icons-material/PieChartOutlineOutlined";
 import TimelineOutlinedIcon from "@mui/icons-material/TimelineOutlined";
 import MenuOutlinedIcon from "@mui/icons-material/MenuOutlined";
+import PetsIcon from '@mui/icons-material/Pets';
+import CurrencyExchangeIcon from "@mui/icons-material/CurrencyExchange";
 import { onAuthStateChanged } from "firebase/auth";
 import { auth } from "../../../../Components/firebase/firebase";
 
@@ -70,7 +72,13 @@ const Sidebar = () => {
         setSelected("Manage User");
         break;
       case "/admin/addService":
-        setSelected("Services Data");
+        setSelected("Add Services & Cages");
+        break;
+      case "/admin/refundData":
+        setSelected("Refund Data");
+        break;
+      case "/admin/cageData":
+        setSelected("Cages Data");
         break;
       case "/admin/calendar":
         setSelected("Calendar");
@@ -187,10 +195,26 @@ const Sidebar = () => {
               selected={selected}
               setSelected={setSelected}
             />
+
             <Item
-              title="Services Data"
-              to="/admin/addService"
-              icon={<MedicalServicesIcon />}
+              title="Add Data"
+              to="/admin/addData"
+              icon={<PetsIcon />}
+              selected={selected}
+              setSelected={setSelected}
+            />
+
+            <Item
+              title="Refund Data"
+              to="/admin/refundData"
+              icon={<CurrencyExchangeIcon />}
+              selected={selected}
+              setSelected={setSelected}
+            />
+            <Item
+              title="Cages Data"
+              to="/admin/cageData"
+              icon={<PetsIcon />}
               selected={selected}
               setSelected={setSelected}
             />

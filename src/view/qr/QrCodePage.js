@@ -187,6 +187,7 @@ const QrCodePage = () => {
 
     return () => clearInterval(intervalId);
   }, [navigate, username, bookingId, fetchTransactions, totalPaid]);
+  
 
   return (
     <div
