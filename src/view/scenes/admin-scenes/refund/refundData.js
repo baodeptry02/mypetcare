@@ -15,6 +15,8 @@ import PieChart from "../../../../Components/dashboardChart/PieChart";
 import CurrencyExchangeIcon from "@mui/icons-material/CurrencyExchange";
 import AttachMoneyIcon from "@mui/icons-material/AttachMoney";
 import { getDatabase, ref, onValue, get, update } from "firebase/database";
+import emailjs from 'emailjs-com';
+import axios from 'axios';
 
 const RefundData = () => {
   const theme = useTheme();
@@ -63,9 +65,9 @@ const RefundData = () => {
 
     calculateTotals();
   }, [mockTransactions, mockWithdrawData]);
+  console.log(mockWithdrawData)
 
   useEffect(() => {
-
     const sortedData = [...mockWithdrawData].sort((a, b) => {
       if (a.isRefund === b.isRefund) {
         return 0;
@@ -74,28 +76,25 @@ const RefundData = () => {
     });
 
     setMockWithdrawData(sortedData);
-  }, [mockWithdrawData]);
+  }, []);
 
   const handleGenerateQr = (request) => {
     const qrUrl = `https://img.vietqr.io/image/${request.bank}-${request.accountNumber}-print.png?amount=${request.amount * 1000}&addInfo=${request.username}`;
 
     setQrUrl(qrUrl);
     setQrModalOpen(true);
-    console.log(request)
+    console.log(request);
   };
-  console.log(mockWithdrawData)
 
   const handleRefunded = async (request) => {
     const db = getDatabase();
     const refundMoneyRef = ref(db, `users/${request.userId}/refundMoney`);
-    
-    // Get the snapshot of refundMoney to find the specific entry
+  
     const snapshot = await get(refundMoneyRef);
     if (snapshot.exists()) {
       const refundMoney = snapshot.val();
       let refundKey = null;
   
-      // Find the key of the specific refundMoney entry using date
       for (const key in refundMoney) {
         if (refundMoney[key].date === request.date) {
           refundKey = key;
@@ -104,23 +103,36 @@ const RefundData = () => {
       }
   
       if (refundKey) {
-        const specificRefundRef = ref(db, `users/${request.userId}/refundMoney/${refundKey}`);
+        const specificRefundRef = ref(
+          db,
+          `users/${request.userId}/refundMoney/${refundKey}`
+        );
         await update(specificRefundRef, { isRefund: true });
   
-        // Update state and sort
         const updatedWithdrawData = mockWithdrawData.map((r) =>
           r.date === request.date ? { ...r, isRefund: true } : r
         );
   
-        // Sort the updated withdraw data
         updatedWithdrawData.sort((a, b) => {
           if (a.isRefund === b.isRefund) {
             return 0;
           }
-          return a.isRefund ? 1 : -1; // Move refunded items to the bottom
+          return a.isRefund ? 1 : -1;
         });
   
         setMockWithdrawData(updatedWithdrawData);
+  
+        try {
+          const response = await axios.post('http://localhost:5000/send-email', {
+            user_email: request.mail,
+            user_name: request.username,
+            amount: request.amount,
+            refund_date: request.date,
+          });
+          console.log('Email sent successfully:', response.data);
+        } catch (error) {
+          console.error('Error sending email', error);
+        }
       } else {
         console.error("Refund entry not found.");
       }
@@ -130,7 +142,9 @@ const RefundData = () => {
   };
   
   
-
+  
+  
+  
 
   const handleCloseModal = () => {
     setQrModalOpen(false);
@@ -294,7 +308,6 @@ const RefundData = () => {
                   variant="contained"
                   color="secondary"
                   onClick={() => handleRefunded(request)}
-                  disabled={request.isRefund}
                 >
                   Refunded
                 </Button>
@@ -489,7 +502,7 @@ const RefundData = () => {
             <Typography variant="h5" marginBottom="20px">
               QR Code
             </Typography>
-            <img src={qrUrl} alt="QR Code" />
+            <img className="img-qr-code" src={qrUrl} alt="QR Code"/>
             <Button
               variant="contained"
               color="primary"

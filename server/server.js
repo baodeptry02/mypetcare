@@ -1,91 +1,121 @@
-
-
 const express = require("express");
+const nodemailer = require("nodemailer");
 const cors = require("cors");
-const axios = require('axios');
-const moment = require('moment-timezone');
-
 const app = express();
+const port = 5000;
+
 app.use(cors());
+app.use(express.json({ limit: "25mb" }));
+app.use(express.urlencoded({ limit: "25mb" }));
 
-app.get("/", (req, res) => {
-  res.json({});
-});
 
-app.get("/transactions", async (req, res) => {
-  let taikhoanmb = "DUYBAO0312";
-  let deviceIdCommon = "f1wegonh-mbib-0000-0000-2024052023591852";
-  let sessionId = "2e8afe73-a5b6-4559-bb8c-9ec1a742f4f1";
-  let sotaikhoanmb = "0000418530364";
-
-  const fromDate = new Date(Date.now() - 2 * 24 * 60 * 60 * 1000)
-    .toLocaleDateString("en-GB", {
-        day: "2-digit",
-        month: "2-digit",
-        year: "numeric",
-    })
-    .split("/")
-    .join("/");
-
-  const toDate = new Date()
-    .toLocaleDateString("en-GB", {
-        day: "2-digit",
-        month: "2-digit",
-        year: "numeric",
-    })
-    .split("/")
-    .join("/");
-
-  const time2 = moment().tz("Asia/Ho_Chi_Minh").format("YYYYMMDDHHmmssSS");
-
-  const proxyUrl = 'http://localhost:5000'; // Địa chỉ của proxy CORS của bạn
-const targetUrl = 'https://online.mbbank.com.vn/api/retail-transactionms/transactionms/get-account-transaction-history';
-const url = proxyUrl + '/' + targetUrl;
-  const data = {
-      accountNo: sotaikhoanmb,
-      deviceIdCommon: deviceIdCommon,
-      fromDate: fromDate,
-      refNo: `${taikhoanmb}-${time2}`,
-      sessionId: sessionId,
-      toDate: toDate,
-  };
-
-  try {
-    const response = await axios.post(url, data, {
-        headers: {
-            'Content-Type': 'application/json',
-            'Accept': 'application/json, text/plain, */*',
-            'Accept-Encoding': 'gzip, deflate, br',
-            'Accept-Language': 'en-US,en;q=0.9',
-            'Authorization': 'Basic QURNSU46QURNSU4=',
-            'Connection': 'keep-alive',
-            'Host': 'online.mbbank.com.vn',
-            'Origin': 'https://online.mbbank.com.vn',
-            'Referer': 'https://online.mbbank.com.vn/information-account/source-account',
-            'sec-ch-ua': '"Chromium";v="124", "Microsoft Edge";v="124", "Not-A.Brand";v="99"',
-            'sec-ch-ua-mobile': '?0',
-            'sec-ch-ua-platform': '"Windows"',
-            'Sec-Fetch-Dest': 'empty',
-            'Sec-Fetch-Mode': 'cors',
-            'Sec-Fetch-Site': 'same-origin',
-            'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0.0.0 Safari/537.36 Edg/124.0.0.0',
-            'DNT': '1',
-            'Deviceid': deviceIdCommon,
-            'RefNo': `${taikhoanmb}-${time2}`,
-            'X-Request-Id': `${taikhoanmb}-${time2}`,
-            'elastic-apm-traceparent': '00-88166d8e47d20c4f80ec12bcf81505f5-6b706d62d8ca3ab8-01'
-        }
+function sendEmail({ user_email, user_name, amount, refund_date }) {
+  return new Promise((resolve, reject) => {
+    const transporter = nodemailer.createTransport({
+      service: "gmail",
+      auth: {
+        user: "aqaq03122003@gmail.com",
+        pass: "lnaxqylhuaztmnwn",
+      },
     });
 
-    const transactionHistoryList = response.data.transactionHistoryList;
-    const descriptions = transactionHistoryList.map(transaction => transaction.description);
-    res.json(descriptions);
-  } catch (error) {
-    console.error('Error:', error);
-    res.status(500).json({ error: 'An error occurred while fetching transactions' });
+    const mail_configs = {
+      from: "aqaq03122003@gmail.com",
+      to: user_email,
+      subject: "Thông báo hoàn tiền",
+      html: `
+        <html>
+          <head>
+            <style>
+              /* Inline CSS styles */
+              body {
+                font-family: Arial, sans-serif;
+                background-color: #f4f4f4;
+                margin: 0;
+                padding: 0;
+              }
+              .email-container {
+                width: 100%;
+                max-width: 600px;
+                margin: 0 auto;
+                padding: 20px;
+                background-color: #ffffff;
+                border: 1px solid #ddd;
+                border-radius: 10px;
+                box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+              }
+              .email-header {
+                background-color: #007bff;
+                color: #ffffff;
+                padding: 10px 20px;
+                border-radius: 10px 10px 0 0;
+                text-align: center;
+              }
+              .email-content {
+                padding: 20px;
+                color: #333333;
+              }
+              .email-content p {
+                margin-bottom: 15px;
+                line-height: 1.6;
+              }
+              .email-content p:last-child {
+                margin-bottom: 0;
+              }
+              .email-footer {
+                text-align: center;
+                padding: 20px;
+                font-size: 12px;
+                color: #999999;
+              }
+            </style>
+          </head>
+          <body>
+            <div class="email-container">
+              <div class="email-header">
+                <h2>Thông báo hoàn tiền</h2>
+              </div>
+              <div class="email-content">
+                <p>Xin chào, ${user_name}</p>
+                <p>Chúng tôi xin thông báo rằng yêu cầu hoàn tiền của bạn đã được xử lý thành công.</p>
+                <p><strong>Số tiền hoàn:</strong> ${amount}</p>
+                <p><strong>Ngày hoàn:</strong> ${refund_date}</p>
+                <p>Cảm ơn bạn đã sử dụng dịch vụ của chúng tôi.</p>
+                <p>Best wishes,<br>Pet Health Care team</p>
+              </div>
+              <div class="email-footer">
+                <p>&copy; 2024 Pet Health Care. All rights reserved.</p>
+              </div>
+            </div>
+          </body>
+        </html>
+      `,
+    };
+
+    transporter.sendMail(mail_configs, function (error, info) {
+      if (error) {
+        console.log(error);
+        return reject({ message: `An error has occurred: ${error.message}` });
+      }
+      return resolve({ message: "Email sent successfully" });
+    });
+  });
+}
+
+app.post("/send-email", (req, res) => {
+  const { user_email, user_name, amount, refund_date } = req.body;
+  console.log("Received data:", req.body);
+
+  if (!user_email) {
+    return res.status(400).send("Error: Missing user_email");
   }
+
+  sendEmail(req.body)
+    .then((response) => res.send(response.message))
+    .catch((error) => res.status(500).send(error.message));
 });
 
-app.listen(5000, () => {
-  console.log("Server is running at port 5000");
+
+app.listen(port, () => {
+  console.log(`nodemailerProject is listening at http://localhost:${port}`);
 });
