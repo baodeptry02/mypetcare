@@ -27,7 +27,6 @@ import Pie from "../../view/scenes/admin-scenes/pie/index";
 import Service from "../../view/scenes/admin-scenes/services/index";
 import Calendar from "../../view/scenes/admin-scenes/calendar/calendar";
 import RefundData from "../scenes/admin-scenes/refund/refundData";
-import CageData from "../scenes/admin-scenes/cages/index";
 import { auth } from "../../Components/firebase/firebase";
 
 function Admin() {
@@ -119,7 +118,6 @@ function Admin() {
               <Route path="pie" element={<Pie />} />
               <Route path="line" element={<Line />} />
               <Route path="refundData" element={<RefundData />} />
-              <Route path="cageData" element={<CageData />} />
               <Route path="calendar" element={<Calendar />} />
             </Routes>
           </main>

@@ -17,6 +17,8 @@ import AttachMoneyIcon from "@mui/icons-material/AttachMoney";
 import { getDatabase, ref, onValue, get, update } from "firebase/database";
 import emailjs from 'emailjs-com';
 import axios from 'axios';
+import { ToastContainer, toast } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
 
 const RefundData = () => {
   const theme = useTheme();
@@ -65,7 +67,6 @@ const RefundData = () => {
 
     calculateTotals();
   }, [mockTransactions, mockWithdrawData]);
-  console.log(mockWithdrawData)
 
   useEffect(() => {
     const sortedData = [...mockWithdrawData].sort((a, b) => {
@@ -86,65 +87,104 @@ const RefundData = () => {
     console.log(request);
   };
 
-  const handleRefunded = async (request) => {
+  const formatDateToVN = (date) => {
+    const options = {
+        year: 'numeric',
+        month: '2-digit',
+        day: '2-digit',
+        hour: '2-digit',
+        minute: '2-digit',
+        second: '2-digit',
+    };
+    const formattedDate = new Date(date).toLocaleString('vi-VN', options);
+    console.log('Formatted date:', formattedDate); // Debugging
+
+    const datePartMatch = formattedDate.match(/(\d{2}\/\d{2}\/\d{4})/);
+    const timePartMatch = formattedDate.match(/(\d{2}:\d{2}:\d{2})/);
+    
+    if (!datePartMatch || !timePartMatch) {
+        console.error('Date or time part is undefined');
+        return null;
+    }
+
+    const datePart = datePartMatch[0];
+    const timePart = timePartMatch[0];
+
+    console.log('Date part:', datePart); // Debugging
+    console.log('Time part:', timePart); // Debugging
+
+    const [day, month, year] = datePart.split('/');
+    console.log('Day:', day, 'Month:', month, 'Year:', year); // Debugging
+
+    if (!day || !month || !year) {
+        console.error('Day, month, or year is undefined');
+        return null;
+    }
+
+    return `${timePart} ${day}/${month}/${year}`;
+};
+
+const handleRefunded = async (request) => {
     const db = getDatabase();
     const refundMoneyRef = ref(db, `users/${request.userId}/refundMoney`);
-  
+
     const snapshot = await get(refundMoneyRef);
     if (snapshot.exists()) {
-      const refundMoney = snapshot.val();
-      let refundKey = null;
-  
-      for (const key in refundMoney) {
-        if (refundMoney[key].date === request.date) {
-          refundKey = key;
-          break;
+        const refundMoney = snapshot.val();
+        let refundKey = null;
+
+        const formattedRequestDate = formatDateToVN(request.date);
+
+        for (const key in refundMoney) {
+            const formattedRefundDate = formatDateToVN(refundMoney[key].date);
+            if (formattedRefundDate === formattedRequestDate) {
+                refundKey = key;
+                break;
+            }
         }
-      }
-  
-      if (refundKey) {
-        const specificRefundRef = ref(
-          db,
-          `users/${request.userId}/refundMoney/${refundKey}`
-        );
-        await update(specificRefundRef, { isRefund: true });
-  
-        const updatedWithdrawData = mockWithdrawData.map((r) =>
-          r.date === request.date ? { ...r, isRefund: true } : r
-        );
-  
-        updatedWithdrawData.sort((a, b) => {
-          if (a.isRefund === b.isRefund) {
-            return 0;
-          }
-          return a.isRefund ? 1 : -1;
-        });
-  
-        setMockWithdrawData(updatedWithdrawData);
-  
-        try {
-          const response = await axios.post('http://localhost:5000/send-email', {
-            user_email: request.mail,
-            user_name: request.username,
-            amount: request.amount,
-            refund_date: request.date,
-          });
-          console.log('Email sent successfully:', response.data);
-        } catch (error) {
-          console.error('Error sending email', error);
+
+        if (refundKey) {
+            const specificRefundRef = ref(
+                db,
+                `users/${request.userId}/refundMoney/${refundKey}`
+            );
+            const now = new Date();
+            const refundDay = formatDateToVN(now);
+
+            await update(specificRefundRef, { isRefund: true, refundDay });
+
+            const updatedWithdrawData = mockWithdrawData.map((r) =>
+                formatDateToVN(r.date) === formattedRequestDate && !r.isRefund ? { ...r, isRefund: true, refundDay } : r
+            );
+
+            updatedWithdrawData.sort((a, b) => {
+                if (a.isRefund === b.isRefund) {
+                    return 0;
+                }
+                return a.isRefund ? 1 : -1;
+            });
+
+            setMockWithdrawData(updatedWithdrawData);
+
+            try {
+                const response = await axios.post('http://localhost:5000/send-email', {
+                    user_email: request.mail,
+                    user_name: request.username,
+                    amount: request.amount,
+                    request_date: formattedRequestDate,
+                    refund_date: refundDay
+                });
+                toast.success('Email sent successfully');
+            } catch (error) {
+                console.error('Error sending email', error);
+            }
+        } else {
+            console.error("Refund entry not found.");
         }
-      } else {
-        console.error("Refund entry not found.");
-      }
     } else {
-      console.error("No refund money data found.");
+        console.error("No refund money data found.");
     }
-  };
-  
-  
-  
-  
-  
+};
 
   const handleCloseModal = () => {
     setQrModalOpen(false);
@@ -301,6 +341,7 @@ const RefundData = () => {
                   color="secondary"
                   onClick={() => handleGenerateQr(request)}
                   style={{ marginRight: "20px" }}
+                  disabled={request.isRefund}
                 >
                   Generate QR
                 </Button>
@@ -308,6 +349,7 @@ const RefundData = () => {
                   variant="contained"
                   color="secondary"
                   onClick={() => handleRefunded(request)}
+                  disabled={request.isRefund}
                 >
                   Refunded
                 </Button>
@@ -514,6 +556,7 @@ const RefundData = () => {
           </Box>
         </Box>
       </Modal>
+      <ToastContainer/>
     </Box>
   );
 };

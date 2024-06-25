@@ -11,7 +11,6 @@ const RefundModal = ({ showModal, setShowModal, userId }) => {
   const [username, setUsername] = useState('');
   const [accountBalance, setAccountBalance] = useState(0);
 
-
   useEffect(() => {
     if (!userId) {
       console.log("Không có người dùng đang đăng nhập.");
@@ -26,7 +25,7 @@ const RefundModal = ({ showModal, setShowModal, userId }) => {
           if (snapshot.exists()) {
             const userData = snapshot.val();
             setAccountBalance(userData.accountBalance || 0);
-            setUsername(userData.username)
+            setUsername(userData.username);
           } else {
             console.log("Không có dữ liệu người dùng.");
           }
@@ -39,23 +38,20 @@ const RefundModal = ({ showModal, setShowModal, userId }) => {
     fetchUserData();
   }, [userId]);
   
-
   const handleSubmit = async (e) => {
     e.preventDefault();
 
     if (!bank || !accountNumber || !amount) {
       toast.error("Please fill in all fields" , {
         autoClose: 2000,
-      }
-      );
+      });
       return;
     }
 
     if (parseFloat(amount) > accountBalance) {
-      toast.error("Amount exceeds account balance",  {
+      toast.error("Amount exceeds account balance", {
         autoClose: 2000,
-      }
-      );
+      });
       return;
     }
 
@@ -89,14 +85,13 @@ const RefundModal = ({ showModal, setShowModal, userId }) => {
       const userRef = ref(db, `users/${userId}`);
       await update(userRef, { accountBalance: newBalance });
 
-      setAccountBalance("")
-      setAmount("")
-      setAccountNumber("")
-      setBank("")
+      setBank("");
+      setAccountNumber("");
+      setAmount("");
 
       toast.success("Refund request added successfully!", {
-      }
-      );
+        autoClose: 2000,
+      });
       setShowModal(false);
     } catch (error) {
       console.error("Error adding refund information: ", error);
@@ -106,6 +101,10 @@ const RefundModal = ({ showModal, setShowModal, userId }) => {
 
   const closeModal = () => {
     setShowModal(false);
+  };
+
+  const handleMaxClick = () => {
+    setAmount(accountBalance.toString());
   };
 
   return (
@@ -191,29 +190,38 @@ const RefundModal = ({ showModal, setShowModal, userId }) => {
                   <option value="CIMB">(422589) CIMB</option>
                   <option value="CBB">(970444) CBBank</option>
                 </select>
-                </div>
+              </div>
               <div className="form-group">
                 <label>Account Number:</label>
                 <input
-                  type="text"
+                  type="password"
                   value={accountNumber}
-                  onChange={(e) => setAccountNumber(e.target.value)}
+                  onChange={(e) => setAccountNumber(e.target.value) || ""}
                   className="input"
+                  autoComplete='false'
                 />
               </div>
-              <div className="form-group">
+              <div className="form-group amount-group">
                 <label>Amount:</label>
-                <input
-                  type="number"
-                  value={amount}
-                  onChange={(e) => setAmount(e.target.value)}
-                  className="input"
-                />
-              </div>
+                <div className="input-wrapper">
+                  <input
+                    type="number"
+                    value={amount}
+                    onChange={(e) => setAmount(e.target.value)}
+                    className="input"
+                  />
+                  <div
+                    className="max-button"
+                    onClick={handleMaxClick}
+                  >
+                    Max
+                  </div>
+                </div>
+                </div>
               <div className="modal-actions">
                 <button type="submit" className="update-button refund-submit-button">
-                Submit
-              </button>
+                  Submit
+                </button>
                 <button type="button" className="cancel-button" onClick={closeModal}>Cancel</button>
               </div>
             </form>
@@ -223,4 +231,5 @@ const RefundModal = ({ showModal, setShowModal, userId }) => {
     )
   );
 };
+
 export default RefundModal;

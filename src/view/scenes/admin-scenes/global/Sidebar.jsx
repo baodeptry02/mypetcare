@@ -77,9 +77,6 @@ const Sidebar = () => {
       case "/admin/refundData":
         setSelected("Refund Data");
         break;
-      case "/admin/cageData":
-        setSelected("Cages Data");
-        break;
       case "/admin/calendar":
         setSelected("Calendar");
         break;
@@ -208,13 +205,6 @@ const Sidebar = () => {
               title="Refund Data"
               to="/admin/refundData"
               icon={<CurrencyExchangeIcon />}
-              selected={selected}
-              setSelected={setSelected}
-            />
-            <Item
-              title="Cages Data"
-              to="/admin/cageData"
-              icon={<PetsIcon />}
               selected={selected}
               setSelected={setSelected}
             />
