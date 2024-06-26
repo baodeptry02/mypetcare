@@ -148,21 +148,7 @@ const Sidebar = () => {
               selected={selected}
               setSelected={setSelected}
             />
-            <Item
-              title="Manager Schedule"
-              to="/vet/managerSchedule"
-              icon={<PeopleOutlinedIcon />}
-              selected={selected}
-              setSelected={setSelected}
-            />
 
-            <Item
-              title="Booking"
-              to="/vet/booking"
-              icon={<CalendarTodayOutlinedIcon />}
-              selected={selected}
-              setSelected={setSelected}
-            />
           </Box>
         </Menu>
       </ProSidebar>

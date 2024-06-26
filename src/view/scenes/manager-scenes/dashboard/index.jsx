@@ -23,7 +23,7 @@ import dayjs from "dayjs";
 
 const Dashboard = () => {
   return(
-    <h1>Hello</h1>
+    <div>hello</div>
   )
 };
 

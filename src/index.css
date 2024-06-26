@@ -4683,3 +4683,6 @@ span.text {
   background: none; 
   cursor: pointer; 
 } 
+.pro-sidebar > .pro-sidebar-inner > .pro-sidebar-layout {
+  width: 105%
+}

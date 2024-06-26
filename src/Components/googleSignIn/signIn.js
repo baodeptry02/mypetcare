@@ -346,7 +346,7 @@ function SignIn() {
               navigate("/vet/dashboard");
               break;
             case "manager":
-              navigate("/manager");
+              navigate("/manager/dashboard");
               break;
             case "admin":
               navigate("/admin/dashboard");

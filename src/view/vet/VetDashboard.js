@@ -16,7 +16,6 @@ import { ToastContainer, toast } from "react-toastify";
 import Schedule from "../scenes/vet-scenes/schedule/shedule";
 import Booking from "../scenes/vet-scenes/booking/booking";
 import MedicalRecord from "../scenes/vet-scenes/medicalRecord/MedicalRecord";
-import ManagerSchedule from "../scenes/vet-scenes/managerSchedule/ManagerSchedule";
 
 import "react-toastify/dist/ReactToastify.css";
 
@@ -109,7 +108,6 @@ function VetDashboard() {
             <Routes>
               <Route path="dashboard" element={<Dashboard />} />
               <Route path="schedule" element={<Schedule />} />
-              <Route path="managerSchedule" element={<ManagerSchedule />} />
               <Route path="booking" element={<Booking />} />
               <Route
                 path="booking/medical-record/:userId/:bookingId"
