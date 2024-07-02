@@ -14,7 +14,7 @@ const addBookingRoutes = require("./router/addBookingRoutes")
 const transactionRoutes = require("./router/transactionRoutes")
 
 app.use(cors({
-  origin: 'http://localhost:3000',
+  origin: ['http://localhost:3000', 'https://mypetcare-center.vercel.app'],
   methods: ['GET', 'POST', 'PUT', 'DELETE'],
   allowedHeaders: ['Content-Type', 'Authorization'], 
 }));
