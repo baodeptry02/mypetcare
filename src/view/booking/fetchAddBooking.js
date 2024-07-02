@@ -1,17 +1,5 @@
-const LOCAL_BASE_URL = process.env.REACT_APP_LOCAL_BASE_URL;
-const PRODUCTION_BASE_URL = process.env.REACT_APP_PRODUCTION_BASE_URL;
-const ENV = process.env.REACT_APP_ENV;
+const BASE_URL = 'https://mypetcare.onrender.com';
 
-console.log('Environment:', ENV); // Sẽ in ra 'development' hoặc 'production' tùy thuộc vào giá trị bạn thiết lập
-console.log('Local Base URL:', LOCAL_BASE_URL); // Sẽ in ra URL cục bộ
-console.log('Production Base URL:', PRODUCTION_BASE_URL); // Sẽ in ra URL sản xuất
-
-// Hàm lấy URL cơ sở dựa trên môi trường
-const getBaseUrl = () => {
-  return ENV === 'production' ? PRODUCTION_BASE_URL : LOCAL_BASE_URL;
-};
-
-const BASE_URL = getBaseUrl();
 
 export const addBooking = async (userId, newBooking) => {
   console.log('Sending addBooking request with:', { userId, newBooking });
