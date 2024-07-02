@@ -1,7 +1,6 @@
 
 
-const BASE_URL = 'https://mypetcare.onrender.com';
-
+const BASE_URL = 'https://mypetcare.onrender.com/userData'; // Chỉnh sửa URL theo đúng địa chỉ server của bạn
 
 export const fetchUserById = async (userId) => {
   const response = await fetch(`${BASE_URL}/${userId}`);
