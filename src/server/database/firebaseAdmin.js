@@ -1,5 +1,5 @@
 const admin = require('firebase-admin');
-const serviceAccount = require('../controllers/veterinaryclinic-422805-firebase-adminsdk-h1sdm-0e29bae65d.json');
+const serviceAccount = require('../controllers/veterinaryclinic-422805-d3b76a631e25.json');
 
 admin.initializeApp({
   credential: admin.credential.cert(serviceAccount),
