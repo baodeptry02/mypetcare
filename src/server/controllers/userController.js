@@ -59,7 +59,22 @@ const uploadAvatar = async (req, res) => {
     res.status(500).json({ message: 'Error uploading avatar', error });
   }
 };
+const getAllUsers = async (req, res) => {
+  try {
+    const userRef = dbRef(database, `users`);
+    const snapshot = await get(userRef);
+    if (snapshot.exists()) {
+      const userData = snapshot.val();
+      res.status(200).json(userData);
+    } else {
+      res.status(404).json({ error: "Users not found" });
+    }
+  } catch (error) {
+    console.error("Error fetching user:", error);
+    res.status(500).json({ error: "Internal server error" });
+  }
+};
 
 
 
-module.exports = { getUserById, updateUserById, uploadAvatar };
+module.exports = { getUserById, updateUserById, uploadAvatar, getAllUsers };

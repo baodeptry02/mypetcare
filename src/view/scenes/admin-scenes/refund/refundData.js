@@ -154,7 +154,7 @@ const handleRefunded = async (request) => {
             await update(specificRefundRef, { isRefund: false, refundDay });
 
             const updatedWithdrawData = mockWithdrawData.map((r) =>
-                formatDateToVN(r.date) === formattedRequestDate && !r.isRefund ? { ...r, isRefund: true, refundDay } : r
+                formatDateToVN(r.date) === formattedRequestDate && !r.isRefund ? { ...r, isRefund: false, refundDay } : r
             );
 
             updatedWithdrawData.sort((a, b) => {

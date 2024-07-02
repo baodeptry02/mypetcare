@@ -1,6 +1,6 @@
 
 
-const BASE_URL = 'https://mypetcare.onrender.com/userData'; // Chỉnh sửa URL theo đúng địa chỉ server của bạn
+const BASE_URL = 'http://localhost:5000/userData';
 
 export const fetchUserById = async (userId) => {
   const response = await fetch(`${BASE_URL}/${userId}`);
@@ -38,5 +38,13 @@ export const uploadAvatar = async (userId, file) => {
     throw new Error('Failed to upload avatar');
   }
 
+  return response.json();
+};
+
+export const getAllUsers = async () => {
+  const response = await fetch(`${BASE_URL}`);
+  if (!response.ok) {
+    throw new Error("Failed to fetch user data");
+  }
   return response.json();
 };

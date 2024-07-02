@@ -12,6 +12,7 @@ const authRoutes = require("./router/authRoutes")
 const servicesRoutes = require("./router/allBookingDataRoutes")
 const addBookingRoutes = require("./router/addBookingRoutes")
 const transactionRoutes = require("./router/transactionRoutes")
+const service_cageRoutes = require("./router/service-cageRoutes")
 
 app.use(cors({
   origin: ['http://localhost:3000', 'https://mypetcare-center.vercel.app'],
@@ -31,6 +32,7 @@ app.use("/auth", authRoutes);
 app.use("/allBookingData", servicesRoutes);
 app.use("/addBookingData", addBookingRoutes);
 app.use("/transaction", transactionRoutes);
+app.use("/services_cages", service_cageRoutes);
 
 
 

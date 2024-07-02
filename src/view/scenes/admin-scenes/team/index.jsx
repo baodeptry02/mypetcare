@@ -24,6 +24,7 @@ import LockOpenOutlinedIcon from "@mui/icons-material/LockOpenOutlined";
 import SecurityOutlinedIcon from "@mui/icons-material/SecurityOutlined";
 import MedicationIcon from "@mui/icons-material/Medication";
 import Header from "../../../../Components/dashboardChart/Header";
+import { updateUserById } from "../../../account/getUserData";
 
 const RoleEditCell = ({ id, value, api }) => {
   const [role, setRole] = useState(value);
@@ -40,10 +41,18 @@ const RoleEditCell = ({ id, value, api }) => {
   return (
     <div className="role-menu">
       <Select value={role} onChange={handleChange} autoFocus fullWidth>
-        <MenuItem value="admin">Admin</MenuItem>
-        <MenuItem value="user">User</MenuItem>
-        <MenuItem value="manager">Manager</MenuItem>
-        <MenuItem value="veterinarian">Vet</MenuItem>
+        <MenuItem sx={{ fontSize: "16px" }} value="admin">
+          Admin
+        </MenuItem>
+        <MenuItem sx={{ fontSize: "16px" }} value="user">
+          User
+        </MenuItem>
+        <MenuItem sx={{ fontSize: "16px" }} value="manager">
+          Manager
+        </MenuItem>
+        <MenuItem sx={{ fontSize: "16px" }} value="veterinarian">
+          Vet
+        </MenuItem>
       </Select>
     </div>
   );
@@ -53,8 +62,7 @@ function Team() {
   const theme = useTheme();
   const colors = tokens(theme.palette.mode);
   const [loading, setLoading] = useState(true);
-  const [userUpdated, setUserUpdated] = useState(false); // Track user updates
-  const user = auth.currentUser;
+  const [userUpdated, setUserUpdated] = useState(false);
   const [rows, setRows] = useState(mockDataTeam);
   const [searchQuery, setSearchQuery] = useState("");
   const [currentPage, setCurrentPage] = useState(1);
@@ -66,25 +74,16 @@ function Team() {
     return re.test(String(email).toLowerCase());
   };
 
-  const validatePhone = (phone) => {
-    const re = /^\d{10}$/; // Only allow 10 digits
-    return re.test(phone);
-  };
-
   const checkDuplicateData = (row) => {
     return rows.some((item) => {
       if (item.id !== row.id) {
-        return (
-          item.email === row.email ||
-          item.phone === row.phone ||
-          item.username === row.username
-        );
+        return item.email === row.email || item.username === row.username;
       }
       return false;
     });
   };
 
-  const handleSubmit = async (event, row) => {
+  const handleUpdateAccount = async (event, row) => {
     event.preventDefault();
     setLoading(true);
 
@@ -136,7 +135,7 @@ function Team() {
           role: row.role,
         });
 
-        await update(ref(getDatabase(), `users/${row.id}`), updates);
+        await updateUserById(`${row.id}`, updates);
         setRows(rows.map((item) => (item.id === row.id ? row : item))); // Update row in state
         setUserUpdated(true);
         toast.success("Updated successful !!!");
@@ -159,45 +158,19 @@ function Team() {
     (row) => row.email && row.email.toLowerCase().includes(searchQuery)
   );
 
-  const handleEnable = async (event, id) => {
+  const handelAccountStatus = async (event, id, accountStatus) => {
     event.preventDefault();
     setLoading(true);
 
     try {
-      await update(ref(getDatabase(), `users/${id}`), {
-        accountStatus: "enable",
-      });
+      await updateUserById(id, { accountStatus });
 
       setRows(
-        rows.map((item) =>
-          item.id === id ? { ...item, accountStatus: "enable" } : item
-        )
+        rows.map((item) => (item.id === id ? { ...item, accountStatus } : item))
       );
-      toast.success("User enabled successfully!");
+      toast.success(`User ${accountStatus}d successfully!`);
     } catch (error) {
-      toast.warning("Error enabling user.");
-    }
-
-    setLoading(false);
-  };
-
-  const handleDisable = async (event, id) => {
-    event.preventDefault();
-    setLoading(true);
-
-    try {
-      await update(ref(getDatabase(), `users/${id}`), {
-        accountStatus: "disabled",
-      });
-
-      setRows(
-        rows.map((item) =>
-          item.id === id ? { ...item, accountStatus: "disabled" } : item
-        )
-      );
-      toast.error("User disabled successfully!");
-    } catch (error) {
-      toast.warning("Error disabling user.");
+      toast.warning(`Error ${accountStatus}ing user.`);
     }
 
     setLoading(false);
@@ -213,19 +186,73 @@ function Team() {
   );
 
   const columns = [
-    { field: "id", headerName: "ID", width: 150, editable: false },
-    { field: "username", headerName: "Username", flex: 0.6, editable: true },
-    { field: "phone", headerName: "Phone Number", flex: 0.8, editable: true },
-    { field: "email", headerName: "Email", flex: 1, editable: true },
     {
-      field: "accountBalance",
-      headerName: "Balance",
+      field: "id",
+      headerName: (
+        <Typography sx={{ fontSize: 18, fontWeight: "bold" }}>ID</Typography>
+      ),
+      width: 150,
+      editable: false,
+      renderCell: ({ value }) => (
+        <div style={{ fontSize: "16px" }}>{value}</div>
+      ),
+    },
+
+    {
+      field: "username",
+      headerName: (
+        <Typography sx={{ fontSize: 18, fontWeight: "bold" }}>
+          Username
+        </Typography>
+      ),
       flex: 0.6,
       editable: true,
+      renderCell: ({ value }) => (
+        <div style={{ fontSize: "16px" }}>{value}</div>
+      ),
+    },
+    {
+      field: "phone",
+      headerName: (
+        <Typography sx={{ fontSize: 18, fontWeight: "bold" }}>
+          Phone Number
+        </Typography>
+      ),
+      flex: 0.8,
+      editable: true,
+      renderCell: ({ value }) => (
+        <div style={{ fontSize: "16px" }}>{value}</div>
+      ),
+    },
+    {
+      field: "email",
+      headerName: (
+        <Typography sx={{ fontSize: 18, fontWeight: "bold" }}>Email</Typography>
+      ),
+      flex: 1,
+      editable: true,
+      renderCell: ({ value }) => (
+        <div style={{ fontSize: "16px" }}>{value}</div>
+      ),
+    },
+    {
+      field: "accountBalance",
+      headerName: (
+        <Typography sx={{ fontSize: 18, fontWeight: "bold" }}>
+          Balance
+        </Typography>
+      ),
+      flex: 0.6,
+      editable: true,
+      renderCell: ({ value }) => (
+        <div style={{ fontSize: "16px" }}>{value}</div>
+      ),
     },
     {
       field: "role",
-      headerName: "Role",
+      headerName: (
+        <Typography sx={{ fontSize: 18, fontWeight: "bold" }}>Role</Typography>
+      ),
       flex: 1,
       renderCell: ({ value }) => {
         return (
@@ -242,55 +269,92 @@ function Team() {
             }
             borderRadius="4px"
           >
-            {value === "admin" && <AdminPanelSettingsOutlinedIcon />}
-            {value === "manager" && <SecurityOutlinedIcon />}
-            {value === "user" && <LockOpenOutlinedIcon />}
-            {value === "veterinarian" && <MedicationIcon />}
-            <Typography color={colors.grey[100]} sx={{ ml: "5px" }}>
+            {value === "admin" && (
+              <AdminPanelSettingsOutlinedIcon
+                sx={{ fontSize: "22px", marginTop: "4px" }}
+              />
+            )}
+            {value === "manager" && (
+              <SecurityOutlinedIcon
+                sx={{ fontSize: "22px", marginTop: "4px" }}
+              />
+            )}
+            {value === "user" && (
+              <LockOpenOutlinedIcon
+                sx={{ fontSize: "22px", marginTop: "4px" }}
+              />
+            )}
+            {value === "veterinarian" && (
+              <MedicationIcon sx={{ fontSize: "22px", marginTop: "4px" }} />
+            )}
+            <Typography
+              color={colors.grey[100]}
+              sx={{ ml: "5px", fontSize: "20px" }}
+            >
               {value}
             </Typography>
           </Box>
         );
       },
       editable: true,
-      renderEditCell: (params) => <RoleEditCell {...params} />,
+
+      renderEditCell: (params) => (
+        <Typography sx={{ ml: "5px", fontSize: "20px" }}>
+          <RoleEditCell {...params} />
+        </Typography>
+      ),
     },
     {
       field: "accountStatus",
-      headerName: "Account Status",
+      headerName: (
+        <Typography sx={{ fontSize: 18, fontWeight: "bold" }}>
+          Account Status
+        </Typography>
+      ),
       flex: 0.7,
       renderCell: ({ value }) => (
         <div
           style={{
             display: "flex",
             alignItems: "center",
-            justifyContent: "center",
             height: "100%",
           }}
         >
           <Typography
             color={value === "disabled" ? "red" : "green"}
             sx={{
-              fontSize: "1.8rem",
-              textAlign: "center",
+              fontSize: "20px",
+              textAlign: "start",
             }}
           >
-            {value}
+            {value === "enable"
+              ? "Enable"
+              : value === "disabled"
+              ? "Disabled"
+              : value}
           </Typography>
         </div>
       ),
     },
     {
       field: "update",
-      headerName: "Update",
+      headerName: (
+        <Typography sx={{ fontSize: 18, fontWeight: "bold" }}>
+          Update
+        </Typography>
+      ),
       flex: 0.5,
       renderCell: (params) => (
         <div className="admin-update-button">
           <Button
             variant="contained"
             size="small"
-            onClick={(event) => handleSubmit(event, params.row)}
-            style={{ marginRight: "10px" }}
+            onClick={(event) => handleUpdateAccount(event, params.row)}
+            style={{
+              marginRight: "10px",
+              fontSize: "16px",
+              backgroundColor: "green",
+            }}
           >
             Update
           </Button>
@@ -299,23 +363,39 @@ function Team() {
     },
     {
       field: "action",
-      headerName: "Action",
+      headerName: (
+        <Typography sx={{ fontSize: 18, fontWeight: "bold" }}>
+          Action
+        </Typography>
+      ),
       flex: 1,
       renderCell: (params) => (
         <div className="admin-update-button">
           <Button
             variant="contained"
             size="small"
-            onClick={(event) => handleEnable(event, params.row.id)}
-            style={{ marginRight: "10px" }}
+            onClick={(event) =>
+              handelAccountStatus(event, params.row.id, "enable")
+            }
+            style={{
+              marginRight: "10px",
+              fontSize: "16px",
+              backgroundColor: "green",
+            }}
           >
             Enable
           </Button>
           <Button
             variant="contained"
             size="small"
-            onClick={(event) => handleDisable(event, params.row.id)}
-            style={{ marginRight: "10px" }}
+            onClick={(event) =>
+              handelAccountStatus(event, params.row.id, "disabled")
+            }
+            style={{
+              marginRight: "10px",
+              fontSize: "16px",
+              backgroundColor: "red",
+            }}
           >
             Disable
           </Button>
@@ -331,15 +411,16 @@ function Team() {
         display="flex"
         backgroundColor={colors.primary[400]}
         borderRadius="3px"
+        width={300}
       >
         <InputBase
-          sx={{ ml: 2, flex: 1 }}
+          sx={{ ml: 2, flex: 1, fontSize: "20px" }}
           placeholder="Search by email"
           value={searchQuery}
           onChange={handleSearch}
         />
         <IconButton type="button" sx={{ p: 1 }}>
-          <SearchIcon />
+          <SearchIcon sx={{ fontSize: "20px" }} />
         </IconButton>
       </Box>
       <Box
@@ -368,9 +449,23 @@ function Team() {
           "& .MuiCheckbox-root": {
             color: `${colors.greenAccent[200]} !important`,
           },
+          "& .MuiDataGrid-overlay": {
+            fontSize: "24px",
+          },
+          "& .MuiInputBase-input": {
+            fontSize: "20px",
+          },
+          "& .MuiInputBase-root": {
+            width: "209px",
+          },
+          "& .MuiSelect-select": {
+            fontSize: "18px",
+            marginRight: "60px",
+            paddingRight: "20px",
+          },
         }}
       >
-        <DataGrid rows={displayedRows} columns={columns} pagination={false} />
+        <DataGrid rows={displayedRows} columns={columns} pagination={true} />
       </Box>
       <Box
         mt="20px"
