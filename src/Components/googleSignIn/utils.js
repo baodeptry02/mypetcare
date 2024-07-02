@@ -1,7 +1,20 @@
 import axios from "axios";
 import { getAuth, signInWithEmailAndPassword } from 'firebase/auth';
-const BASE_URL = 'http://localhost:5000';
 
+
+const LOCAL_BASE_URL = process.env.REACT_APP_LOCAL_BASE_URL;
+const PRODUCTION_BASE_URL = process.env.REACT_APP_PRODUCTION_BASE_URL;
+const ENV = process.env.REACT_APP_ENV;
+
+console.log('Environment:', ENV);
+console.log('Local Base URL:', LOCAL_BASE_URL);
+console.log('Production Base URL:', PRODUCTION_BASE_URL);
+
+const getBaseUrl = () => {
+  return ENV === 'production' ? PRODUCTION_BASE_URL : LOCAL_BASE_URL;
+};
+
+const BASE_URL = getBaseUrl();
 
 export const googleLogin = async (idToken) => {
   try {

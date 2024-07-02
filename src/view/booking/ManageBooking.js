@@ -89,7 +89,7 @@ const ManageBookings = () => {
   const confirmCancellation = async () => {
     if (confirmCancel) {
       try {
-        setLoading(true); // Start the loading state
+        setLoading(true);
         const { key, vet, date, time, totalPaid } = confirmCancel;
         const userId = user.uid;
         const vetId = vet.uid;
