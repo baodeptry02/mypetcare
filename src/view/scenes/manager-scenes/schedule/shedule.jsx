@@ -14,6 +14,7 @@ const ManagerSchedule = () => {
   const [isUpdating, setIsUpdating] = useState(false);
   const auth = getAuth();
   const dragContainerRef = useRef(null);
+  const addedEvents = useRef(new Set());
 
   useEffect(() => {
     const fetchVets = async () => {
@@ -32,8 +33,11 @@ const ManagerSchedule = () => {
       setVets(vetsList);
     };
 
-    fetchVets();
-  }, []);
+    // Kiểm tra nếu chưa có dữ liệu về bác sĩ thì mới fetch
+    if (vets.length === 0) {
+      fetchVets();
+    }
+  }, [vets.length]);
 
   useEffect(() => {
     const fetchEvents = () => {
@@ -41,46 +45,59 @@ const ManagerSchedule = () => {
       vets.forEach((vet) => {
         Object.keys(vet.schedule).forEach((date) => {
           if (vet.schedule[date] === true) {
-            eventsList.push({
-              id: `${vet.uid}-${date}`,
-              title: `Work Day - ${vet.name}`,
-              start: date,
-              allDay: true,
-              backgroundColor: "lightgrey",
-              borderColor: "lightgrey",
-              textColor: "black",
-              extendedProps: {
-                vetId: vet.uid,
-                vetName: vet.name,
-              },
-            });
+            const eventId = `${vet.uid}-${date}`;
+            if (!addedEvents.current.has(eventId)) {
+              eventsList.push({
+                id: eventId,
+                title: `Work Day - ${vet.name}`,
+                start: date,
+                allDay: true,
+                backgroundColor: "lightgrey",
+                borderColor: "lightgrey",
+                textColor: "black",
+                extendedProps: {
+                  vetId: vet.uid,
+                  vetName: vet.name,
+                },
+              });
+              addedEvents.current.add(eventId);
+            }
           }
         });
       });
       setEvents(eventsList);
     };
 
-    fetchEvents();
+    // Chỉ fetch events khi có dữ liệu về bác sĩ
+    if (vets.length > 0) {
+      fetchEvents();
+    }
   }, [vets]);
 
   useEffect(() => {
-    if (dragContainerRef.current) {
+    if (vets.length > 0 && dragContainerRef.current) {
       new Draggable(dragContainerRef.current, {
         itemSelector: ".draggable-item",
         eventData: function (eventEl) {
           const vetId = eventEl.getAttribute("data-vetid");
           const vetName = eventEl.getAttribute("data-vetname");
-          return {
-            title: `Work Day - ${vetName}`,
-            extendedProps: {
-              vetId,
-              vetName,
-            },
-            allDay: true,
-            backgroundColor: "lightgrey",
-            borderColor: "lightgrey",
-            textColor: "black",
-          };
+          const eventId = `${vetId}-${new Date().toISOString()}`; // Sử dụng timestamp để tạo eventId duy nhất
+          if (!addedEvents.current.has(eventId)) {
+            addedEvents.current.add(eventId);
+            return {
+              id: eventId,
+              title: `Work Day - ${vetName}`,
+              extendedProps: {
+                vetId,
+                vetName,
+              },
+              allDay: true,
+              backgroundColor: "lightgrey",
+              borderColor: "lightgrey",
+              textColor: "black",
+            };
+          }
+          return false; // Ngăn chặn tạo event trùng lặp
         },
       });
     }

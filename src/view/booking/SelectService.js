@@ -5,6 +5,7 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faCaretLeft, faCaretRight } from '@fortawesome/free-solid-svg-icons';
 import { getDatabase, ref, onValue } from "firebase/database";
 import Spinner from 'react-bootstrap/Spinner'; // Ensure you have react-bootstrap installed
+import {fetchServices} from "./fetchAllBookingData"
 
 const SelectService = () => {
   const { selectedPet, setSelectedServices } = useContext(BookingContext);
@@ -21,22 +22,19 @@ const SelectService = () => {
   }, [selectedPet, navigate]);
 
   useEffect(() => {
-    const servicesRef = ref(db, 'services');
-    const unsubscribe = onValue(servicesRef, (snapshot) => {
-      const data = snapshot.val();
-      if (data) {
-        const servicesArray = Object.keys(data).map(key => ({
-          ...data[key],
-          id: key
-        }));
-        setServices(servicesArray);
+    const fetchServiceData = async () => {
+      try {
+        const data = await fetchServices();
+        setServices(data.services);
+      } catch (error) {
+        console.error('Error fetching services:', error);
+      } finally {
+        setLoading(false);
       }
-      setLoading(false); // Set loading to false once data is fetched
-    });
+    };
 
-    // Cleanup subscription on unmount
-    return () => unsubscribe();
-  }, [db]);
+    fetchServiceData();
+  }, []);
 
   const handleServiceChange = (serviceName) => {
     const service = services.find((s) => s.name === serviceName);
@@ -55,7 +53,6 @@ const SelectService = () => {
   const isServiceSelected = (serviceName) => {
     return selectedServiceList.some((s) => s.name === serviceName);
   };
-
   if (!selectedPet) {
     return (
       <div className="service-selection">

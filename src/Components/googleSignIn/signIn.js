@@ -1,7 +1,12 @@
 import React, { useState, useEffect, useRef } from "react";
 import { auth, provider, database } from "../firebase/firebase"; // Assuming config file with Firebase settings
 import { doCreateUserWithEmailAndPassword } from "../firebase/auth";
-import { signInWithPopup, signInWithEmailAndPassword } from "firebase/auth";
+import {
+  signInWithPopup,
+  signInWithEmailAndPassword,
+  getAuth,
+  GoogleAuthProvider,
+} from "firebase/auth";
 import Home from "../../view/partials/Home";
 import { useNavigate } from "react-router-dom";
 import {
@@ -25,7 +30,8 @@ import useForceUpdate from "../../hooks/useForceUpdate";
 import ReCAPTCHA from "react-google-recaptcha";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faEye, faEyeSlash } from "@fortawesome/free-solid-svg-icons";
-
+import { googleLogin, registerUser, emailLogin } from "./utils";
+import LoadingAnimation from "../../animation/loading-animation";
 
 function SignIn() {
   const [email, setEmail] = useState("");
@@ -48,28 +54,7 @@ function SignIn() {
   );
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
-
-
-  // console.log(avatar)
-  function addDataBase(userId, email, name, role) {
-    const db = getDatabase();
-    set(
-      ref(db, "users/" + userId),
-      {
-        email: email,
-        username: name,
-        role: role,
-        isVerified: false,
-      },
-      function (error) {
-        if (error) {
-          alert("Lỗi");
-        } else {
-          alert("Thành Công !!!");
-        }
-      }
-    );
-  }
+  const [loading, setLoading] = useState(false);
 
   const onChange = (value) => {
     setIsCaptchaVerified(!!value);
@@ -86,61 +71,15 @@ function SignIn() {
 
   const handleGoogleLogin = async () => {
     try {
-      const data = await signInWithPopup(auth, provider);
-      const user = data.user;
-
-      // Get the creation time from the user's metadata
-      const creationTime = user.metadata.creationTime;
-
-      const userEmail = user.email;
-      const userNamePart = userEmail.split("@")[0];
-      const userName = "gg" + userNamePart;
-      const userId = user.uid;
-      const db = getDatabase();
-      const userRef = ref(db, `users/${userId}`);
-      let userRole = "user";
-
-      const userDataSnapshot = await get(userRef);
-      const userData = userDataSnapshot.exists()
-        ? userDataSnapshot.val()
-        : null;
-      let accountStatus = "enable";
-
-      // If user does not exist in the database, add the user
-      if (!userData) {
-        await set(userRef, {
-          email: userEmail,
-          username: userName,
-          role: userRole,
-          isVerified: true,
-          accountBalance: 0,
-          accountStatus: accountStatus,
-          creationTime: creationTime,
-          avatar: userData.avatar || avatar,
-        });
-      } else {
-        userRole = userData.role || "user";
-        const accountBalance = userData.accountBalance || 0;
-        await set(userRef, {
-          ...userData,
-          email: userEmail,
-          username: userName,
-          role: userRole,
-          isVerified: true,
-          accountBalance: accountBalance,
-          accountStatus: userData.accountStatus || accountStatus,
-          creationTime: userData.creationTime || creationTime,
-          avatar: userData.avatar || avatar,
-        });
-
-        if (userData.accountBalance === undefined) {
-          await update(userRef, {
-            accountBalance: 0,
-          });
-        }
-      }
-      setSignInMethod("google");
-      setIsCaptchaVerified(true);
+      const provider = new GoogleAuthProvider();
+      const auth = getAuth();
+      const result = await signInWithPopup(auth, provider);
+      setLoading(true)
+      const idToken = await result.user.getIdToken();
+      console.log(idToken);
+      
+      const data = await googleLogin(idToken);
+      const userRole = data.role;
 
       toast.success("Login successfully. Wish you enjoy our best experience", {
         autoClose: 2000,
@@ -165,7 +104,8 @@ function SignIn() {
       toast.error("Failed to sign in with Google. Please try again.", {
         autoClose: 2000,
         onClose: () => {
-          forceUpdate();
+          setLoading(false)
+          forceUpdate(); // Equivalent to `forceUpdate()`
         },
       });
     }
@@ -173,78 +113,24 @@ function SignIn() {
 
   const onSubmit = async (e) => {
     e.preventDefault();
+
     if (password !== confirmPassword) {
-      toast.error("Password not match, please try again!", {
-        autoClose: 2000,
-        onClose: () => {
-          forceUpdate();
-        },
-      });
+      toast.error("Password not match, please try again!", { autoClose: 2000 });
       return;
     }
 
-    const username = email.split("@")[0];
-
-    const expression = /^[^@]+@\w+(\.\w+)+\w$/;
-    if (!expression.test(email)) {
-      toast.error("Email is invalid. Please enter a valid email address.", {
-        autoClose: 2000,
-        onClose: () => {
-          forceUpdate();
-        },
-      });
-      return;
-    }
-
-    const signInMethods = await fetchSignInMethodsForEmail(auth, email);
-    if (signInMethods.length > 0) {
-      setIsRegistering(false);
-      toast.error("This email is used by another user, please try again!", {
-        autoClose: 2000,
-        onClose: () => {
-          forceUpdate();
-        },
-      });
-      return;
-    }
+    const userData = { email, password, confirmPassword };
 
     if (!isRegistering) {
       setIsRegistering(true);
+      setLoading(true);
       try {
-        const userCredential = await doCreateUserWithEmailAndPassword(
-          email,
-          password
-        );
-        const user = userCredential.user;
-        const userId = userCredential.user.uid;
-        await sendEmailVerification(user);
-        await updateProfile(user, {
-          displayName: username,
-          role: "user",
-          isVerified: false,
-          accountBalance: 0,
-        });
-        addDataBase(userId, email, username, "user");
-        await auth.signOut();
-        toast.success(
-          "Registration successful. Please check your email for verification then login to our system again.",
-          {
-            autoClose: 2000,
-            onClose: () => {
-              setTimeout(() => {
-                forceUpdate();
-              }, 2000);
-            },
-          }
-        );
+        const response = await registerUser(userData);
+        toast.success(response.message, { autoClose: 2000 });
       } catch (error) {
-        toast.error("This email is used by another user, please try again!", {
-          autoClose: 2000,
-          onClose: () => {
-            forceUpdate();
-          },
-        });
+        toast.error(error.error, { autoClose: 2000 });
       } finally {
+        setLoading(false);
         setIsRegistering(false);
       }
     }
@@ -273,75 +159,21 @@ function SignIn() {
     }
 
     try {
-      const userCredential = await signInWithEmailAndPassword(
-        auth,
-        email,
-        password
-      );
-      const user = userCredential.user;
+      setLoading(true); // Show spinner
 
-      if (!user.emailVerified) {
-        toast.error("Please verify your email before logging in.", {
-          autoClose: 2000,
-          onClose: () => {
-            forceUpdate();
-          },
-        });
-        await auth.signOut();
-        return;
-      }
+      const response = await emailLogin(email, password);
 
-      const userEmail = user.email;
+      const userEmail = email;
       setUserEmail(userEmail);
       localStorage.setItem("email", userEmail);
-      const userId = user.uid;
-      const db = getDatabase();
-      const userRef = ref(db, `users/${userId}`);
-      let userRole = "user";
-      const creationTime = user.metadata.creationTime;
 
-      const creationTimeSnapshot = await get(child(userRef, "creationTime"));
-      if (!creationTimeSnapshot.exists()) {
-        await set(child(userRef, "creationTime"), creationTime);
-      }
-
-      let accountStatus = "enable";
-
-      const userDataSnapshot = await get(userRef);
-      const userData = userDataSnapshot.exists()
-        ? userDataSnapshot.val()
-        : null;
-
-      if (!userData) {
-        await set(userRef, {
-          email: userEmail,
-          username: user.displayName || "User",
-          role: userRole,
-          isVerified: true,
-          accountBalance: 0,
-          accountStatus: accountStatus,
-        });
-      } else {
-        userRole = userData.role || "user";
-        if (userData.accountBalance === undefined) {
-          await update(userRef, {
-            accountBalance: 0,
-          });
-        }
-
-        await update(userRef, {
-          username: user.displayName || "User",
-          role: userRole,
-          isVerified: userData.isVerified,
-          accountStatus: userData.accountStatus || accountStatus,
-          avatar: userData.avatar || avatar,
-        });
-      }
+      // Set avatar state here
+      setAvatar(response.avatar);
 
       toast.success("Login successfully. Wish you enjoy our best experience!", {
         autoClose: 2000,
         onClose: () => {
-          switch (userRole) {
+          switch (response.role) {
             case "veterinarian":
               navigate("/vet/dashboard");
               break;
@@ -354,16 +186,36 @@ function SignIn() {
             default:
               navigate("/");
           }
+          setLoading(false); // Hide spinner
         },
       });
     } catch (error) {
       console.error("Error during login:", error);
-      toast.error("Failed to login. Please check your email and password.", {
-        autoClose: 2000,
-        onClose: () => {
-          forceUpdate();
-        },
-      });
+
+      if (
+        error.response &&
+        error.response.data.message ===
+          "Email not verified. Verification email has been resent."
+      ) {
+        toast.error(
+          "Please verify your email before logging in. A verification email has been sent to your email address.",
+          {
+            autoClose: 2000,
+            onClose: () => {
+              setLoading(false); // Hide spinner
+              forceUpdate();
+            },
+          }
+        );
+      } else {
+        toast.error("Failed to login. Please check your email and password.", {
+          autoClose: 2000,
+          onClose: () => {
+            setLoading(false); // Hide spinner
+            forceUpdate();
+          },
+        });
+      }
     }
   };
 
@@ -375,11 +227,6 @@ function SignIn() {
     const container = document.getElementById("container");
     container.classList.remove("active");
   };
-
-  useEffect(() => {
-    const storedEmail = localStorage.getItem("email");
-    setUserEmail(storedEmail);
-  }, []);
 
   useEffect(() => {
     const updateUserVerificationStatus = async (user) => {
@@ -413,11 +260,11 @@ function SignIn() {
     setIsInactive(false);
     resetInactivityTimer();
   };
-const togglePasswordVisibility = () => {
-    setShowPassword(prevState => !prevState);
+  const togglePasswordVisibility = () => {
+    setShowPassword((prevState) => !prevState);
   };
-const togglePasswordConfirmVisibility = () => {
-    setShowConfirmPassword(prevState => !prevState);
+  const togglePasswordConfirmVisibility = () => {
+    setShowConfirmPassword((prevState) => !prevState);
   };
 
   useEffect(() => {
@@ -429,6 +276,7 @@ const togglePasswordConfirmVisibility = () => {
     <div>
       {!userEmail && (
         <div className="signIn" style={{ height: "100vh" }}>
+          {loading && <LoadingAnimation />}
           <div className="container form" id="container">
             <div className="form-container sign-up">
               <form onSubmit={onSubmit}>
@@ -468,32 +316,38 @@ const togglePasswordConfirmVisibility = () => {
                     class="toggle-password"
                     onClick={togglePasswordVisibility}
                   >
-                   <FontAwesomeIcon id="toggleIcon" icon={showPassword ? faEyeSlash : faEye} />
+                    <FontAwesomeIcon
+                      id="toggleIcon"
+                      icon={showPassword ? faEyeSlash : faEye}
+                    />
                   </div>
                 </div>
                 <div>
                   <label className="text-sm text-gray-600 font-bold">
                     Confirm Password
                   </label>
-                <div class="input-wrapper">
-                  <input
-                    disabled={isRegistering}
-                    type={showConfirmPassword ? "text" : "password"}
-                    placeholder="Confirm your password"
-                    autoComplete="off"
-                    required
-                    value={confirmPassword}
-                    onChange={(e) => {
-                      setconfirmPassword(e.target.value || "");
-                    }}
+                  <div class="input-wrapper">
+                    <input
+                      disabled={isRegistering}
+                      type={showConfirmPassword ? "text" : "password"}
+                      placeholder="Confirm your password"
+                      autoComplete="off"
+                      required
+                      value={confirmPassword}
+                      onChange={(e) => {
+                        setconfirmPassword(e.target.value || "");
+                      }}
                     />
-                <div
-                    class="toggle-password"
-                    onClick={togglePasswordConfirmVisibility}
-                  >
-                   <FontAwesomeIcon id="toggleIcon" icon={showConfirmPassword ? faEyeSlash : faEye} />
+                    <div
+                      class="toggle-password"
+                      onClick={togglePasswordConfirmVisibility}
+                    >
+                      <FontAwesomeIcon
+                        id="toggleIcon"
+                        icon={showConfirmPassword ? faEyeSlash : faEye}
+                      />
+                    </div>
                   </div>
-                </div>
                 </div>
                 <button
                   type="submit"

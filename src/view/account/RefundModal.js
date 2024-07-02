@@ -9,6 +9,7 @@ const RefundModal = ({ showModal, setShowModal, userId }) => {
   const [accountNumber, setAccountNumber] = useState('');
   const [amount, setAmount] = useState('');
   const [username, setUsername] = useState('');
+  const [email, setEmail] = useState('');
   const [accountBalance, setAccountBalance] = useState(0);
 
   useEffect(() => {
@@ -26,6 +27,8 @@ const RefundModal = ({ showModal, setShowModal, userId }) => {
             const userData = snapshot.val();
             setAccountBalance(userData.accountBalance || 0);
             setUsername(userData.username);
+            setEmail(userData.email)
+            console.log(userData)
           } else {
             console.log("Không có dữ liệu người dùng.");
           }
@@ -66,7 +69,8 @@ const RefundModal = ({ showModal, setShowModal, userId }) => {
       date: timestamp,
       isRefund: false,
       username: username,
-      userId: userId
+      userId: userId,
+      email: email
     };
 
     try {

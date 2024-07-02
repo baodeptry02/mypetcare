@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { auth } from "../../Components/firebase/firebase";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
 import { updateProfile } from "firebase/auth";
 import {
   getDatabase,
@@ -21,14 +21,16 @@ import {
   getDownloadURL,
 } from "firebase/storage";
 import RefundModal from './RefundModal';
+import { fetchUserById, updateUserById, uploadAvatar } from "./getUserData";
+import moment from "moment";
 
 function Update() {
+  const { userId1 } = useParams();
   const [email, setEmail] = useState("");
   const [username, setUsername] = useState("");
   const [phone, setPhone] = useState("");
   const [address, setAddress] = useState("");
   const [accountBalance, setAccountBalance] = useState("");
-  const [userId, setUserId] = useState("");
   const [fullname, setFullname] = useState("");
   const [dob, setDob] = useState("");
   const [loading, setLoading] = useState(true);
@@ -43,6 +45,7 @@ function Update() {
   const [gender, setGender] = useState("Male");
   const [join, setJoin] = useState("");
   const [showModal, setShowModal] = useState(false);
+  const [error, setError] = useState(null);
 
 
   const timestamp = parseInt(user?.metadata?.lastLoginAt, 10);
@@ -59,48 +62,41 @@ function Update() {
     minute: "2-digit",
     second: "2-digit",
   });
-
-
   useEffect(() => {
-    if (user) {
-      setUserId(user.uid);
-      setEmail(localStorage.getItem('email') || '');
-      setUsername(localStorage.getItem('username') || '');
-    }
-  }, [user]);
-
-  useEffect(() => {
-    if (userId) {
-      const db = getDatabase();
-      const userRef = ref(db, "users/" + userId);
-
-      onValue(userRef, (snapshot) => {
-        const data = snapshot.val();
-        if (data) {
-          setEmail(data.email);
-          setUsername(data.username);
-          setPhone(data.phone);
-          setAddress(data.address);
-          setFullname(data.fullname);
-          setAccountBalance(data.accountBalance);
-          setJoin(data.creationTime);
-          setDob(data.dob)
-          setGender(data.gender || "Male");
-          if (data.avatar) {
-            setAvatar(data.avatar);
-          } else {
-            setAvatar(
-              data.gender === "Female"
-                ? "https://static.vecteezy.com/system/resources/previews/004/899/833/non_2x/beautiful-girl-with-blue-hair-avatar-of-woman-for-social-network-vector.jpg"
-                : "https://icons.veryicon.com/png/o/miscellaneous/user-avatar/user-avatar-male-5.png"
-            );
-          }
+    const getUser = async () => {
+      try {
+        const userData = await fetchUserById(userId1);
+        setEmail(userData.email);
+        setUsername(userData.username);
+        setPhone(userData.phone);
+        setAddress(userData.address);
+        setFullname(userData.fullname);
+        setAccountBalance(userData.accountBalance);
+        setDob(userData.dob);
+        setGender(userData.gender || "Male");
+        if (userData.avatar) {
+          setAvatar(userData.avatar);
+        } else {
+          setAvatar(
+            userData.gender === "Female"
+              ? "https://static.vecteezy.com/system/resources/previews/004/899/833/non_2x/beautiful-girl-with-blue-hair-avatar-of-woman-for-social-network-vector.jpg"
+              : "https://icons.veryicon.com/png/o/miscellaneous/user-avatar/user-avatar-male-5.png"
+          );
         }
+        setJoin(userData.creationTime);
+      } catch (error) {
+        setError(error.message);
+      } finally {
         setLoading(false);
-      });
-    }
-  }, [userId]);
+      }
+    };
 
+    if (userId1) {
+      getUser();
+    }
+  }, [userId1]);
+
+  
   const handleGenderChange = (e) => {
     const newGender = e.target.value;
     setGender(newGender);
@@ -122,65 +118,41 @@ function Update() {
       dob: dob || '',
       avatar: avatar,
     };
-
     if (Object.keys(updates).length > 0) {
-      const user = auth.currentUser;
-      if (user) {
-        try {
-          await updateProfile(user, {
-            phone,
-            address: address || "",
-            fullname: fullname || "",
-            dob: dob || "",
-            gender: gender || "Male",
-            avatar: avatar,
-          });
-
-          await updateDatabase(ref(getDatabase(), "users/" + userId), updates);
-          setUserUpdated(true);
-          toast.success("Update profile successful!", {
-            autoClose: 2000,
-            onClose: () => {
-              forceUpdate();
-            },
-          });
-        } catch (error) {
-          console.log(error);
-        }
+      try {
+        await updateUserById(userId1, updates);
+        setUserUpdated(true);
+        toast.success("Update profile successful!", { autoClose: 2000 });
+      } catch (error) {
+        console.log(error);
+        toast.error("Failed to update profile. Please try again.");
+      } finally {
+        setLoading(false);
       }
     } else {
-      toast.warning("Nothing change to update!");
+      toast.warning("Nothing changed to update!");
+      setLoading(false);
     }
-    setLoading(false);
   };
+  
 
   const handleImageUpload = async (event) => {
     const file = event.target.files[0];
     if (file) {
-      const storage = getStorage();
-      const storageReference = storageRef(
-        storage,
-        `avatars/${userId}/${file.name}`
-      );
-
       try {
-        await uploadBytes(storageReference, file);
-        const downloadURL = await getDownloadURL(storageReference);
+        const result = await uploadAvatar(userId1, file);
+        const downloadURL = result.avatar;
         setAvatar(downloadURL);
-
-        // Update the avatar URL in the database
-        const db = getDatabase();
-        await updateDatabase(ref(db, "users/" + userId), {
-          avatar: downloadURL,
-        });
-
-        toast.success("Avatar updated successfully!");
+  
+        toast.success("Avatar updated successfully!", { autoClose: 2000 });
       } catch (error) {
         console.error("Error uploading avatar:", error);
         toast.error("Failed to upload avatar. Please try again.");
       }
     }
   };
+
+
   return (
     <div
     style={{
@@ -213,8 +185,10 @@ function Update() {
               />
             </label>
             <input
+            
               id="file-input"
-              type="file"
+                          type="file"
+            accept="image/*"
               style={{ display: "none" }}
               onChange={handleImageUpload}
             />
@@ -289,13 +263,13 @@ function Update() {
                   <div className="user-info">
                     <p>
                       <span>DOB: </span>
-                      {dob || "N/A"}
+                      {dob ? moment(dob).format("DD/MM/YYYY") : "N/A"}
                     </p>
                   </div>
                   <div className="user-info">
                     <p>
                       <span>Phone Number: </span>
-                      {phone}
+                      {phone || "N/A"}
                     </p>
                   </div>
                 </div>
@@ -397,7 +371,7 @@ function Update() {
       <RefundModal
             showModal={showModal}
             setShowModal={setShowModal}
-            userId={userId}
+            userId={userId1}
           />
      <img
         className="pet-image-left"

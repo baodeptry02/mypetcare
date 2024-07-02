@@ -1,6 +1,6 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useLayoutEffect, useRef } from "react";
 import { useNavigate, useParams } from "react-router-dom";
-import { getDatabase, ref, get, update, set } from "firebase/database";
+import { getDatabase, ref, get, update, set, onValue } from "firebase/database";
 import {
   Box,
   TextField,
@@ -12,12 +12,10 @@ import {
   FormControlLabel,
   FormControl,
   FormLabel,
-  useTheme,
 } from "@mui/material";
 import { toast } from "react-toastify";
 import { getAuth } from "firebase/auth";
-import moment from 'moment-timezone';
-
+import moment from "moment-timezone";
 
 const MedicalRecord = () => {
   const { userId, bookingId } = useParams();
@@ -27,13 +25,30 @@ const MedicalRecord = () => {
   const [prescription, setPrescription] = useState("");
   const [notes, setNotes] = useState("");
   const [cageRequired, setCageRequired] = useState(false);
-  const theme = useTheme();
   const [availableCages, setAvailableCages] = useState([]);
   const [selectedCage, setSelectedCage] = useState(null);
+  const [medicalHistory, setMedicalHistory] = useState([]);
   const auth = getAuth();
   const [vetSchedule, setVetSchedule] = useState([]);
-  const [user,setUser] = useState("")
-  const navigate = useNavigate()
+  const [user, setUser] = useState("");
+  const navigate = useNavigate();
+  const [width, setWidth] = useState(0);
+  const elementRef = useRef(null);
+
+  useLayoutEffect(() => {
+    const updateWidth = () => {
+      if (elementRef.current) {
+        setWidth(elementRef.current.clientWidth);
+      }
+    };
+
+    window.addEventListener("resize", updateWidth);
+    updateWidth(); // Update width initially
+
+    return () => {
+      window.removeEventListener("resize", updateWidth);
+    };
+  }, []);
 
   useEffect(() => {
     const fetchUserData = async () => {
@@ -42,14 +57,13 @@ const MedicalRecord = () => {
         const userRef = ref(db, `users/${userId}`);
         const snapshot = await get(userRef);
         const userData = snapshot.val();
-        setUser(userData)
-
+        setUser(userData);
       } catch (error) {
         console.error("Error fetching vet schedule:", error);
       }
-    }
-    fetchUserData()
-  },[userId])
+    };
+    fetchUserData();
+  }, [userId]);
 
   useEffect(() => {
     const fetchVetSchedule = async () => {
@@ -76,91 +90,109 @@ const MedicalRecord = () => {
     fetchVetSchedule();
   }, [auth]);
 
-
   useEffect(() => {
+    const fetchBookingDetails = async (userId, bookingId) => {
+      try {
+        const db = getDatabase();
+        const bookingRef = ref(db, `users/${userId}/bookings/${bookingId}`);
+        const snapshot = await get(bookingRef);
+        const data = snapshot.val();
+        if (data) {
+          setBooking(data);
+
+          const petRef = ref(db, `users/${userId}/pets/${data.pet.key}`);
+          const petSnapshot = await get(petRef);
+          const petData = petSnapshot.val();
+          if (petData && petData.medicalHistory) {
+            setMedicalHistory(petData.medicalHistory);
+          }
+        } else {
+          console.error("No booking data found");
+        }
+      } catch (error) {
+        console.error("Error fetching booking details:", error);
+      }
+    };
     fetchBookingDetails(userId, bookingId);
   }, [userId, bookingId]);
 
-  const fetchBookingDetails = async (userId, bookingId) => {
-    try {
-      const db = getDatabase();
-      const bookingRef = ref(db, `users/${userId}/bookings/${bookingId}`);
-      const snapshot = await get(bookingRef);
+  useEffect(() => {
+    const db = getDatabase();
+    const medicalHistoryRef = ref(
+      db,
+      `users/${userId}/pets/${booking?.pet.key}/medicalHistory`
+    );
+    const unsubscribe = onValue(medicalHistoryRef, (snapshot) => {
       const data = snapshot.val();
-      console.log("Fetched booking data:", data);
       if (data) {
-        setBooking(data);
-        if (data.medicalRecord) {
-          setDiagnostic(data.medicalRecord.diagnostic || "");
-          setSymptoms(data.medicalRecord.symptoms || "");
-          setPrescription(data.medicalRecord.prescription || "");
-          setNotes(data.medicalRecord.notes || "");
-          setCageRequired(data.medicalRecord.cageRequired || false);
-        }
+        const medicalHistoryArray = Object.values(data);
+        setMedicalHistory(medicalHistoryArray);
       } else {
-        console.error("No booking data found");
+        setMedicalHistory([]);
       }
-    } catch (error) {
-      console.error("Error fetching booking details:", error);
-    }
-  };
+    });
+
+    return () => unsubscribe();
+  }, [userId, booking?.pet.key]);
+
   useEffect(() => {
     const fetchCages = async () => {
       try {
         const db = getDatabase();
-        const cageRef = ref(db, 'cages');
+        const cageRef = ref(db, "cages");
         const snapshot = await get(cageRef);
         const data = snapshot.val();
         const availableCages = Object.entries(data)
-          .filter(([key, cage]) => cage.status === 'Available')
+          .filter(([key, cage]) => cage.status === "Available")
           .map(([key, cage]) => ({ key, ...cage }));
         setAvailableCages(availableCages);
-        console.log('Available cages:', availableCages); // Debugging
+        console.log("Available cages:", availableCages);
         if (availableCages.length > 0) {
-          setSelectedCage(availableCages[0]); // Select the first available cage
+          setSelectedCage(availableCages[0]);
         }
       } catch (error) {
-        console.error('Error fetching cages:', error);
+        console.error("Error fetching cages:", error);
       }
     };
-  
+
     fetchCages();
   }, []);
 
   const handleSave = async () => {
     if (cageRequired) {
       if (availableCages.length === 0) {
-        toast.error('No available cages');
+        toast.error("No available cages");
         return;
       }
-  
+
       const selectedCage = availableCages[0];
       console.log(selectedCage.key);
-  
+
       try {
         const petDetails = {
-          date: moment().tz('Asia/Ho_Chi_Minh').format('DD/MM/YYYY'),
+          date: moment().tz("Asia/Ho_Chi_Minh").format("DD/MM/YYYY"),
           petId: booking.pet.key,
           inCage: true,
         };
-  
+
         await saveMedicalRecord(userId, bookingId, {
+          cageRequired,
           diagnostic,
           symptoms,
           prescription,
           notes,
         });
-  
+
         // Update cage status to 'Occupied'
         const db = getDatabase();
         const cageRef = ref(db, `cages/${selectedCage.key}`);
         const cageSnapshot = await get(cageRef);
         const cageData = cageSnapshot.val();
         const updatedCagePets = [...(cageData?.pets || []), petDetails];
-        await update(cageRef, { status: 'Occupied', pets: updatedCagePets });
+        await update(cageRef, { status: "Occupied", pets: updatedCagePets });
       } catch (error) {
-        console.error('Error saving medical record:', error);
-        toast.error('Error saving medical record. Please try again.');
+        console.error("Error saving medical record:", error);
+        toast.error("Error saving medical record. Please try again.");
       }
     } else {
       try {
@@ -171,25 +203,24 @@ const MedicalRecord = () => {
           notes,
           cageRequired,
         });
-        toast.success('Medical record saved successfully!');
+        toast.success("Medical record saved successfully!");
       } catch (error) {
-        console.error('Error saving medical record:', error);
-        toast.error('Error saving medical record. Please try again.');
+        console.error("Error saving medical record:", error);
+        toast.error("Error saving medical record. Please try again.");
       }
     }
   };
-  
-  
+
   const saveMedicalRecord = async (userId, bookingId, record) => {
     try {
       const db = getDatabase();
       const currentUser = auth.currentUser;
-  
+
       // Kiểm tra currentUser
       if (!currentUser) {
         throw new Error("Current user is not authenticated.");
       }
-  
+
       // Lấy dữ liệu booking hiện tại
       const bookingRef = ref(db, `users/${userId}/bookings/${bookingId}`);
       const bookingSnapshot = await get(bookingRef);
@@ -197,7 +228,7 @@ const MedicalRecord = () => {
         throw new Error("Booking not found.");
       }
       const booking = bookingSnapshot.val();
-  
+
       // Cập nhật dữ liệu booking
       const updatedBookingData = {
         ...booking,
@@ -207,12 +238,15 @@ const MedicalRecord = () => {
         },
       };
       await update(bookingRef, updatedBookingData);
-  
+
       // Cập nhật dữ liệu lịch trình của bác sĩ thú y
-      const vetScheduleRef = ref(db, `users/${currentUser.uid}/schedule/${booking.date}`);
+      const vetScheduleRef = ref(
+        db,
+        `users/${currentUser.uid}/schedule/${booking.date}`
+      );
       const vetScheduleSnapshot = await get(vetScheduleRef);
       const vetScheduleData = vetScheduleSnapshot.val();
-  
+
       if (vetScheduleData && Array.isArray(vetScheduleData)) {
         const updatedVetSchedule = vetScheduleData.map((item) => {
           if (item.bookingId === booking.bookingId) {
@@ -225,10 +259,11 @@ const MedicalRecord = () => {
         });
         await set(vetScheduleRef, updatedVetSchedule);
       } else {
-        console.error("Vet schedule data for the specified date is not an array or does not exist");
+        console.error(
+          "Vet schedule data for the specified date is not an array or does not exist"
+        );
       }
-  
-      // Cập nhật lịch sử y tế của thú cưng
+
       const petRef = ref(db, `users/${userId}/pets/${booking.pet.key}`);
       const petSnapshot = await get(petRef);
       if (!petSnapshot.exists()) {
@@ -242,55 +277,358 @@ const MedicalRecord = () => {
         ...record,
       });
       await update(petRef, { medicalHistory: updatedMedicalHistory });
-  
+
       console.log("Updated pet medical history:", updatedMedicalHistory);
-  
+
       toast.success("Medical history updated successfully!");
     } catch (error) {
       console.error("Error saving medical record:", error);
       toast.error("Error saving medical record. Please try again.");
     }
   };
-  
+
   if (!booking) return <div>Loading...</div>;
 
+  const styles = {
+    container: {
+      backgroundColor: "#ebeff2",
+      padding: "40px",
+      borderRadius: "10px",
+      boxShadow: "0px 0px 10px 0px rgba(0,0,0,0.75)",
+      maxWidth: "90%",
+      margin: "auto",
+      marginTop: "20px",
+      marginBottom: "20px",
+      color: "#0fb3bd",
+    },
+    header: {
+      marginBottom: "20px",
+      textAlign: "center",
+    },
+    petImage: {
+      display: "block",
+      margin: "auto",
+      borderRadius: "8px",
+      maxWidth: "100%",
+      marginBottom: "20px",
+      width: "300px",
+    },
+    table: {
+      borderCollapse: "collapse",
+      width: "100%",
+      marginBottom: "20px",
+      backgroundColor: "#ebeff2",
+    },
+    tableHeader: {
+      backgroundColor: "#f0f0f0",
+      fontWeight: "bold",
+    },
+    tableRow: {
+      borderBottom: "1px solid #ccc",
+      backgroundColor: "#ebeff2",
+      color: "#0fb3bd",
+    },
+    tableCell: {
+      backgroundColor: "#ebeff2",
+      padding: "10px",
+      borderColor: "black",
+    },
+    nameCell: {
+      color: "#0fb3bd",
+      fontWeight: "bold",
+    },
+    valueCell: {
+      color: "black",
+    },
+    textField: {
+      "& .MuiOutlinedInput-root": {
+        "& fieldset": {
+          borderColor: "black",
+        },
+        "&:hover fieldset": {
+          borderColor: "black",
+        },
+      },
+    },
+  };
+
   return (
-    <Box
-      sx={{
-        backgroundColor: theme.palette.background.paper,
-        padding: 4,
-        borderRadius: "10px",
-        boxShadow: "0px 0px 10px 0px rgba(0,0,0,0.75)",
-        maxWidth: "80%",
-        margin: "auto",
-        marginTop: "10px",
-        marginBottom: "20px",
-        color: theme.palette.text.primary,
-      }}
-    >
-      <Typography variant="h2" gutterBottom>
-        Booking Details
+    <Box sx={styles.container}>
+      <div ref={elementRef}>Width of this element is: {width}px</div>
+      <Typography variant="h2" gutterBottom sx={styles.header}>
+        Medical Record
       </Typography>
-            <img src={booking?.pet?.imageUrl} alt="Pet" style={{ width: "400px", borderRadius: "8px" }} />
+      {booking?.pet?.imageUrl && (
+        <img src={booking?.pet?.imageUrl} alt="Pet" style={styles.petImage} />
+      )}
       <Grid container spacing={6}>
         <Grid item xs={6}>
-          <Box>
-            <Typography variant="h4">User Info</Typography>
-            <Typography>Username: {user?.username}</Typography>
-            <Typography>Address: {user?.address || "N/A"}</Typography>
-            <Typography>Phone: {user?.phone  || "N/A"}</Typography>
-            <Typography>Email: {user?.email}</Typography>
-          </Box>
+          <Typography variant="h4">User Info</Typography>
+          <table style={styles.table}>
+            <tbody>
+              <tr style={styles.tableRow}>
+                <td style={{ ...styles.tableCell, ...styles.nameCell }}>
+                  Username:
+                </td>
+                <td style={{ ...styles.tableCell, ...styles.valueCell }}>
+                  {user?.username}
+                </td>
+              </tr>
+              <tr style={styles.tableRow}>
+                <td style={{ ...styles.tableCell, ...styles.nameCell }}>
+                  Address:
+                </td>
+                <td style={{ ...styles.tableCell, ...styles.valueCell }}>
+                  {user?.address || "N/A"}
+                </td>
+              </tr>
+              <tr style={styles.tableRow}>
+                <td style={{ ...styles.tableCell, ...styles.nameCell }}>
+                  Phone:
+                </td>
+                <td style={{ ...styles.tableCell, ...styles.valueCell }}>
+                  {user?.phone || "N/A"}
+                </td>
+              </tr>
+              <tr style={styles.tableRow}>
+                <td style={{ ...styles.tableCell, ...styles.nameCell }}>
+                  Email:
+                </td>
+                <td style={{ ...styles.tableCell, ...styles.valueCell }}>
+                  {user?.email}
+                </td>
+              </tr>
+            </tbody>
+          </table>
         </Grid>
+
         <Grid item xs={6}>
-          <Box>
-            <Typography variant="h4">Pet Info</Typography>
-            <Typography>Name: {booking?.pet?.name}</Typography>
-            <Typography>Breed: {booking?.pet?.breed}</Typography>
-            <Typography>Age: {booking?.pet?.age}</Typography>
-          </Box>
+          <Typography variant="h4">Pet Info</Typography>
+          <table style={styles.table}>
+            <tbody>
+              <tr style={styles.tableRow}>
+                <td style={{ ...styles.tableCell, ...styles.nameCell }}>
+                  Name:
+                </td>
+                <td style={{ ...styles.tableCell, ...styles.valueCell }}>
+                  {booking?.pet?.name}
+                </td>
+              </tr>
+              <tr style={styles.tableRow}>
+                <td style={{ ...styles.tableCell, ...styles.nameCell }}>
+                  Breed:
+                </td>
+                <td style={{ ...styles.tableCell, ...styles.valueCell }}>
+                  {booking?.pet?.breed || "N/A"}
+                </td>
+              </tr>
+              <tr style={styles.tableRow}>
+                <td style={{ ...styles.tableCell, ...styles.nameCell }}>
+                  Age:
+                </td>
+                <td style={{ ...styles.tableCell, ...styles.valueCell }}>
+                  {booking?.pet?.age || "N/A"}
+                </td>
+              </tr>
+              <tr style={styles.tableRow}>
+                <td style={{ ...styles.tableCell, ...styles.nameCell }}>
+                  Weight:
+                </td>
+                <td style={{ ...styles.tableCell, ...styles.valueCell }}>
+                  {booking?.pet?.weight || "N/A"}
+                </td>
+              </tr>
+            </tbody>
+          </table>
         </Grid>
       </Grid>
+
+      <Typography variant="h4">Medical History</Typography>
+      <Box mt={2} height={180} overflow={"auto"} border={"solid 1px black"}>
+        <Grid container spacing={3} padding={2}>
+          <Grid item xs={6}>
+            <Box>
+              {medicalHistory
+                .slice(0, Math.ceil(medicalHistory.length / 2))
+                .map((record, index) => (
+                  <Box key={index} mb={2} borderBottom={"solid"}>
+                    <Grid container>
+                      <Grid item xs={4} style={{ textAlign: "left" }}>
+                        <Typography variant="body1" fontSize={"20px"}>
+                          <strong>Date:</strong>
+                        </Typography>
+                      </Grid>
+                      <Grid item xs={8} style={{ textAlign: "left" }}>
+                        <Typography
+                          variant="body1"
+                          fontSize={"20px"}
+                          color="black"
+                        >
+                          {record.date || "N/A"}
+                        </Typography>
+                      </Grid>
+                    </Grid>
+                    <Grid container>
+                      <Grid item xs={4} style={{ textAlign: "left" }}>
+                        <Typography variant="body1" fontSize={"20px"}>
+                          <strong>Diagnostic:</strong>
+                        </Typography>
+                      </Grid>
+                      <Grid item xs={8} style={{ textAlign: "left" }}>
+                        <Typography
+                          variant="body1"
+                          fontSize={"20px"}
+                          color="black"
+                        >
+                          {record.diagnostic || "N/A"}
+                        </Typography>
+                      </Grid>
+                    </Grid>
+                    <Grid container>
+                      <Grid item xs={4} style={{ textAlign: "left" }}>
+                        <Typography variant="body1" fontSize={"20px"}>
+                          <strong>Prescription:</strong>
+                        </Typography>
+                      </Grid>
+                      <Grid item xs={8} style={{ textAlign: "left" }}>
+                        <Typography
+                          variant="body1"
+                          fontSize={"20px"}
+                          color="black"
+                        >
+                          {record.prescription || "N/A"}
+                        </Typography>
+                      </Grid>
+                    </Grid>
+                    <Grid container>
+                      <Grid item xs={4} style={{ textAlign: "left" }}>
+                        <Typography variant="body1" fontSize={"20px"}>
+                          <strong>Symptoms:</strong>
+                        </Typography>
+                      </Grid>
+                      <Grid item xs={8} style={{ textAlign: "left" }}>
+                        <Typography
+                          variant="body1"
+                          fontSize={"20px"}
+                          color="black"
+                        >
+                          {record.symptoms || "N/A"}
+                        </Typography>
+                      </Grid>
+                    </Grid>
+                    <Grid container>
+                      <Grid item xs={4} style={{ textAlign: "left" }}>
+                        <Typography variant="body1" fontSize={"20px"}>
+                          <strong>Notes:</strong>
+                        </Typography>
+                      </Grid>
+                      <Grid item xs={8} style={{ textAlign: "left" }}>
+                        <Typography
+                          variant="body1"
+                          fontSize={"20px"}
+                          color="black"
+                        >
+                          {record.notes || "N/A"}
+                        </Typography>
+                      </Grid>
+                    </Grid>
+                  </Box>
+                ))}
+            </Box>
+          </Grid>
+          <Grid item xs={6}>
+            <Box>
+              {medicalHistory
+                .slice(Math.ceil(medicalHistory.length / 2))
+                .map((record, index) => (
+                  <Box key={index} mb={2} borderBottom={"solid"}>
+                    <Grid container>
+                      <Grid item xs={4} style={{ textAlign: "left" }}>
+                        <Typography variant="body1" fontSize={"20px"}>
+                          <strong>Date:</strong>
+                        </Typography>
+                      </Grid>
+                      <Grid item xs={8} style={{ textAlign: "left" }}>
+                        <Typography
+                          variant="body1"
+                          fontSize={"20px"}
+                          color="black"
+                        >
+                          {record.date || "N/A"}
+                        </Typography>
+                      </Grid>
+                    </Grid>
+                    <Grid container>
+                      <Grid item xs={4} style={{ textAlign: "left" }}>
+                        <Typography variant="body1" fontSize={"20px"}>
+                          <strong>Diagnostic:</strong>
+                        </Typography>
+                      </Grid>
+                      <Grid item xs={8} style={{ textAlign: "left" }}>
+                        <Typography
+                          variant="body1"
+                          fontSize={"20px"}
+                          color="black"
+                        >
+                          {record.diagnostic || "N/A"}
+                        </Typography>
+                      </Grid>
+                    </Grid>
+                    <Grid container>
+                      <Grid item xs={4} style={{ textAlign: "left" }}>
+                        <Typography variant="body1" fontSize={"20px"}>
+                          <strong>Prescription:</strong>
+                        </Typography>
+                      </Grid>
+                      <Grid item xs={8} style={{ textAlign: "left" }}>
+                        <Typography
+                          variant="body1"
+                          fontSize={"20px"}
+                          color="black"
+                        >
+                          {record.prescription || "N/A"}
+                        </Typography>
+                      </Grid>
+                    </Grid>
+                    <Grid container>
+                      <Grid item xs={4} style={{ textAlign: "left" }}>
+                        <Typography variant="body1" fontSize={"20px"}>
+                          <strong>Symptoms:</strong>
+                        </Typography>
+                      </Grid>
+                      <Grid item xs={8} style={{ textAlign: "left" }}>
+                        <Typography
+                          variant="body1"
+                          fontSize={"20px"}
+                          color="black"
+                        >
+                          {record.symptoms || "N/A"}
+                        </Typography>
+                      </Grid>
+                    </Grid>
+                    <Grid container>
+                      <Grid item xs={4} style={{ textAlign: "left" }}>
+                        <Typography variant="body1" fontSize={"20px"}>
+                          <strong>Notes:</strong>
+                        </Typography>
+                      </Grid>
+                      <Grid item xs={8} style={{ textAlign: "left" }}>
+                        <Typography
+                          variant="body1"
+                          fontSize={"20px"}
+                          color="black"
+                        >
+                          {record.notes || "N/A"}
+                        </Typography>
+                      </Grid>
+                    </Grid>
+                  </Box>
+                ))}
+            </Box>
+          </Grid>
+        </Grid>
+      </Box>
+
       <Grid container spacing={3} mt={3}>
         <Grid item xs={6}>
           <TextField
@@ -302,11 +640,18 @@ const MedicalRecord = () => {
             fullWidth
             variant="outlined"
             InputLabelProps={{
-              style: { fontSize: "1.2rem", color: theme.palette.text.primary },
+              style: {
+                fontSize: "1.6rem",
+                color: "black",
+              },
             }}
             InputProps={{
-              style: { fontSize: "1.5rem", color: theme.palette.text.primary },
+              style: {
+                fontSize: "1.5rem",
+                color: "black",
+              },
             }}
+            sx={styles.textField}
           />
         </Grid>
         <Grid item xs={6}>
@@ -319,11 +664,12 @@ const MedicalRecord = () => {
             fullWidth
             variant="outlined"
             InputLabelProps={{
-              style: { fontSize: "1.2rem", color: theme.palette.text.primary },
+              style: { fontSize: "1.6rem", color: "black" },
             }}
             InputProps={{
-              style: { fontSize: "1.5rem", color: theme.palette.text.primary },
+              style: { fontSize: "1.5rem", color: "black" },
             }}
+            sx={styles.textField}
           />
         </Grid>
         <Grid item xs={6}>
@@ -336,11 +682,15 @@ const MedicalRecord = () => {
             fullWidth
             variant="outlined"
             InputLabelProps={{
-              style: { fontSize: "1.2rem", color: theme.palette.text.primary },
+              style: {
+                fontSize: "1.6rem",
+                color: "black",
+              },
             }}
             InputProps={{
-              style: { fontSize: "1.5rem", color: theme.palette.text.primary },
+              style: { fontSize: "1.5rem", color: "black" },
             }}
+            sx={styles.textField}
           />
         </Grid>
         <Grid item xs={6}>
@@ -353,18 +703,22 @@ const MedicalRecord = () => {
             fullWidth
             variant="outlined"
             InputLabelProps={{
-              style: { fontSize: "1.2rem", color: theme.palette.text.primary },
+              style: { fontSize: "1.6rem", color: "black" },
             }}
             InputProps={{
-              style: { fontSize: "1.5rem", color: theme.palette.text.primary },
+              style: { fontSize: "1.5rem", color: "black" },
             }}
+            sx={styles.textField}
           />
         </Grid>
         <Grid item xs={12}>
           <FormControl component="fieldset">
             <FormLabel
               component="legend"
-              style={{ fontSize: "1.2rem", color: theme.palette.text.primary }}
+              style={{
+                fontSize: "1.8rem",
+                color: "#000",
+              }}
             >
               After examination, does the animal need to be kept in a cage?
             </FormLabel>
@@ -372,18 +726,26 @@ const MedicalRecord = () => {
               row
               value={cageRequired}
               onChange={(e) => setCageRequired(e.target.value === "true")}
-              sx={{ justifyContent: 'center', marginTop: '8px' }}
+              sx={{ marginTop: "8px" }}
             >
               <FormControlLabel
                 value={true}
-                control={<Radio sx={{ '& .MuiSvgIcon-root': { fontSize: 28 } }} />}
-                label="Yes"
-                sx={{ marginRight: '24px' }}
+                control={
+                  <Radio sx={{ "& .MuiSvgIcon-root": { fontSize: 28 } }} />
+                }
+                label={
+                  <Typography style={{ fontSize: "1.5rem" }}>Yes</Typography>
+                }
+                sx={{ marginRight: "24px" }}
               />
               <FormControlLabel
                 value={false}
-                control={<Radio sx={{ '& .MuiSvgIcon-root': { fontSize: 28 } }} />}
-                label="No"
+                control={
+                  <Radio sx={{ "& .MuiSvgIcon-root": { fontSize: 28 } }} />
+                }
+                label={
+                  <Typography style={{ fontSize: "1.5rem" }}>No</Typography>
+                }
               />
             </RadioGroup>
           </FormControl>
@@ -395,9 +757,13 @@ const MedicalRecord = () => {
           color="primary"
           onClick={() => navigate(-1)}
           sx={{
-            fontSize: "1.1rem",
+            fontSize: "1.6rem",
             padding: "12px 24px",
-            marginRight: "24px"
+            marginRight: "24px",
+            backgroundColor: "#CF0070",
+            "&:hover": {
+              backgroundColor: "#ec63ad",
+            },
           }}
         >
           Back
@@ -407,8 +773,12 @@ const MedicalRecord = () => {
           color="primary"
           onClick={handleSave}
           sx={{
-            fontSize: "1.1rem",
+            fontSize: "1.6rem",
             padding: "12px 24px",
+            backgroundColor: "#CF0070",
+            "&:hover": {
+              backgroundColor: "#ec63ad",
+            },
           }}
         >
           Save

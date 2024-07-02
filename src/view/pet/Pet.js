@@ -10,6 +10,7 @@ import { ScaleLoader } from "react-spinners";
 import { Pagination, PaginationItem } from "@mui/material";
 import { makeStyles } from "@mui/styles"; // Import makeStyles
 import useViewport from "./useViewport";
+import { fetchPetsByUserId } from './fetchPet';
 
 const useStyles = makeStyles({
   pagination: {
@@ -84,28 +85,20 @@ const Pet = () => {
   };
 
   useEffect(() => {
-    const unsubscribe = auth.onAuthStateChanged((user) => {
+    const unsubscribe = auth.onAuthStateChanged(async (user) => {
       if (user) {
         setUser(user);
-        const db = getDatabase();
-        const petRef = ref(db, "users/" + user.uid + "/pets");
-        const unsubscribePets = onValue(petRef, (snapshot) => {
-          const pets = snapshot.val();
-          if (pets) {
-            const petList = Object.entries(pets).map(([key, value]) => ({
-              ...value,
-              key,
-            }));
-            setPets(petList);
-            setPetCount(petList.length);
-            setLoading(false);
-          } else {
-            setPets([]);
-            setPetCount(0);
-            setLoading(false);
-          }
-        });
-        return () => unsubscribePets();
+        try {
+          const petData = await fetchPetsByUserId(user.uid);
+          setPets(petData.pets);
+          setPetCount(petData.pets.length);
+        } catch (error) {
+          console.error("Error fetching pets:", error);
+          setPets([]);
+          setPetCount(0);
+        } finally {
+          setLoading(false);
+        }
       } else {
         setUser(null);
         setPets([]);
@@ -113,6 +106,7 @@ const Pet = () => {
         setLoading(false);
       }
     });
+
     return () => unsubscribe();
   }, []);
 

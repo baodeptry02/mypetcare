@@ -151,7 +151,7 @@ const handleRefunded = async (request) => {
             const now = new Date();
             const refundDay = formatDateToVN(now);
 
-            await update(specificRefundRef, { isRefund: true, refundDay });
+            await update(specificRefundRef, { isRefund: false, refundDay });
 
             const updatedWithdrawData = mockWithdrawData.map((r) =>
                 formatDateToVN(r.date) === formattedRequestDate && !r.isRefund ? { ...r, isRefund: true, refundDay } : r

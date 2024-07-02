@@ -71,7 +71,8 @@ function MainContent() {
             <Routes>
               <Route path="/signIn" element={<SignIn />} />
               <Route path="/" element={<Home />} />
-              <Route path="/account" element={<Update user={userRef.current}/>} />
+              <Route path="/account/:userId1" element={<Update  user={userRef.current} />} />
+              {/* <Route path="/account" element={<Update user={userRef.current}/>} /> */}
               <Route path="/admin/*" element={<Admin />} />
               <Route path="/vet/*" element={<Vet />} />
               <Route path="/manager/*" element={<Manager />} />

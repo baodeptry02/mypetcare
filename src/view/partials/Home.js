@@ -219,13 +219,18 @@ function Home() {
     navigate("/#home");
   };
   useEffect(() => {
+    // Kiểm tra xem có user hay không trước khi gọi fetchAllBookings
+    if (!user) {
+      console.log('No user is logged in');
+      return; // Nếu không có user, thoát khỏi useEffect
+    }
+
     const fetchAllBookings = async () => {
       const db = getDatabase();
-      const usersRef = ref(db, "users");
+      const usersRef = ref(db, 'users');
       const snapshot = await get(usersRef);
       const usersData = snapshot.val();
       let allBookings = [];
-      // console.log("Users Data:", usersData);
 
       if (usersData) {
         Object.keys(usersData).forEach((userId) => {
@@ -242,13 +247,15 @@ function Home() {
           }
         });
       }
-      // console.log("All Bookings:", allBookings);
       setBookedSlots(allBookings);
     };
 
     fetchAllBookings();
-  }, []);
-  console.log(user)
+  }, [user]); // Thêm user vào dependency array để useEffect chỉ chạy khi user thay đổi
+
+  useEffect(() => {
+    console.log(user);
+  }, [user]);
 
   useEffect(() => {
     const hasEnoughSlides = bookedSlots.length > slidesPerView;

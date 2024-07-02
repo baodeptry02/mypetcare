@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
-import { getDatabase, ref, onValue } from "firebase/database";
 import { useParams, useNavigate } from "react-router-dom";
 import { auth } from "../../Components/firebase/firebase";
+import { fetchBookingDetails } from "../booking/fetchBooking"; // Ensure correct path
 import Box from "@mui/material/Box";
 import Rating from "@mui/material/Rating";
 
@@ -15,7 +15,7 @@ const BookingDetails = () => {
   const [medicalRecord, setMedicalRecord] = useState(null);
   const user = auth.currentUser;
   const navigate = useNavigate();
-  const [value, setValue] = React.useState(null);
+  const [value, setValue] = useState(null);
 
   useEffect(() => {
     if (!user) {
@@ -23,32 +23,18 @@ const BookingDetails = () => {
       return;
     }
 
-    const db = getDatabase();
-    const bookingRef = ref(db, `users/${user.uid}/bookings/${bookingId}`);
-    const medicalRecordRef = ref(db, `users/${user.uid}/bookings/${bookingId}/medicalRecord`);
-
-    const unsubscribeBooking = onValue(bookingRef, (snapshot) => {
-      if (snapshot.exists()) {
-        const bookingData = snapshot.val();
-        setBooking(bookingData);
-        setValue(bookingData.rating);
-      } else {
-        console.log("No booking data available");
+    const fetchData = async () => {
+      try {
+        const { booking, medicalRecord } = await fetchBookingDetails(user.uid, bookingId);
+        setBooking(booking);
+        setMedicalRecord(medicalRecord);
+        setValue(booking.rating);
+      } catch (error) {
+        console.error("Error fetching booking details:", error);
       }
-    });
-
-    const unsubscribeMedicalRecord = onValue(medicalRecordRef, (snapshot) => {
-      if (snapshot.exists()) {
-        setMedicalRecord(snapshot.val());
-      } else {
-        console.log("No medical record available");
-      }
-    });
-
-    return () => {
-      unsubscribeBooking();
-      unsubscribeMedicalRecord();
     };
+
+    fetchData();
   }, [user, bookingId]);
 
   if (!booking) {

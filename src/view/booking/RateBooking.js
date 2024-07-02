@@ -24,6 +24,8 @@ import { faCaretLeft } from "@fortawesome/free-solid-svg-icons";
 import useForceUpdate from "../../hooks/useForceUpdate";
 import Snackbar from "@mui/material/Snackbar";
 import MuiAlert from "@mui/material/Alert";
+import { fetchUserById } from "../account/getUserData";
+
 
 const labels = {
   0.5: "Useless",
@@ -57,21 +59,29 @@ const RatingBooking = () => {
   const [avatar, setAvatar] = useState("");
   const forceUpdate = useForceUpdate();
   const user = auth.currentUser;
+  const [error, setError] = useState(null);
+  const { userId1 } = useParams();
+
 
   useEffect(() => {
-    if (user && user.uid) {
-      const db = getDatabase();
-      const userRef = ref(db, "users/" + user.uid);
+    const getUser = async () => {
+      try {
+        const userData = await fetchUserById(userId1);
+        setUsername(userData.username);
+        setAvatar(userData.avatar)
+      } catch (error) {
+        setError(error.message);
+      } finally {
+        setLoading(false);
+      }
+    };
 
-      onValue(userRef, (snapshot) => {
-        const data = snapshot.val();
-        if (data) {
-          setUsername(data.username);
-          setAvatar(data.avatar)
-        }
-      });
+    if (userId1) {
+      getUser();
     }
-  }, [user]);
+  }, [userId1]);
+
+
   
   useEffect(() => {
     const fetchBookingDetails = async () => {
