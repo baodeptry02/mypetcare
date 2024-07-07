@@ -3,7 +3,6 @@ import "./AddPet.css"; // Import the CSS file
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import { useNavigate } from "react-router-dom";
-import { getDatabase, ref, push, set, get } from "firebase/database";
 import {
   getStorage,
   ref as storageRef,
@@ -18,7 +17,6 @@ import { faCaretLeft } from "@fortawesome/free-solid-svg-icons";
 import Button from '@mui/material/Button';
 import CloudUploadIcon from '@mui/icons-material/CloudUpload';
 import Box from '@mui/material/Box';
-import useForceUpdate from "../../hooks/useForceUpdate";
 import {addPet} from "./fetchPet"
 import LoadingAnimation from "../../animation/loading-animation";
 

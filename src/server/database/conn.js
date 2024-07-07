@@ -1,7 +1,7 @@
 // server/database/firebase.js
 const { initializeApp } = require("firebase/app");
-const { getDatabase, ref, set, get, update } = require("firebase/database");
-const { getAuth, GoogleAuthProvider, signInWithCredential } = require("firebase/auth");
+const { getDatabase, ref, set, get, update, push } = require("firebase/database");
+const { signInWithCredential, getAuth } = require("firebase/auth");
 require('dotenv').config()
 
 const firebaseConfig = {
@@ -17,6 +17,6 @@ const firebaseConfig = {
 
 const app = initializeApp(firebaseConfig);
 const database = getDatabase(app);
-const auth = getAuth(app);
+const auth = getAuth(app)
 
-module.exports = { database, ref, set, get, update, auth, GoogleAuthProvider, signInWithCredential };
+module.exports = { auth, database, ref, set, get, update, signInWithCredential, push };

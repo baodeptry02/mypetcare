@@ -17,9 +17,14 @@ import "react-datepicker/dist/react-datepicker.css";
 import Alert from "@mui/material/Alert";
 import { LocalizationProvider } from "@mui/x-date-pickers/LocalizationProvider";
 import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
-import { DatePicker } from "@mui/x-date-pickers/DatePicker";
+// import { DatePicker } from "@mui/x-date-pickers/DatePicker";
 import TextField from "@mui/material/TextField";
 import dayjs from "dayjs";
+// import DatePicker from 'react-date-picker';
+import DatePicker from 'react-datepicker';
+import 'react-datepicker/dist/react-datepicker.css';
+import 'react-date-picker/dist/DatePicker.css';
+import { toast } from "react-toastify";
 
 const ManageBooking = () => {
   const theme = useTheme();
@@ -88,14 +93,15 @@ const ManageBooking = () => {
   const filteredBookings = bookings.filter((booking) => {
     const matchesSearchQuery = booking.id.toLowerCase().includes(searchQuery);
     const matchesSelectedDate = selectedDate
-  ? dayjs(booking.date).format('DD-MM-YYYY') === dayjs(selectedDate).format('DD-MM-YYYY')
-  : true;
-    console.log(matchesSelectedDate)
-    console.log(selectedDate)
-    console.log(booking.date)
+      ? dayjs(booking.date).format("DD-MM-YYYY") ===
+        dayjs(selectedDate).format("DD-MM-YYYY")
+      : true;
+    console.log(matchesSelectedDate);
+    console.log(selectedDate);
+    console.log(booking.date);
     return matchesSearchQuery && matchesSelectedDate;
   });
-  
+
   const handleDateChange = (date) => {
     setSelectedDate(date);
     console.log(date);
@@ -158,55 +164,106 @@ const ManageBooking = () => {
   const columns = [
     {
       field: "bookingId",
-      headerName: "Booking ID",
+      headerName: (
+        <Typography sx={{ fontSize: 18, fontWeight: "bold" }}>
+          Booking ID
+        </Typography>
+      ),
       width: 150,
       editable: false,
+      renderCell: ({ value }) => (
+        <div style={{ fontSize: "16px" }}>{value}</div>
+      ),
     },
     {
       field: "petName",
-      headerName: "Pet Name",
-      flex: 0.5,
-      editable: false,
-      width: 150,
+      headerName: (
+        <Typography sx={{ fontSize: 18, fontWeight: "bold" }}>
+          Pet name
+        </Typography>
+      ),
+      flex: 0.6,
+      editable: true,
+      renderCell: ({ value }) => (
+        <div style={{ fontSize: "16px" }}>{value}</div>
+      ),
     },
     {
       field: "vetName",
-      headerName: "Vet Name",
+      headerName: (
+        <Typography sx={{ fontSize: 18, fontWeight: "bold" }}>
+          Vet name
+        </Typography>
+      ),
       flex: 0.5,
-      editable: false,
+      editable: true,
+      renderCell: ({ value }) => (
+        <div style={{ fontSize: "16px" }}>{value}</div>
+      ),
     },
     {
       field: "username",
-      headerName: "User Name",
+      headerName: (
+        <Typography sx={{ fontSize: 18, fontWeight: "bold" }}>
+          Username
+        </Typography>
+      ),
       flex: 0.7,
-      editable: false,
+      editable: true,
+      renderCell: ({ value }) => (
+        <div style={{ fontSize: "16px" }}>{value}</div>
+      ),
     },
     {
       field: "services",
-      headerName: "Services",
+      headerName: (
+        <Typography sx={{ fontSize: 18, fontWeight: "bold" }}>
+          Services
+        </Typography>
+      ),
       flex: 1.3,
       editable: false,
       renderCell: ({ value }) => (
-        <Typography
-          mt={2}
-          fontSize={"1.4rem"}
-          style={{ whiteSpace: "pre-line" }}
-        >
+        <Typography mt={2} fontSize={"16px"} style={{ whiteSpace: "pre-line" }}>
           {value.join(", ")}
         </Typography>
       ),
     },
 
-    { field: "date", headerName: "Date", flex: 0.7, editable: false },
-    { field: "time", headerName: "Time", flex: 0.5, editable: false },
+    {
+      field: "date",
+      headerName: (
+        <Typography sx={{ fontSize: 18, fontWeight: "bold" }}>Date</Typography>
+      ),
+      flex: 0.7,
+      editable: false,
+      renderCell: ({ value }) => (
+        <div style={{ fontSize: "16px" }}>{value}</div>
+      ),
+    },
+    {
+      field: "time",
+      headerName: (
+        <Typography sx={{ fontSize: 18, fontWeight: "bold" }}>Time</Typography>
+      ),
+      flex: 0.5,
+      editable: false,
+      renderCell: ({ value }) => (
+        <div style={{ fontSize: "16px" }}>{value}</div>
+      ),
+    },
     {
       field: "status",
-      headerName: "Status",
+      headerName: (
+        <Typography sx={{ fontSize: 18, fontWeight: "bold" }}>
+          Status
+        </Typography>
+      ),
       flex: 0.5,
       renderCell: ({ value }) => (
         <Typography
           color={value === "Pending Payment" ? "orange" : "green"}
-          sx={{ fontSize: "1.8rem", marginTop: "0.9rem" }}
+          sx={{ fontSize: "16px", marginTop: "12px", fontWeight: "bold" }}
         >
           {value}
         </Typography>
@@ -214,26 +271,38 @@ const ManageBooking = () => {
     },
     {
       field: "action",
-      headerName: "Action",
+      headerName: (
+        <Typography sx={{ fontSize: 18, fontWeight: "bold" }}>
+          Action
+        </Typography>
+      ),
       flex: 1,
       renderCell: (params) => (
         <div className="admin-update-button">
           <Button
             variant="contained"
             size="small"
-            style={{ marginRight: "10px" }}
-            onClick={() => handleCancelBooking(params.row)}
+            style={{
+              marginRight: "10px",
+              fontSize: "16px",
+              backgroundColor: "green",
+            }}
+            onClick={() => handleCheckinBooking(params.row)}
           >
-            Cancel
+            Check-in
           </Button>
 
           <Button
             variant="contained"
             size="small"
-            style={{ marginRight: "10px" }}
-            onClick={() => handleCheckinBooking(params.row)}
+            style={{
+              marginRight: "10px",
+              fontSize: "16px",
+              backgroundColor: "red",
+            }}
+            onClick={() => handleCancelBooking(params.row)}
           >
-            Check-in
+            Cancel
           </Button>
         </div>
       ),
@@ -243,6 +312,9 @@ const ManageBooking = () => {
   const handleClear = () => {
     setSelectedDate(null);
     setCleared(true);
+    toast.success("Clear date successful! ", {
+      autoClose: 2000
+    })
   };
 
   return (
@@ -252,52 +324,53 @@ const ManageBooking = () => {
         display="flex"
         backgroundColor={colors.primary[400]}
         borderRadius="3px"
+        width={300}
       >
         <InputBase
-          sx={{ ml: 2, flex: 1 }}
+          sx={{ ml: 2, flex: 1, fontSize: "20px" }}
           placeholder="Search by Booking ID"
           value={searchQuery}
           onChange={handleSearch}
         />
         <IconButton type="button" sx={{ p: 1 }}>
-          <SearchIcon />
+          <SearchIcon sx={{ fontSize: "20px" }} />
         </IconButton>
       </Box>
       <LocalizationProvider dateAdapter={AdapterDayjs}>
-  <Box
-    sx={{
-      width: "100%",
-      height: "100%",
-      display: "flex",
-      justifyContent: "center",
-      position: "relative",
-    }}
-  >
-    <DatePicker
-      value={selectedDate}
-      onChange={handleDateChange}
-      clearable
-      onClear={handleClear}
-      sx={{ width: 260, '& .MuiInputBase-input': { fontSize: "12px" } }} 
-      renderInput={(params) => (
-        <TextField
-          {...params}
-          InputProps={{
-            style: { fontSize: "24px" }, // Đổi lại từ 30rem thành 30px
-          }}
-        />
-      )}
-    />
-    {cleared && (
-      <Alert
-        sx={{ position: "absolute", bottom: 0, right: 0 }}
-        severity="success"
+      <Box
+      sx={{
+        width: "100%",
+        height: "100%",
+        display: "flex",
+        flexDirection: "column",
+        alignItems: "center",
+        position: "relative",
+        fontSize: "16px",
+      }}
+    >
+      <DatePicker
+        selected={selectedDate}
+        onChange={handleDateChange}
+        customInput={
+          <TextField
+            variant="outlined"
+            value={selectedDate ? selectedDate.toLocaleDateString() : ''}
+            InputProps={{
+              style: { fontSize: "20px" },
+            }}
+            sx={{ width: 260, marginBottom: "10px" }}
+          />
+        }
+      />
+      <Button
+        variant="contained"
+        onClick={handleClear}
+        sx={{ marginTop: "10px" }}
       >
-        Field cleared!
-      </Alert>
-    )}
-  </Box>
-</LocalizationProvider>
+        Clear
+      </Button>
+    </Box>
+      </LocalizationProvider>
 
       <Box
         m="40px 0 0 0"

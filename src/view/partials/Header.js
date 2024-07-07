@@ -4,7 +4,6 @@ import { useLocation, useNavigate } from "react-router-dom";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faPaw, faUser } from "@fortawesome/free-solid-svg-icons";
 import { updateProfile } from "firebase/auth";
-import { getDatabase, ref, onValue } from "firebase/database";
 import { fetchUserById } from "../account/getUserData";
 
 

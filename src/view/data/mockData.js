@@ -1,9 +1,9 @@
-import React, { useEffect, useState } from "react";
-import { auth, database } from "../../Components/firebase/firebase";
-import { ref, get, onValue } from "firebase/database";
 import { tokens } from "../../theme";
+import { getAllUsers } from "../account/getUserData";
 
 let updatedDataTeam = [];
+console.log(updatedDataTeam);
+
 export let mockDataTeam = [];
 export let mockPieData = [];
 export let mockBarData = [];
@@ -98,7 +98,7 @@ const getMockWithdrawData = () => {
           username: withdraw.username,
           userId: withdraw.userId,
           mail: withdraw.email,
-          refundDay: ""
+          refundDay: "",
         });
       } else {
         console.warn(
@@ -113,45 +113,6 @@ const getMockWithdrawData = () => {
   );
 
   return withdrawList;
-};
-
-const fetchUsers = () => {
-  const usersRef = ref(database, "users");
-
-  onValue(
-    usersRef,
-    (snapshot) => {
-      if (snapshot.exists()) {
-        const usersData = snapshot.val();
-        updatedDataTeam = [];
-
-        for (const userId in usersData) {
-          if (usersData.hasOwnProperty(userId)) {
-            const user = usersData[userId];
-            const bookings = user.bookings || {};
-            updatedDataTeam.push({
-              id: userId,
-              ...user,
-              bookings: bookings,
-              refundMoney: user.refundMoney,
-            });
-          }
-        }
-
-        mockDataTeam = updatedDataTeam;
-        mockTransactions = getMockTransactions();
-        getMockLineData();
-        mockWithdrawData = getMockWithdrawData();
-        mockPieData = getMockPieData();
-        mockBarData = getMockBarData();
-      } else {
-        console.log("No data available");
-      }
-    },
-    (error) => {
-      console.error("Error fetching data: ", error);
-    }
-  );
 };
 
 const getMockLineData = () => {
@@ -250,4 +211,41 @@ const getMockBarData = () => {
   return barData;
 };
 
+const fetchUsers = async () => {
+  try {
+    const userData = await getAllUsers();
+    console.log(userData);
+
+    updatedDataTeam.length = 0;
+
+    for (const userId in userData) {
+      if (userData.hasOwnProperty(userId)) {
+        const user = userData[userId];
+        const bookings = user.bookings || {};
+        updatedDataTeam.push({
+          id: userId,
+          ...user,
+          bookings: bookings,
+          refundMoney: user.refundMoney,
+        });
+      }
+    }
+
+    mockDataTeam = updatedDataTeam.slice();
+    mockTransactions = getMockTransactions();
+    getMockLineData();
+    mockWithdrawData = getMockWithdrawData();
+    mockPieData = getMockPieData();
+    mockBarData = getMockBarData();
+  } catch (error) {
+    console.error("Error fetching users: ", error);
+  } finally {
+    console.log("Data fetching completed.");
+  }
+};
+
 fetchUsers();
+
+setInterval(fetchUsers, 15000);
+
+export { fetchUsers };

@@ -1,14 +1,12 @@
 import React, { useContext, useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { useHistory } from "react-router-dom";
 import { BookingContext } from '../../Components/context/BookingContext';
-import { getDatabase, ref, push, update, get, set } from "firebase/database";
 import { auth } from "../../Components/firebase/firebase";
 import { toast, ToastContainer } from 'react-toastify';
 import useForceUpdate from '../../hooks/useForceUpdate';
 import {RiInformationLine} from '@remixicon/react';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
-import {faInfoCircle, faPaw, faBirthdayCake, faPalette, faArrowsAlt, faDog, faCat, faSyringe, faCheck, faCalendar, faUserMd, faClock, faMoneyBill, faCaretLeft, faEllipsis } from '@fortawesome/free-solid-svg-icons'
+import { faPaw, faBirthdayCake, faPalette, faArrowsAlt, faDog, faCat, faSyringe, faCheck, faCalendar, faUserMd, faClock, faMoneyBill, faCaretLeft, faEllipsis } from '@fortawesome/free-solid-svg-icons'
 import { fetchUserById } from '../account/getUserData';
 import { updateAccountBalance, addBooking, updateVetSchedule } from '../../view/booking/fetchAddBooking';
 import LoadingAnimation from "../../animation/loading-animation";
@@ -26,11 +24,6 @@ const BookingConfirm = () => {
   const userId = user.uid
   const [loading, setLoading] = useState(false);
 
-  const LoadingSpinner = () => (
-    <div className="spinner-container">
-      <div className="spinner"></div>
-    </div>
-  );
 
   useEffect(() => {
     const fetchUserData = async () => {
@@ -51,7 +44,6 @@ const BookingConfirm = () => {
 
   useEffect(() => {
     if (bookingSuccess) {
-      navigate('/manage-booking');
       window.location.reload()
     }
   }, [bookingSuccess, navigate]);

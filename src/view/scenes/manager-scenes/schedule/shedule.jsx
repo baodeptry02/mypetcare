@@ -14,41 +14,41 @@ const ManagerSchedule = () => {
   const [isUpdating, setIsUpdating] = useState(false);
   const auth = getAuth();
   const dragContainerRef = useRef(null);
-  const addedEvents = useRef(new Set());
+  const [vetsFetched, setVetsFetched] = useState(false);
+  const [eventsFetched, setEventsFetched] = useState(false);
 
   useEffect(() => {
-    const fetchVets = async () => {
-      const db = getDatabase();
-      const vetsRef = ref(db, "users");
-      const snapshot = await get(vetsRef);
-      const vetsData = snapshot.val();
-      const vetsList = Object.keys(vetsData)
-        .filter((uid) => vetsData[uid].role === "veterinarian")
-        .map((uid) => ({
-          uid,
-          name: vetsData[uid].fullname,
-          schedule: vetsData[uid].schedule || {},
-          specialization: vetsData[uid].specialization,
-        }));
-      setVets(vetsList);
-    };
+    if (!vetsFetched) {
+      const fetchVets = async () => {
+        const db = getDatabase();
+        const vetsRef = ref(db, "users");
+        const snapshot = await get(vetsRef);
+        const vetsData = snapshot.val();
+        const vetsList = Object.keys(vetsData)
+          .filter((uid) => vetsData[uid].role === "veterinarian")
+          .map((uid) => ({
+            uid,
+            name: vetsData[uid].fullname,
+            schedule: vetsData[uid].schedule || {},
+            specialization: vetsData[uid].specialization,
+          }));
+        setVets(vetsList);
+        setVetsFetched(true); // Set the flag to true after fetching
+      };
 
-    // Kiểm tra nếu chưa có dữ liệu về bác sĩ thì mới fetch
-    if (vets.length === 0) {
       fetchVets();
     }
-  }, [vets.length]);
+  }, [vetsFetched]);
 
   useEffect(() => {
-    const fetchEvents = () => {
-      const eventsList = [];
-      vets.forEach((vet) => {
-        Object.keys(vet.schedule).forEach((date) => {
-          if (vet.schedule[date] === true) {
-            const eventId = `${vet.uid}-${date}`;
-            if (!addedEvents.current.has(eventId)) {
+    if (!eventsFetched && vetsFetched) {
+      const fetchEvents = () => {
+        const eventsList = [];
+        vets.forEach((vet) => {
+          Object.keys(vet.schedule).forEach((date) => {
+            if (vet.schedule[date] === true) {
               eventsList.push({
-                id: eventId,
+                id: `${vet.uid}-${date}`,
                 title: `Work Day - ${vet.name}`,
                 start: date,
                 allDay: true,
@@ -60,48 +60,39 @@ const ManagerSchedule = () => {
                   vetName: vet.name,
                 },
               });
-              addedEvents.current.add(eventId);
             }
-          }
+          });
         });
-      });
-      setEvents(eventsList);
-    };
+        setEvents(eventsList);
+        setEventsFetched(true); // Set the flag to true after fetching
+      };
 
-    // Chỉ fetch events khi có dữ liệu về bác sĩ
-    if (vets.length > 0) {
       fetchEvents();
     }
-  }, [vets]);
+  }, [vets, vetsFetched, eventsFetched]);
 
   useEffect(() => {
-    if (vets.length > 0 && dragContainerRef.current) {
+    if (dragContainerRef.current && vetsFetched) {
       new Draggable(dragContainerRef.current, {
         itemSelector: ".draggable-item",
         eventData: function (eventEl) {
           const vetId = eventEl.getAttribute("data-vetid");
           const vetName = eventEl.getAttribute("data-vetname");
-          const eventId = `${vetId}-${new Date().toISOString()}`; // Sử dụng timestamp để tạo eventId duy nhất
-          if (!addedEvents.current.has(eventId)) {
-            addedEvents.current.add(eventId);
-            return {
-              id: eventId,
-              title: `Work Day - ${vetName}`,
-              extendedProps: {
-                vetId,
-                vetName,
-              },
-              allDay: true,
-              backgroundColor: "lightgrey",
-              borderColor: "lightgrey",
-              textColor: "black",
-            };
-          }
-          return false; // Ngăn chặn tạo event trùng lặp
+          return {
+            title: `Work Day - ${vetName}`,
+            extendedProps: {
+              vetId,
+              vetName,
+            },
+            allDay: true,
+            backgroundColor: "lightgrey",
+            borderColor: "lightgrey",
+            textColor: "black",
+          };
         },
       });
     }
-  }, [vets]);
+  }, [vetsFetched]);
 
   const handleEventReceive = useCallback(
     async (info) => {
@@ -136,7 +127,6 @@ const ManagerSchedule = () => {
         const updates = {};
         updates[`users/${extendedProps.vetId}/schedule/${event.startStr}`] = true;
         await update(ref(db), updates);
-
         toast.success("Set schedule for vet successfully!");
       } else {
         toast.error("Vet already has a schedule on this day!");
@@ -185,6 +175,7 @@ const ManagerSchedule = () => {
       autoClose: 2000,
     });
   };
+
 
   return (
     <>

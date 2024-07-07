@@ -15,7 +15,7 @@ import MenuOutlinedIcon from "@mui/icons-material/MenuOutlined";
 import CurrencyExchangeIcon from "@mui/icons-material/CurrencyExchange";
 import { onAuthStateChanged } from "firebase/auth";
 import { auth } from "../../../../Components/firebase/firebase";
-import ManageSearchIcon from '@mui/icons-material/ManageSearch';
+import ManageSearchIcon from "@mui/icons-material/ManageSearch";
 
 const Item = ({ title, to, icon, selected, setSelected, isCollapsed }) => {
   const theme = useTheme();
@@ -105,7 +105,7 @@ const Sidebar = () => {
         },
       }}
     >
-      <ProSidebar collapsed={isCollapsed} style={{width: "20px"}}>
+      <ProSidebar collapsed={isCollapsed} style={{ width: "20px" }}>
         <Menu iconShape="square">
           {/* LOGO AND MENU ICON */}
           <MenuItem
@@ -146,7 +146,13 @@ const Sidebar = () => {
                   width="120px"
                   height="120px"
                   src={`../../assets/user.png`}
-                  style={{ cursor: "pointer", borderRadius: "50%" }}
+                  style={{
+                    cursor: "pointer",
+                    borderRadius: "100%",
+                    borderColor: "grey",
+                    borderStyle: "solid",
+                    backgroundColor: "white",
+                  }}
                 />
               </Box>
               <Box textAlign="center">

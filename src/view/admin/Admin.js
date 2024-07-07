@@ -24,7 +24,7 @@ import Bar from "../../view/scenes/admin-scenes/bar/index";
 import Form from "../../view/scenes/admin-scenes/form/index";
 import Line from "../../view/scenes/admin-scenes/line/index";
 import Pie from "../../view/scenes/admin-scenes/pie/index";
-import Service from "../../view/scenes/admin-scenes/services/index";
+import Service from "../../view/scenes/admin-scenes/services and cages/index";
 import Calendar from "../../view/scenes/admin-scenes/calendar/calendar";
 import RefundData from "../scenes/admin-scenes/refund/refundData";
 import { auth } from "../../Components/firebase/firebase";

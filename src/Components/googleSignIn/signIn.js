@@ -1,30 +1,20 @@
 import React, { useState, useEffect, useRef } from "react";
-import { auth, provider, database } from "../firebase/firebase"; // Assuming config file with Firebase settings
-import { doCreateUserWithEmailAndPassword } from "../firebase/auth";
+import { auth, provider, database } from "../firebase/firebase"; 
 import {
   signInWithPopup,
-  signInWithEmailAndPassword,
   getAuth,
   GoogleAuthProvider,
 } from "firebase/auth";
 import Home from "../../view/partials/Home";
 import { useNavigate } from "react-router-dom";
 import {
-  fetchSignInMethodsForEmail,
-  updateProfile,
-  sendEmailVerification,
   onAuthStateChanged,
 } from "firebase/auth";
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import {
-  getDatabase,
   ref,
-  set,
-  onValue,
-  get,
   update,
-  child,
 } from "firebase/database";
 import useForceUpdate from "../../hooks/useForceUpdate";
 import ReCAPTCHA from "react-google-recaptcha";

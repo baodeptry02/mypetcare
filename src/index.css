@@ -4732,6 +4732,7 @@ span.text {
   width: 400px;
   height: 400px;
 }
+
 .text-about2{
   font-size: 30px;
   font-weight: bold;
@@ -4837,4 +4838,60 @@ span.text {
   
 }
 
+.react-datepicker-wrapper {
+  width: 100%;
+}
+
+.react-datepicker {
+  transform: scale(2); /* Tăng kích thước tổng thể của toàn bộ date picker */
+  transform-origin: top left; /* Đảm bảo rằng scale bắt đầu từ góc trên bên trái */
+}
+
+.react-datepicker__header {
+  background-color: #1e1e1e;
+  border-bottom: none;
+}
+
+.react-datepicker__day-name, 
+.react-datepicker__day, 
+.react-datepicker__time-name {
+  color: #fff;
+}
+
+.react-datepicker__day--selected, 
+.react-datepicker__day--keyboard-selected, 
+.react-datepicker__day--today {
+  background-color: yellow;
+  color: white;
+  text-align: center;
+}
+
+.react-datepicker__day--outside-month {
+  color: #6c757d;
+}
+
+.react-datepicker__navigation {
+  top: 10px;
+  line-height: 1.5;
+}
+
+.react-datepicker__navigation--previous,
+.react-datepicker__navigation--next {
+  width: 5px;
+  height: 5px;
+  border-radius: 50%;
+  background-color: #1e90ff;
+  color: white;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.react-datepicker__navigation--previous {
+  left: 10px;
+}
+
+.react-datepicker__navigation--next {
+  right: 10px;
+}
 
