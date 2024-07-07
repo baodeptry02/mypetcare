@@ -26,7 +26,7 @@ const AddPet = () => {
 
 
   return (
-    <div style={{ height: "100vh" }}>
+    <div className="add-pet-origin">
       <section className="section-addpet">
         
       <div className="add-pet-container">
@@ -55,8 +55,8 @@ const AddPet = () => {
       </div>
     </div>
     
-    <div className="img-addpet-thumbnail">
-    <img src="https://app.petotum.com/assets/img/wp/petbg.png" />
+    <div >
+    <img className="img-addpet-thumbnail" src="https://app.petotum.com/assets/img/wp/petbg.png" />
     </div>
     </section>
     </div>

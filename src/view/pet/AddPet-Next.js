@@ -132,7 +132,7 @@ const AddPetNext = () => {
   };
 
   return (
-    <div className="parent-container parent-container1">
+    <div className="parent-container parent-container1" id= "parent-container">
           {loading && <LoadingAnimation />}
       <h2 className="title-add-next-pet">Step 2: Add Pet Info</h2>
       <p className="des-add-next-pet">Tell us more about your Pet</p>
@@ -249,8 +249,8 @@ const AddPetNext = () => {
         </form>
       </div>
       <ToastContainer />
-      <div className="img-add-next-pet-thumbnail">
-        <img
+      <div>
+        <img className="img-add-next-pet-thumbnail"
           src="https://app.petotum.com/assets/img/wp/petbg.png"
           alt="Pet Background"
         />

@@ -32,7 +32,7 @@ a {
 html {
   font-size: 62.5%;
   overflow-x: hidden;
-  height: 100%;
+  /* height: 100%; */
 }
 
 body {
@@ -122,7 +122,6 @@ a {
   margin: 20px 0;
 }
 .parent-container {
-  margin-bottom: 32px;
   margin-top: 60px;
 }
 .select-pet-container.parent-container {
@@ -609,9 +608,11 @@ span {
   .dropdown-content.show {
     margin-top: 20px !important;
   }
+  
 }
 
 @media (min-width: 991px) and (max-width: 1600px) {
+  
   .img-qr-code {
     height: 70vh;
   }
@@ -715,6 +716,7 @@ span {
   .container-update {
     margin-top: 80px;
   }
+  
 }
 
 @media (max-width: 991px) {
@@ -729,7 +731,7 @@ span {
     width: 200px;
   }
   .header {
-    padding: 2rem 3%;
+    display: none;
   }
 
   section {
@@ -759,10 +761,10 @@ span {
   }
   @media (max-width: 479px) {
     .pet-image-left {
-      width: 100vw;
+      width: 50vw;
     }
     .pet-image-right {
-      width: 100vw;
+      width: 50vw;
     }
   }
 }
@@ -1760,9 +1762,7 @@ table td {
 .container.pet-container {
   width: 680px;
 }
-.update-account-page {
 
-}
 a.btn:hover {
   cursor: pointer;
 }
@@ -2809,6 +2809,7 @@ text-decoration: underline;
     align-items: center; 
   }
   .img-about {
+    margin-top: -80px;
     width: 410px;
     height: 410px;
     border-radius: 50%; /* Make the image circular */
@@ -2829,6 +2830,7 @@ text-decoration: underline;
     flex: 1;
     max-width: 50%; /* Ensure the text container doesn't exceed half the width */
     width: 50%;
+    margin-left: 15%;
   }
   
   .text-about {
@@ -3153,9 +3155,6 @@ span.us {
     text-decoration: underline;
   }
   
-  .question{
-    
-  }
   .quick-question{
     margin-top: 50px;
     font-size: 16px; /* Font chữ mặc định */
@@ -3954,7 +3953,7 @@ background: #EBEFF2;
   font-size: 2.6rem;
   cursor: pointer;
   position: relative;
-z-index: 1000000;
+
 }
 .edit-button:hover {
   transform: scale(1.2);
@@ -4116,6 +4115,9 @@ z-index: 1000000;
   border-radius: 5px;
   margin: 20px 10px 0 0;
   padding: 20px 0;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 20px;
 }
 
 .confirm-detailed-booking h2 {
@@ -4730,6 +4732,112 @@ span.text {
   width: 400px;
   height: 400px;
 }
+
+.text-about2{
+  font-size: 30px;
+  font-weight: bold;
+  white-space: nowrap;
+}
+
+
+.testimonials-vet {
+  font-family: Arial, sans-serif;
+  align-items: center;
+  height: 100vh;
+  margin: 0;
+  display: flex;
+  width: 80%;
+  max-width: 1200px;
+  margin-left: 150px;
+  margin-top: -100px;
+  margin-bottom: -200px;
+  justify-content: space-between;
+}
+
+.testimonial-vet {
+  background-color: white;
+  border-radius: 10px;
+  box-shadow: 0 0 20px rgba(0, 0, 0, 0.1);
+  padding: 20px;
+  text-align: center;
+  width: 30%;
+  flex-direction: column;
+  align-items: center;
+  transition: transform 0.3s ease; 
+
+}
+
+.quote {
+  font-size: 16px;
+  color: #333;
+  margin-bottom: 20px;
+  line-height: 1.5;
+}
+
+
+.profile img {
+  border-radius: 50%;
+  width: 80px;
+  height: 80px;
+  margin-bottom: 10px;
+}
+
+.name {
+  font-size: 18px;
+  font-weight: bold;
+  margin-bottom: 5px;
+}
+
+.title {
+  font-size: 14px;
+  color: #777;
+}
+.add-pet-origin{
+  height: 100vh;
+}
+.img-addpet-thumbnail{
+  margin-left: 70%;
+}
+
+@media (min-width: 1600px)and(max-width: 3840px) {
+  .about-text2{
+    margin-left: 18%;
+    margin-bottom: -20%;
+  }
+  .pet-manage{
+    margin-top: -10%;
+  }
+  .add-pet-origin{
+    height: 90vh;
+  }
+  .pet-managemonial-vet{
+    margin-top: 5%;
+    margin-right: 4%;
+    margin-bottom: 5%;
+  }
+  #container{
+    margin-top: -5%;
+  }
+  #parent-container{
+    height: 90vh;
+  }
+  .manage-bookings-page{
+    min-height: 80vh;
+  }
+  .img-add-next-pet-thumbnail{
+    margin-left: -50%;
+    margin-top: -10%;
+  }
+  .booking-details-wrapper{
+    height: 120%;
+  }
+  .img-addpet-thumbnail{
+    margin-left: 80%;
+    width: 30%;
+  }
+  
+}
+
 .react-datepicker-wrapper {
   width: 100%;
 }
@@ -4786,3 +4894,4 @@ span.text {
 .react-datepicker__navigation--next {
   right: 10px;
 }
+
