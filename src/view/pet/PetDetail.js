@@ -463,7 +463,7 @@ const PetDetail = () => {
                   value={formData.name}
                   onChange={handleInputChange}
                   style={{
-                    zIndex: "10000000",
+                    // zIndex: "10000000",
                   }}
                 />
               </div>
@@ -474,7 +474,7 @@ const PetDetail = () => {
                   value={formData.type}
                   onChange={handleTypeChange}
                   style={{
-                    zIndex: "10000000",
+                    // zIndex: "10000000",
                   }}
                 >
                   <option value="">-- Select Your Pet Type --</option>
@@ -490,7 +490,7 @@ const PetDetail = () => {
                   value={formData.color}
                   onChange={handleInputChange}
                   style={{
-                    zIndex: "10000000",
+                    // zIndex: "10000000",
                   }}
                 />
               </div>
@@ -501,7 +501,7 @@ const PetDetail = () => {
                   value={formData.breed}
                   onChange={handleInputChange}
                   style={{
-                    zIndex: "10000000",
+                    // zIndex: "10000000",
                   }}
                 >
                   {selectedBreeds.map((breed, index) => (
@@ -519,7 +519,7 @@ const PetDetail = () => {
                   value={formData.dob}
                   onChange={handleDobChange}
                   style={{
-                    zIndex: "10000000",
+                    // zIndex: "10000000",
                   }}
                 />
               </div>
@@ -531,18 +531,18 @@ const PetDetail = () => {
                   value={formData.weight}
                   onChange={handleInputChange}
                   style={{
-                    zIndex: "10000000",
+                    // zIndex: "10000000",
                   }}
                 />
               </div>
               <div className="button-group">
                 <button className="cancel-button" onClick={handleCancelClick}                   style={{
-                    zIndex: "10000000",
+                    // zIndex: "10000000",
                   }}>
                   Cancel
                 </button>
                 <button                   style={{
-                    zIndex: "10000000",
+                    // zIndex: "10000000",
                   }} className="update-button" onClick={handleUpdateClick}>
                   Update
                 </button>

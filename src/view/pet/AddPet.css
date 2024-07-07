@@ -390,7 +390,12 @@ box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1); /* Add a subtle shadow for depth */
 opacity: 0.7;
 }
 .pet-card{
-cursor: pointer;
+  cursor: pointer;
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+.pet-card:hover{
+  transform: scale(1.05);
+  box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2);
 }
 .back-button {
   border-radius: 5px;
