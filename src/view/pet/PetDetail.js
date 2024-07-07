@@ -1,11 +1,8 @@
 import React, { useState, useEffect } from "react";
-import { getDatabase, ref, get, update } from "firebase/database";
 import { useParams, useNavigate } from "react-router-dom";
 import { auth } from "../../Components/firebase/firebase";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faPenToSquare } from "@fortawesome/free-solid-svg-icons";
-import SparkleButton from "../../hooks/sparkleButton";
-import Calendar from "react-calendar";
 import { toast, ToastContainer } from "react-toastify";
 import useForceUpdate from "../../hooks/useForceUpdate";
 import { fetchUserById } from '../account/getUserData';
@@ -19,7 +16,6 @@ const PetDetail = () => {
   const [isEditMode, setIsEditMode] = useState(false);
   const forceUpdate = useForceUpdate();
   const [medicalHistory, setMedicalHistory] = useState([]);
-  const [petAvatar, setPetAvatart] = useState("")
   const [error, setError] = useState(null);
   const [loading, setLoading] = useState(true);
 

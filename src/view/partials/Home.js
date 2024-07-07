@@ -17,7 +17,6 @@ import {
 } from "@fortawesome/free-brands-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import useForceUpdate from "../../hooks/useForceUpdate";
-import { getDatabase, get, ref, onValue } from "firebase/database";
 import Box from "@mui/material/Box";
 import Rating from "@mui/material/Rating";
 import { Swiper, SwiperSlide } from "swiper/react";
@@ -27,6 +26,7 @@ import "swiper/css";
 import "swiper/css/navigation";
 import "swiper/css/pagination";
 import useViewport from "../../hooks/useViewport";
+import { getAllUsers } from "../account/getUserData";
 
 function Home() {
   const typedElement = useRef(null);
@@ -106,22 +106,6 @@ function Home() {
 
     return () => unsubscribe();
   }, []);
-
-  useEffect(() => {
-    if (user && user.uid) {
-      const db = getDatabase();
-      const userRef = ref(db, "users/" + user.uid);
-
-      onValue(userRef, (snapshot) => {
-        const data = snapshot.val();
-
-        console.log(data)
-        if (data) {
-          setAvatar(data.avatar)
-        }
-      });
-    } 
-  }, [user]);
 
   const book = () => {
     if (user) {
@@ -219,43 +203,34 @@ function Home() {
     navigate("/#home");
   };
   useEffect(() => {
-    // Kiểm tra xem có user hay không trước khi gọi fetchAllBookings
-    if (!user) {
-      console.log('No user is logged in');
-      return; // Nếu không có user, thoát khỏi useEffect
-    }
-
     const fetchAllBookings = async () => {
-      const db = getDatabase();
-      const usersRef = ref(db, 'users');
-      const snapshot = await get(usersRef);
-      const usersData = snapshot.val();
-      let allBookings = [];
-
-      if (usersData) {
-        Object.keys(usersData).forEach((userId) => {
-          const userData = usersData[userId];
-          if (userData.bookings) {
-            Object.keys(userData.bookings).forEach((bookingId) => {
-              const booking = userData.bookings[bookingId];
-              allBookings.push({
-                userId,
-                bookingId,
-                ...booking,
+      try {
+        const usersData = await getAllUsers();
+        let allBookings = [];
+          Object.keys(usersData).forEach((userId) => {
+            const userData = usersData[userId];
+            if (userData.bookings) {
+              Object.keys(userData.bookings).forEach((bookingId) => {
+                const booking = userData.bookings[bookingId];
+                allBookings.push({
+                  userId,
+                  bookingId,
+                  ...booking,
+                });
               });
-            });
-          }
-        });
+            }
+          });
+
+  
+        setBookedSlots(allBookings);
+      } catch (error) {
+        console.error("Failed to fetch all bookings:", error);
       }
-      setBookedSlots(allBookings);
     };
-
+  
     fetchAllBookings();
-  }, [user]); // Thêm user vào dependency array để useEffect chỉ chạy khi user thay đổi
-
-  useEffect(() => {
-    console.log(user);
   }, [user]);
+
 
   useEffect(() => {
     const hasEnoughSlides = bookedSlots.length > slidesPerView;

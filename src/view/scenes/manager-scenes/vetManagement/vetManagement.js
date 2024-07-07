@@ -1,10 +1,7 @@
 import { useNavigate } from "react-router-dom";
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faUser } from '@fortawesome/free-solid-svg-icons';
 import { auth } from "../../../../Components/firebase/firebase";
 import React, { useState, useEffect } from 'react';
 import { getDatabase, ref, onValue } from "firebase/database";
-import { ScaleLoader } from 'react-spinners';
 import { css } from "@emotion/react";
 import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
@@ -110,6 +107,7 @@ const VetManagent = () => {
                 </tbody>
               </table>
             </div>
+            <ToastContainer />
           </div>
         ) : (
           <h1>Please log in to manage users.</h1>

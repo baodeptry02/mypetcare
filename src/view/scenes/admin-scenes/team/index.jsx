@@ -1,7 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { auth } from "../../../../Components/firebase/firebase";
 import { updateProfile } from "firebase/auth";
-import { getDatabase, ref, onValue, update } from "firebase/database";
 import { ToastContainer, toast } from "react-toastify";
 import SearchIcon from "@mui/icons-material/Search";
 import InputBase from "@mui/material/InputBase";

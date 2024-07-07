@@ -20,6 +20,9 @@ app.use(cors({
   allowedHeaders: ['Content-Type', 'Authorization'], 
 }));
 
+const setupSwagger = require('./swagger');
+setupSwagger(app);
+
 // Middleware to parse JSON requests
 app.use(express.json());
 

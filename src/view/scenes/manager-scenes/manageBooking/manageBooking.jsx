@@ -17,9 +17,14 @@ import "react-datepicker/dist/react-datepicker.css";
 import Alert from "@mui/material/Alert";
 import { LocalizationProvider } from "@mui/x-date-pickers/LocalizationProvider";
 import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
-import { DatePicker } from "@mui/x-date-pickers/DatePicker";
+// import { DatePicker } from "@mui/x-date-pickers/DatePicker";
 import TextField from "@mui/material/TextField";
 import dayjs from "dayjs";
+// import DatePicker from 'react-date-picker';
+import DatePicker from 'react-datepicker';
+import 'react-datepicker/dist/react-datepicker.css';
+import 'react-date-picker/dist/DatePicker.css';
+import { toast } from "react-toastify";
 
 const ManageBooking = () => {
   const theme = useTheme();
@@ -307,6 +312,9 @@ const ManageBooking = () => {
   const handleClear = () => {
     setSelectedDate(null);
     setCleared(true);
+    toast.success("Clear date successful! ", {
+      autoClose: 2000
+    })
   };
 
   return (
@@ -329,39 +337,39 @@ const ManageBooking = () => {
         </IconButton>
       </Box>
       <LocalizationProvider dateAdapter={AdapterDayjs}>
-        <Box
-          sx={{
-            width: "100%",
-            height: "100%",
-            display: "flex",
-            justifyContent: "center",
-            position: "relative",
-          }}
-        >
-          <DatePicker
-            value={selectedDate}
-            onChange={handleDateChange}
-            clearable
-            onClear={handleClear}
-            sx={{ width: 260, "& .MuiInputBase-input": { fontSize: "12px" } }}
-            renderInput={(params) => (
-              <TextField
-                {...params}
-                InputProps={{
-                  style: { fontSize: "24px" }, // Đổi lại từ 30rem thành 30px
-                }}
-              />
-            )}
+      <Box
+      sx={{
+        width: "100%",
+        height: "100%",
+        display: "flex",
+        flexDirection: "column",
+        alignItems: "center",
+        position: "relative",
+        fontSize: "16px",
+      }}
+    >
+      <DatePicker
+        selected={selectedDate}
+        onChange={handleDateChange}
+        customInput={
+          <TextField
+            variant="outlined"
+            value={selectedDate ? selectedDate.toLocaleDateString() : ''}
+            InputProps={{
+              style: { fontSize: "20px" },
+            }}
+            sx={{ width: 260, marginBottom: "10px" }}
           />
-          {cleared && (
-            <Alert
-              sx={{ position: "absolute", bottom: 0, right: 0 }}
-              severity="success"
-            >
-              Field cleared!
-            </Alert>
-          )}
-        </Box>
+        }
+      />
+      <Button
+        variant="contained"
+        onClick={handleClear}
+        sx={{ marginTop: "10px" }}
+      >
+        Clear
+      </Button>
+    </Box>
       </LocalizationProvider>
 
       <Box
