@@ -242,7 +242,10 @@ function Home() {
       (booking) => booking.status === "Rated" && booking.rating > 3
     );
 
-    return ratedBookings.map((booking, index) => (
+    const limitedRatedBookings = ratedBookings.slice(0, 10);
+
+
+    return limitedRatedBookings.map((booking, index) => (
       <SwiperSlide key={booking.id} virtualIndex={index}>
         <div className="testimonial-box">
           <img
