@@ -27,6 +27,16 @@ function VetDashboard() {
   const [loading, setLoading] = useState(true);
   const [userRole, setUserRole] = useState(null);
 
+  const LoadingDots = () => {
+    return (
+      <div className="loading-dots">
+        <div></div>
+        <div></div>
+        <div></div>
+      </div>
+    );
+  };
+
   useEffect(() => {
     const unsubscribe = auth.onAuthStateChanged(async (user) => {
       if (user) {
@@ -63,7 +73,7 @@ function VetDashboard() {
   }, [navigate]);
 
   if (loading) {
-    return;
+    return <LoadingDots/>;
   }
 
   if (!user || !userRole) {

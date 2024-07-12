@@ -91,7 +91,7 @@ const Booking = () => {
     const db = getDatabase();
     const cageRef = ref(db, `cages/${selectedCageKey}`);
     const currentDate = new Date();
-    currentDate.setDate(currentDate.getDate() + 2);
+    currentDate.setDate(currentDate.getDate());
     const formattedDate = currentDate.toLocaleDateString();
 
     try {

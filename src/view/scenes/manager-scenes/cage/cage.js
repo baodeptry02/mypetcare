@@ -54,7 +54,7 @@ const Cage = () => {
   const colors = tokens(theme.palette.mode);
   const [searchQuery, setSearchQuery] = useState("");
   const [currentPage, setCurrentPage] = useState(1);
-  const rowsPerPage = 5;
+  const rowsPerPage = 4;
 
   useEffect(() => {
     const db = getDatabase();

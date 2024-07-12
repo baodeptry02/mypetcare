@@ -38,6 +38,19 @@ const SelectService = () => {
     fetchServiceData();
   }, []);
 
+  const CurrencyFormatter = ({ amount }) => {
+    const formattedAmount = new Intl.NumberFormat('vi-VN', {
+      style: 'currency',
+      currency: 'VND',
+    }).format(amount * 1000);
+  
+    return (
+      <p className='service-price'>
+      PRICE: {formattedAmount}
+    </p>
+    );
+  };
+
   const handleServiceChange = (serviceName) => {
     const service = services.find((s) => s.name === serviceName);
     setSelectedServiceList((prevServices) =>
@@ -83,7 +96,8 @@ const SelectService = () => {
                   src={service.image} 
                   alt={service.name} 
                 />
-                <p className='service-price'>VND ${service.price}.00 Per Session</p>
+
+                <CurrencyFormatter amount={service.price}/>
                 <input
                   type="checkbox"
                   id={service.name}

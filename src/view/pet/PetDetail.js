@@ -8,6 +8,7 @@ import useForceUpdate from "../../hooks/useForceUpdate";
 import { fetchUserById } from '../account/getUserData';
 import { fetchPetDetails, fetchPetMedicalHistory, updatePetDetails } from './fetchPet';
 import moment from "moment";
+import LoadingAnimation from "../../animation/loading-animation";
 
 const PetDetail = () => {
   const { petId } = useParams();
@@ -17,7 +18,7 @@ const PetDetail = () => {
   const forceUpdate = useForceUpdate();
   const [medicalHistory, setMedicalHistory] = useState([]);
   const [error, setError] = useState(null);
-  const [loading, setLoading] = useState(true);
+  const [loading, setLoading] = useState(false);
 
   const catBreeds = [
     "-- Select Your Cat Breeds --",
@@ -212,12 +213,16 @@ const PetDetail = () => {
   useEffect(() => {
     const fetchUserData = async () => {
       try {
+        setLoading(true)
         const userData = await fetchUserById(user.uid);
         console.log('Fetched user data:', userData);
         setUserData(userData);
+        setLoading(false)
       } catch (error) {
         setError(error.message);
         console.error('Error fetching user data:', error);
+        setLoading(false)
+        
       } finally {
         setLoading(false);
       }
@@ -236,6 +241,8 @@ const PetDetail = () => {
 
     const fetchPetData = async () => {
       try {
+        setLoading(true)
+        
         const petData = await fetchPetDetails(user.uid, petId);
         console.log('Fetched pet data:', petData);
         setPet(petData.pet);
@@ -250,17 +257,23 @@ const PetDetail = () => {
           color: petData.pet.color,
           imageUrl: petData.pet.imageUrl
         });
+        setLoading(false)
+
       } catch (error) {
+        setLoading(false)
         console.error("Error fetching pet details:", error);
       }
     };
 
     const fetchMedicalHistoryData = async () => {
       try {
+        setLoading(true)
         const medicalHistoryData = await fetchPetMedicalHistory(user.uid, petId);
         console.log('Fetched medical history data:', medicalHistoryData);
         setMedicalHistory(medicalHistoryData.medicalHistory);
       } catch (error) {
+        setLoading(false)
+      
         console.error("Error fetching medical history data:", error);
       }
     };
@@ -335,6 +348,7 @@ const PetDetail = () => {
       }}
     >
       <div className="pet-profile-wrapper">
+      {loading && <LoadingAnimation />}
         <div className="left-panel pet-detail">
           <img src={formData.imageUrl} alt="Pet Avatar" className="pet-avatar" />
           <div className="owner-info">

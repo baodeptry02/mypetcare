@@ -188,14 +188,6 @@ const Sidebar = () => {
               setSelected={setSelected}
             />
             <Item
-              title="Manage Schedule"
-              to="/vet/manageSchedule"
-              icon={<PeopleOutlinedIcon sx={{ fontSize: "22px" }} />}
-              selected={selected}
-              setSelected={setSelected}
-            />
-
-            <Item
               title="Pet In Cage"
               to="/vet/cage"
               icon={<CalendarTodayOutlinedIcon sx={{ fontSize: "22px" }} />}

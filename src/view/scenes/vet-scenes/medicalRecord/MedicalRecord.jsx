@@ -751,7 +751,7 @@ const MedicalRecord = () => {
                   <Radio sx={{ "& .MuiSvgIcon-root": { fontSize: 28 } }} />
                 }
                 label={
-                  <Typography style={{ fontSize: "1.5rem" }}>Yes</Typography>
+                  <Typography style={{ fontSize: "1.5rem", color: "black" }}>Yes</Typography>
                 }
                 sx={{ marginRight: "24px" }}
               />
@@ -761,7 +761,7 @@ const MedicalRecord = () => {
                   <Radio sx={{ "& .MuiSvgIcon-root": { fontSize: 28 } }} />
                 }
                 label={
-                  <Typography style={{ fontSize: "1.5rem" }}>No</Typography>
+                  <Typography style={{ fontSize: "1.5rem", color: "black" }}>No</Typography>
                 }
               />
             </RadioGroup>

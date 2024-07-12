@@ -10,6 +10,7 @@ import { faPaw, faBirthdayCake, faPalette, faArrowsAlt, faDog, faCat, faSyringe,
 import { fetchUserById } from '../account/getUserData';
 import { updateAccountBalance, addBooking, updateVetSchedule } from '../../view/booking/fetchAddBooking';
 import LoadingAnimation from "../../animation/loading-animation";
+import moment from 'moment';
 
 
 const BookingConfirm = () => {
@@ -21,8 +22,20 @@ const BookingConfirm = () => {
   const navigate = useNavigate();
   const forceUpdate = useForceUpdate();
   const user = auth.currentUser;
-  const userId = user.uid
   const [loading, setLoading] = useState(false);
+
+  const CurrencyFormatter = ({ amount }) => {
+    const formattedAmount = new Intl.NumberFormat('vi-VN', {
+      style: 'currency',
+      currency: 'VND',
+    }).format(amount * 1000);
+  
+    return (
+      <span className='service-price'>
+      {formattedAmount}
+    </span>
+    );
+  };
 
   useEffect(() => {
     const fetchUserData = async () => {
@@ -41,13 +54,6 @@ const BookingConfirm = () => {
     fetchUserData();
   }, [user]);
 
-  useEffect(() => {
-    if (bookingSuccess) {
-      window.location.reload()
-    }
-  }, [bookingSuccess, navigate]);
-  
-
   const calculateTotalPaid = () => {
     return selectedServices.reduce((total, service) => {
       return total + parseFloat(service.price);
@@ -65,7 +71,7 @@ const BookingConfirm = () => {
   };
 
   const handleConfirmBooking = async () => {
-    console.log('User ID:', userId); // Debug log
+    console.log('User ID:', user.uid); // Debug log
     const bookingId = generateBookingId();
     const totalPaid = calculateTotalPaid();
 
@@ -87,9 +93,9 @@ const BookingConfirm = () => {
 
         if (accountBalance >= totalPaid) {
           const newBalance = accountBalance - totalPaid;
-          await updateAccountBalance(userId, newBalance);
+          await updateAccountBalance(user.uid, newBalance);
           newBooking.status = "Paid";
-          await addBooking(userId, newBooking);
+          await addBooking(user.uid, newBooking);
           
           const slot = {
             time: selectedDateTime.time,
@@ -99,7 +105,7 @@ const BookingConfirm = () => {
             username: username,
             status: 1,
             bookingId: bookingId,
-            userId: userId
+            userId: user.uid
           };
           await updateVetSchedule(selectedDateTime.vet.uid, selectedDateTime.date, slot);
 
@@ -107,8 +113,10 @@ const BookingConfirm = () => {
             autoClose: 2000,
             onClose: () => {
               setBookingSuccess(true);
-              forceUpdate();
               setLoading(false);
+              setTimeout(() => {
+                navigate("/manage-booking");
+              }, 100); // Small delay to ensure toast closes before navigating
             }
           });
         } else {
@@ -116,7 +124,7 @@ const BookingConfirm = () => {
           newBooking.status = "Pending Payment";
           newBooking.amountToPay = amountToPay;
 
-          await addBooking(userId, newBooking);
+          await addBooking(user.uid, newBooking);
 
           const qrUrl = `https://img.vietqr.io/image/MB-0000418530364-print.png?amount=${amountToPay * 1000}&addInfo=thanhtoan%20${bookingId}&accountName=Nguyen%20Cong%20Duy%20Bao`;
 
@@ -224,7 +232,10 @@ const BookingConfirm = () => {
                   />
                   <div className="service-details">
                     <span className="service-name">{service.name}</span>
-                    <span className="service-price">${service.price}</span>
+                    <span className="service-price">
+                      <CurrencyFormatter amount={service.price} />
+                    
+                    </span>
                   </div>
                   <FontAwesomeIcon className="check-icon" icon={faCheck}/>
                 </div>
@@ -233,7 +244,7 @@ const BookingConfirm = () => {
             <div className="confirm-detail">
               <h2>
               <FontAwesomeIcon className="icon" icon={faCalendar}/> Date:{" "}
-                {selectedDateTime ? selectedDateTime.date : "N/A"}
+                {selectedDateTime ? moment(selectedDateTime.date).format("DD/MM/YYYY") : "N/A"}
               </h2>
               <h2>
               <FontAwesomeIcon className="icon" icon={faUserMd}/> Vet:{" "}
@@ -243,9 +254,8 @@ const BookingConfirm = () => {
               <FontAwesomeIcon className="icon" icon={faClock}/>Time:{" "}
                 {selectedDateTime ? selectedDateTime.time : "N/A"}
               </h2>
-              <h2>
-              <FontAwesomeIcon className="icon" icon={faMoneyBill}/>Total Paid: $
-                {calculateTotalPaid()}
+              <h2 style={{color: "black"}}>
+              <FontAwesomeIcon className="icon" icon={faMoneyBill}/>Total Paid:               <CurrencyFormatter amount={calculateTotalPaid()}/>
               </h2>
             </div>
 

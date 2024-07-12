@@ -71,7 +71,12 @@ const getAllUsers = async (req, res) => {
     const snapshot = await get(userRef);
     if (snapshot.exists()) {
       const userData = snapshot.val();
-      res.status(200).json(userData);
+      // Transform the user data to include only the necessary fields
+      const sanitizedData = Object.keys(userData).map((userId) => {
+        const { name, email } = userData[userId]; // Include only name and email fields
+        return { userId, name, email };
+      });
+      res.status(200).json(sanitizedData);
     } else {
       res.status(404).json({ error: "Users not found" });
     }
@@ -80,6 +85,7 @@ const getAllUsers = async (req, res) => {
     res.status(500).json({ error: "Internal server error" });
   }
 };
+
 
 const getRefundMoneyByUserId = async (req, res) => {
   const userId = req.params.userId;

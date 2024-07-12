@@ -19,6 +19,7 @@ const Footer = () => {
     !location.pathname.startsWith("/booking-details") &&
     !location.pathname.startsWith("/vet") &&
     !location.pathname.startsWith("/admin") &&
+    !location.pathname.startsWith("/manager") &&
     !location.pathname.startsWith("/pet-details")
 
   if (!shouldShowFooter) {

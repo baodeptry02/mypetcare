@@ -1,4 +1,4 @@
-const { getDatabase, ref, push, update, get, set } = require('firebase/database');
+const { getDatabase, ref, push, update, get, set, runTransaction } = require('firebase/database');
 
 const addBooking = async (req, res) => {
   const { userId, newBooking } = req.body;
@@ -30,8 +30,15 @@ const updateAccountBalance = async (req, res) => {
   }
 
   try {
-    const userRef = ref(getDatabase(), `users/${userId}`);
-    await update(userRef, { accountBalance: newBalance });
+    const userRef = ref(getDatabase(), `users/${userId}/accountBalance`);
+    
+    await runTransaction(userRef, (currentBalance) => {
+      if (currentBalance === null) {
+        return newBalance; // If currentBalance is null, set it to newBalance
+      }
+      return newBalance;
+    });
+
     if (!res.headersSent) {
       res.status(200).json({ message: 'Account balance updated successfully' });
     }

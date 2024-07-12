@@ -5,6 +5,9 @@ import { fetchBookingDetails } from "../booking/fetchBooking"; // Ensure correct
 import Box from "@mui/material/Box";
 import Rating from "@mui/material/Rating";
 import { io } from "socket.io-client";
+import LoadingAnimation from "../../animation/loading-animation";
+import moment from "moment";
+import { fetchUserById } from "../account/getUserData";
 
 const capitalizeFirstLetter = (string) => {
   return string.charAt(0).toUpperCase() + string.slice(1);
@@ -18,6 +21,33 @@ const BookingDetails = () => {
   const user = auth.currentUser;
   const navigate = useNavigate();
   const [value, setValue] = useState(null);
+  const [userData, setUserData] = useState("");
+  const [loading, setLoading] = useState(true);
+  const [erorr, setError] = useState(true);
+
+  useEffect(() => {
+    const fetchUserData = async () => {
+      try {
+        setLoading(true)
+        const userData = await fetchUserById(user.uid);
+        console.log('Fetched user data:', userData);
+        setUserData(userData);
+        setLoading(false)
+      } catch (error) {
+        setError(error.message);
+        console.error('Error fetching user data:', error);
+        setLoading(false)
+        
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    if (user && user.uid) {
+      fetchUserData();
+    }
+  }, [user]);
+  console.log(userData)
 
   useEffect(() => {
     if (!user) {
@@ -27,13 +57,16 @@ const BookingDetails = () => {
 
     const fetchData = async () => {
       try {
+        setLoading(true)
         const { booking, medicalRecord, cageHistory } = await fetchBookingDetails(user.uid, bookingId);
         setBooking(booking);
         setMedicalRecord(medicalRecord);
         setCageHistory(cageHistory);
         setValue(booking.rating);
+        setLoading(false)
       } catch (error) {
         console.error("Error fetching booking details:", error);
+        setLoading(false)
       }
     };
     fetchData();
@@ -60,7 +93,6 @@ const BookingDetails = () => {
     
     socket.on('bookingUpdated', (data) => {
       console.log('Booking updated:', data);
-      // Handle the update here, e.g., update your state
     });
     return () => {
       socket.close();
@@ -75,15 +107,29 @@ const BookingDetails = () => {
   const petName = pet?.name || "N/A";
   const vetName = vet?.name || "N/A";
 
+  const CurrencyFormatter = ({ amount }) => {
+    const formattedAmount = new Intl.NumberFormat('vi-VN', {
+      style: 'currency',
+      currency: 'VND',
+    }).format(amount * 1000);
+  
+    return (
+      <span>
+      {formattedAmount}
+    </span>
+    );
+  };
+
   return (
     <div className="booking-details-wrapper">
+      {loading && <LoadingAnimation />}
       <div className="booking-details-container">
         <div className="left-panel">
           <img src={pet.imageUrl} alt="Pet Avatar" className="pet-avatar" />
           <div className="owner-info">
             <h3>Owner Information</h3>
             <p>Username: {user.displayName}</p>
-            <p>Phone: {user.phoneNumber || "N/A"}</p>
+            <p>Phone: {userData.phone || "N/A"}</p>
             <p>Pet Name: {petName}</p>
           </div>
         </div>
@@ -97,7 +143,7 @@ const BookingDetails = () => {
               </tr>
               <tr>
                 <td className="key-column">Date</td>
-                <td className="value-column">{date}</td>
+                <td className="value-column">{moment(date).format("DD/MM/YYYY")}</td>
               </tr>
               <tr>
                 <td className="key-column">Time</td>
@@ -109,7 +155,7 @@ const BookingDetails = () => {
               </tr>
               <tr>
                 <td className="key-column">Total Paid</td>
-                <td className="value-column">${totalPaid}</td>
+                <td className="value-column"><CurrencyFormatter amount={totalPaid}/></td>
               </tr>
               <tr>
                 <td className="key-column">Status</td>
