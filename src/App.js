@@ -8,7 +8,6 @@ import "./App.css";
 import { BookingProvider } from "./Components/context/BookingContext";
 import { PetProvider } from "./Components/context/AddPetContext";
 
-
 function App() {
   return (
     <TransactionProvider>

@@ -76,7 +76,7 @@ const StickyContactBar = () => {
   const shouldShowHeader = !location.pathname.startsWith("/signIn");
 
   if (!shouldShowHeader) {
-    return null; // Don't render the header if it's a login or admin page
+    return null; 
   }
 
   return (

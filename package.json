@@ -77,7 +77,8 @@
     "yup": "^1.4.0"
   },
   "devDependencies": {
-    "@babel/plugin-proposal-private-property-in-object": "^7.14.5"
+    "@babel/plugin-proposal-private-property-in-object": "^7.14.5",
+    "tailwindcss": "^3.4.5"
   },
   "scripts": {
     "preinstall": "npm config set legacy-peer-deps true",

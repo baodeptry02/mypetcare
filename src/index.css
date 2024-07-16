@@ -1,3 +1,7 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
 @import url("https://fonts.googleapis.com/css2?family=Roboto:ital,wght@0,100;0,300;0,400;0,500;0,700;0,900;1,100;1,300;1,400;1,500;1,700;1,900&display=swap");
 
 .container {
@@ -2932,6 +2936,7 @@ text-decoration: underline;
     color: #2e3a59;
     margin-top: 20px;
     margin-bottom: 40px;
+    height: 50px;
   }
   
   
@@ -4519,8 +4524,8 @@ tr.ant-table-placeholder {
   text-align: left;
   padding: 8px;
 }
-.refund-header.modal-header {
-  color: #c2185b;
+.refund-header.modal-header h3 {
+  color: #c2185b !important;
 }
 .update-button.refund-submit-button {
   background-color: #c2185b;
@@ -4780,6 +4785,7 @@ span.text {
   color: #333;
   margin-bottom: 20px;
   line-height: 1.5;
+  height: 160px;
 }
 
 
@@ -4809,8 +4815,11 @@ span.text {
 }
 @media (min-width: 1600px)and(max-width: 3840px) {
   .about-text2{
-    margin-left: 18%;
+    margin-left: 22%;
     margin-bottom: -20%;
+  }
+  .testimonials-vet{
+    margin-left: 12%;
   }
   .pet-manage{
     margin-top: -10%;
@@ -4844,3 +4853,224 @@ span.text {
     width: 30%;
   }
 }
+
+.skills-container {
+  width: 500px;
+  margin: 20px auto;
+}
+
+.skills-container h2 {
+  font-size: 1.5em;
+  margin-bottom: 10px;
+}
+
+.skill {
+  display: flex;
+  align-items: center;
+  justify-content: space-around;
+  margin-bottom: 10px;
+}
+
+.skill-name {
+  flex: 1;
+  font-size: 1em;
+  margin-right: 20px;
+  margin-bottom: 8px;
+  position: relative;
+  top: 6px;
+}
+
+.skill-bar {
+  width: 50%;
+  height: 10px;
+  margin-left: 10px;
+  -webkit-appearance: none;
+  appearance: none;
+}
+
+/* Hotline.css */
+
+@import url('https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css');
+
+.hotline-container {
+    display: flex;
+    align-items: center;
+    background: rgba(34, 34, 34, 0.7);
+    backdrop-filter: blur(10px);
+    color: white;
+    border-radius: 50px;
+    padding: 10px 20px;
+    font-size: 16px;
+    font-weight: bold;
+    position: fixed;
+    bottom: 40px;
+    left: 20px;
+    z-index: 1000;
+}
+
+.phone-icon {
+    background-color: #3b5998;
+    border-radius: 50%;
+    width: 40px;
+    height: 40px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    position: relative;
+    margin-right: 10px;
+    animation: vibrate 0.5s infinite;
+}
+
+.phone-icon i {
+    color: white;
+    font-size: 20px;
+}
+
+.hotline-text {
+    flex: 1;
+}
+
+@keyframes vibrate {
+    0% { transform: translateX(0); }
+    20% { transform: translateX(-2px); }
+    40% { transform: translateX(2px); }
+    60% { transform: translateX(-2px); }
+    80% { transform: translateX(2px); }
+    100% { transform: translateX(0); }
+}
+.text-about2{
+  font-size: 30px;
+  font-weight: bold;
+  white-space: nowrap;
+}
+
+
+.testimonials-vet {
+  font-family: Arial, sans-serif;
+  align-items: center;
+  height: 100vh;
+  margin: 0;
+  display: flex;
+  width: 80%;
+  max-width: 1200px;
+  margin-left: 150px;
+  margin-top: -100px;
+  margin-bottom: -200px;
+  justify-content: space-between;
+}
+.about-text2 {
+    max-width: 50%; /* Ensure the text container doesn't exceed half the width */
+    width: 50%;
+    margin-left: 15%;
+  }
+  .elementor-section {
+    position: relative;
+    padding: 50px 0;
+    background: linear-gradient(135deg, #f6d365 0%, #fda085 100%);
+  }
+
+  .elementor-background-overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.5);
+    z-index: 1;
+  }
+
+  .elementor-shape {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    overflow: hidden;
+    line-height: 0;
+  }
+
+  .elementor-shape svg {
+    display: block;
+    width: calc(100% + 1.3px);
+    height: 100px;
+  }
+
+  .elementor-container {
+    display: flex;
+    justify-content: space-between;
+    position: relative;
+    z-index: 2;
+  }
+
+  .elementor-column {
+    width: 25%;
+    padding: 20px;
+    box-sizing: border-box;
+  }
+
+  .elementskit-heading {
+    text-align: left;
+    color: #fff;
+    animation: fadeInUp 1s;
+  }
+
+  .elementskit-heading h3 {
+    font-size: 18px;
+    margin-bottom: 10px;
+  }
+
+  .elementskit-heading h2 {
+    font-size: 24px;
+    margin-bottom: 10px;
+  }
+
+  .elementskit-heading__description p {
+    font-size: 16px;
+  }
+
+  .elementskit-info-box {
+    background: #fff;
+    padding: 20px;
+    border-radius: 10px;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    animation: fadeInUp 1s;
+  }
+
+  .elementskit-info-box-icon {
+    font-size: 40px;
+    margin-bottom: 10px;
+  }
+
+  .elementskit-info-box-title {
+    font-size: 18px;
+    margin-bottom: 10px;
+  }
+
+  .elementskit-info-box p {
+    font-size: 14px;
+    margin-bottom: 10px;
+  }
+
+  .btn-wraper a {
+    display: inline-block;
+    padding: 10px 20px;
+    background: #fda085;
+    color: #fff;
+    text-decoration: none;
+    border-radius: 5px;
+    transition: background 0.3s ease;
+  }
+
+  .btn-wraper a:hover {
+    background: #f6d365;
+  }
+
+  @keyframes fadeInUp {
+    from {
+      opacity: 0;
+      transform: translateY(20px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }

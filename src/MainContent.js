@@ -23,6 +23,7 @@ import { auth } from "./Components/firebase/firebase";
 import "./App.css";
 import Rating from "./view/booking/RateBooking"
 import StickyContactBar from "./view/partials/StickyContactBar";
+import Hotline from "./view/partials/Hotline";
 
 function MainContent() {
   const location = useLocation();
@@ -91,6 +92,7 @@ function MainContent() {
             </Routes>
           </div>
           <StickyContactBar currentPath={currentPath} />
+          <Hotline currentPath={currentPath} />
           <Footer currentPath={currentPath} />
         </>
       )}

@@ -1,4 +1,4 @@
-const BASE_URL = "https://mypetcare.onrender.com/userData";
+const BASE_URL = "http://localhost:5000/userData";
 const REFUND_BASE_URL = "http://localhost:5000/userData";
 
 export const fetchUserById = async (userId) => {
