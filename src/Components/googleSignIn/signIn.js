@@ -74,7 +74,7 @@ function SignIn() {
       toast.success("Login successfully. Wish you enjoy our best experience", {
         autoClose: 2000,
         onClose: () => {
-          switch (userRole) {
+          switch (result.role) {
             case "veterinarian":
               navigate("/vet/dashboard");
               break;
@@ -85,7 +85,7 @@ function SignIn() {
               navigate("/admin/dashboard");
               break;
             default:
-              navigate("/");
+              navigate("/", {replace: true});
           }
         },
       });
