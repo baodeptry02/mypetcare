@@ -634,6 +634,11 @@ span {
 }
 
 @media (min-width: 991px) and (max-width: 1600px) {
+  .testimonials-vet {
+    margin: -100px auto -200px !important;
+    /* margin-top: -100px;
+    margin-bottom: -200px; */
+  }
   .services-card p {
     margin: 10px 0;
     font-size: 16px;
