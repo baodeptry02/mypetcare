@@ -24,6 +24,8 @@ import "./App.css";
 import Rating from "./view/booking/RateBooking"
 import StickyContactBar from "./view/partials/StickyContactBar";
 import Hotline from "./view/partials/Hotline";
+import ResetPassword from "./Components/googleSignIn/ResetPassword";
+import UpdatePassword from "./Components/googleSignIn/UpdatePassword";
 
 function MainContent() {
   const location = useLocation();
@@ -87,7 +89,9 @@ function MainContent() {
               <Route path="/rate-booking/:bookingId" element={<Rating />} />
               <Route path="/qr" element={<QrCodePage />} />
               <Route path="/transaction-history" element={<Transaction />} />
-              <Route path="/reset" element={<ForgotPassword />} />
+              <Route path="/forgot-password" element={<ForgotPassword />} />
+              <Route path="/update-password" element={<UpdatePassword />} />
+              <Route path="/reset-password" element={<ResetPassword />} />
               <Route path="*" element={<NotFound />} />
             </Routes>
           </div>

@@ -1,4 +1,7 @@
 const nodemailer = require("nodemailer");
+const admin = require('firebase-admin');
+const { v4: uuidv4 } = require('uuid');
+
 
 const sendEmail = ({ user_email, user_name, amount, refund_date, request_date }) => {
   return new Promise((resolve, reject) => {
@@ -190,6 +193,147 @@ const sendCancellationEmail = ({ user_email, user_name, booking_id, cancel_date 
       return resolve({ message: "Cancellation email sent successfully" });
     });
   });
+
+};
+
+const sendUpdatePasswordEmail = async ({ user_email }) => {
+  return new Promise((resolve, reject) => {
+    const transporter = nodemailer.createTransport({
+      service: 'gmail',
+      auth: {
+        user: 'aqaq03122003@gmail.com',
+        pass: 'lnaxqylhuaztmnwn',
+      },
+    });
+
+    const token = uuidv4();
+    const resetLink = `http://localhost:3000/reset-password?token=${token}`;
+
+    const resetRequest = {
+      email: user_email,
+      token: token,
+      expires: Date.now() + 3600000, // 1 hour expiration
+    };
+
+    admin.database().ref('passwordResetTokens').push(resetRequest)
+      .then(() => {
+        const htmlContent = `
+          <!DOCTYPE html>
+          <html lang="en">
+          <head>
+              <meta charset="UTF-8">
+              <meta name="viewport" content="width=device-width, initial-scale=1.0">
+              <style>
+                  body {
+                      font-family: Arial, sans-serif;
+                      background-color: #f4f4f4;
+                      margin: 0;
+                      padding: 0;
+                  }
+                  .email-container {
+                      background-color: #ffffff;
+                      margin: 50px auto;
+                      padding: 20px;
+                      max-width: 600px;
+                      border-radius: 8px;
+                      box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+                  }
+                  .email-header {
+                      text-align: center;
+                      padding: 20px 0;
+                  }
+                  .email-header img {
+                      max-width: 100px;
+                  }
+                  .email-header a {
+                      text-decoration: none;
+                      font-size: 24px;
+                      color: #333333;
+                  }
+                  .email-body {
+                      padding: 20px;
+                  }
+                  .email-body h1 {
+                      font-size: 24px;
+                      color: #333333;
+                  }
+                  .email-body p {
+                      font-size: 16px;
+                      color: #666666;
+                      line-height: 1.5;
+                  }
+                  .email-body a.button {
+                      display: inline-block;
+                      margin-top: 40px;
+                      padding: 10px 20px;
+                      color: #ffffff;
+                      background-color: #e91e63;
+                      text-decoration: none;
+                      border-radius: 5px;
+                  }
+                  .email-footer {
+                      padding: 20px;
+                      font-size: 12px;
+                      color: #999999;
+                      text-align: center;
+                      border-top: 1px solid #dddddd;
+                  }
+              </style>
+          </head>
+          <body>
+              <div class="email-container">
+                  <div class="email-header">
+                      <a href="#">Pet Care Center</a>
+                  </div>
+                  <div class="email-body">
+                      <h1>Reset Your Password</h1>
+                      <p>Need to reset your password? No problem! Just click the button below and you'll be on the way.</p>
+                      <p>If you did not make this request, please ignore this email.</p>
+                                 <table align="center" cellpadding="0" cellspacing="0">
+                <tr>
+                    <td align="center">
+                        <a href="${resetLink}" class="button">Reset your password</a>
+                    </td>
+                </tr>
+            </table>
+                  </div>
+                  <div class="email-footer">
+                      <p>If you are having trouble clicking the password reset button, copy and paste the URL below into your web browser:</p>
+                      <p><a href="${resetLink}">${resetLink}</a></p>
+                  </div>
+              </div>
+          </body>
+          </html>
+        `;
+
+        const mail_configs = {
+          from: 'aqaq03122003@gmail.com',
+          to: user_email,
+          subject: 'Password Reset Request',
+          html: htmlContent
+        };
+
+        transporter.sendMail(mail_configs, function (error, info) {
+          if (error) {
+            console.log(error);
+            return reject({ message: `An error occurred: ${error.message}` });
+          }
+          return resolve({ message: 'Password reset email sent successfully' });
+        });
+      })
+      .catch(error => reject({ message: `Failed to save reset token: ${error.message}` }));
+  });
+};
+
+exports.sendUpdatePasswordEmail = (req, res) => {
+  const { user_email } = req.body;
+  if (!user_email) {
+    return res.status(400).send('Error: Missing user_email');
+  }
+
+  sendUpdatePasswordEmail(req.body)
+    .then(response => res.send(response.message))
+    .catch(error => res.status(500).send(error.message));
 };
 
 exports.sendEmailHandler = (req, res) => {

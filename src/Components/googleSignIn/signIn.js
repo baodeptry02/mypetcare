@@ -101,9 +101,27 @@ function SignIn() {
     }
   };
 
+  const isValidEmail = (email) => {
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    return emailRegex.test(email);
+  };
+
+  const validatePassword = (password) => {
+    const passwordRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{4,}$/;
+    return passwordRegex.test(password);
+  };
+
   const onSubmit = async (e) => {
     e.preventDefault();
-
+    if (!isValidEmail(email)) {
+      toast.error("Invalid email format. Please enter a valid email.", { autoClose: 2000 });
+      return;
+    }
+    if (!validatePassword(password)) {
+      toast.error("Password must be cotained at least one digit, one special symbol, one uppercase letter.", { autoClose: 2000 });
+      return;
+    }
+    
     if (password !== confirmPassword) {
       toast.error("Password not match, please try again!", { autoClose: 2000 });
       return;
@@ -118,7 +136,8 @@ function SignIn() {
         const response = await registerUser(userData);
         toast.success(response.message, { autoClose: 2000 });
       } catch (error) {
-        toast.error(error.error, { autoClose: 2000 });
+        toast.error("Something went wrong. Please try again!", { autoClose: 2000 });
+        setLoading(false);
       } finally {
         setLoading(false);
         setIsRegistering(false);
@@ -142,6 +161,14 @@ function SignIn() {
   const handleEmailLogin = async (event) => {
     event.preventDefault();
     setError(null);
+    if (!isValidEmail(email)) {
+      toast.error("Invalid email format. Please enter a valid email.", { autoClose: 2000 });
+      return;
+    }
+    if (!validatePassword(password)) {
+      toast.error("Password must be cotained at least one digit, one special symbol, one uppercase letter.", { autoClose: 2000 });
+      return;
+    }
 
     if (!isCaptchaVerified) {
       toast.error("Please complete the captcha before submitting the form.");
@@ -279,7 +306,8 @@ function SignIn() {
                 <span>or use your email for registeration</span>
                 <input
                   id="email"
-                  type="email"
+                  // type="email"
+                  type="text"
                   autoComplete="off"
                   required
                   value={email}
@@ -370,16 +398,28 @@ function SignIn() {
                   onChange={handleChange}
                   required
                 />
+                 <div class="input-wrapper">
                 <input
-                  type="password"
+                  type={showPassword ? "text" : "password"}
                   placeholder="Input your password"
                   id="password"
                   name="password"
                   value={password}
                   onChange={handleChange}
                   required
+                  
                 />
-                <a href="/reset">Forget Your Password?</a>
+                <div
+                    class="toggle-password"
+                    onClick={togglePasswordVisibility}
+                  >
+                    <FontAwesomeIcon
+                      id="toggleIcon"
+                      icon={showPassword ? faEyeSlash : faEye}
+                    />
+                    </div>
+                    </div>
+                <a style={{cursor: "pointer"}} onClick={() => navigate("/forgot-password")}>Forget Your Password?</a>
 
                 {!isInactive && (
                   <ReCAPTCHA

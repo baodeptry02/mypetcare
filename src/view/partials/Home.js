@@ -499,7 +499,7 @@ function Home() {
                 <img src="https://static.thenounproject.com/png/1136191-200.png" alt="Grooming Icon" />
                 <h2>GROOMING</h2>
                 <p>Your pet is looking for a quality and reliable spa to trim and bathe. Therefore, we introduce to you a professional pet care center with a team of experienced and responsible staff who will provide the best services.</p>
-                <button className="services-btn">Book now!</button>
+                <button onClick={book}  className="services-btn">Book now!</button>
                 <svg class="heart-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
                     <path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/>
                 </svg>
@@ -510,7 +510,7 @@ function Home() {
                 <img src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcR1q0xBgdi1b9O8hlaA8iPttso_EgFLiKM_-Q&s" alt="Grooming Icon" />
                 <h2>HOTEL</h2>
                 <p>In Ho Chi Minh City, are you trying to find a pet hotel? Anybody who rears animals has a unique bond with them. You frequently travel for business, are preoccupied at work, or take family vacations. Fear not, since Pet Care Service is offered.</p>
-                <button className="services-btn">Book now!</button>
+                <button onClick={book}  className="services-btn">Book now!</button>
                 <svg class="heart-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
                     <path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/>
                 </svg>
@@ -521,7 +521,7 @@ function Home() {
                 <img src="https://st3.depositphotos.com/1393072/37513/v/450/depositphotos_375132624-stock-illustration-pet-medical-record-line-icon.jpg" alt="Grooming Icon" />
                 <h2>CHECK UP</h2>
                 <p>Your pet deserves the best care to stay healthy and happy. Therefore, we introduce to you a professional pet check-up center with a team of experienced and responsible veterinarians who will provide thorough and compassionate health assessments.</p>
-                <button className="services-btn">Book now!</button>
+                <button onClick={book}  className="services-btn">Book now!</button>
                 <svg class="heart-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
                     <path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/>
                 </svg>

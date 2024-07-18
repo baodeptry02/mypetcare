@@ -15,7 +15,9 @@ const Footer = () => {
     window.scrollTo({ top: 0, behavior: "smooth" });
   };
   const shouldShowFooter =
-    !location.pathname.startsWith("/reset") &&
+    !location.pathname.startsWith("/forgot-password") &&
+    !location.pathname.startsWith("/update-password") &&
+    !location.pathname.startsWith("/reset-password") &&
     !location.pathname.startsWith("/booking-details") &&
     !location.pathname.startsWith("/vet") &&
     !location.pathname.startsWith("/admin") &&

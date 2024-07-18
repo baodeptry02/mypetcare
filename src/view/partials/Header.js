@@ -217,6 +217,9 @@ function Header({ user, currentPath }) {
               <div onClick={updateAccount}>Account</div>
               <div onClick={pet}>Pet</div>
               <div onClick={booking}>Booking</div>
+              {!username.startsWith("gg") && ( 
+                <div onClick={() => navigate("/update-password")}>Update Password</div>
+              )}
               {role === "admin" && (
                 <div onClick={adminDashboard}>Admin Dashboard</div>
               )}

@@ -15,9 +15,9 @@ const Hotline = () => {
             <div className="phone-icon">
                 <i className="fa fa-phone"></i>
             </div>
-            <div className="hotline-text">
+            <a href="tel:1900 xxx xxx" className="hotline-text">
                 HOTLINE 1900 xxx xxx
-            </div>
+            </a>
         </div>
     );
 };

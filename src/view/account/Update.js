@@ -1,25 +1,10 @@
 import React, { useState, useEffect } from "react";
 import { auth } from "../../Components/firebase/firebase";
 import { useNavigate, useParams } from "react-router-dom";
-import { updateProfile } from "firebase/auth";
-import {
-  getDatabase,
-  ref,
-  onValue,
-  update as updateDatabase,
-} from "firebase/database";
 import { ToastContainer, toast } from "react-toastify";
 import useForceUpdate from "../../hooks/useForceUpdate";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faIdBadge } from "@fortawesome/free-solid-svg-icons";
-import { TextField, Button, Container, Box, Typography } from "@mui/material";
 import { faPenToSquare, faCamera } from "@fortawesome/free-solid-svg-icons";
-import {
-  getStorage,
-  ref as storageRef,
-  uploadBytes,
-  getDownloadURL,
-} from "firebase/storage";
 import RefundModal from './RefundModal';
 import { fetchUserById, updateUserById, uploadAvatar } from "./getUserData";
 import moment from "moment";
@@ -114,8 +99,17 @@ function Update() {
     }
   };
 
+  const validatePhoneNumber = (phone) => {
+    const phoneNumberRegex = /^(0\d{9,10})$/;
+    return phoneNumberRegex.test(phone);
+  };
+
   const handleSubmit = async (event) => {
     event.preventDefault();
+    if (!validatePhoneNumber(phone)) {
+      toast.error("Invalid phone number. Please type correct form (Ex: 09xxxx)!", { autoClose: 2000 });
+      return;
+    }
     setLoading(true);
     const updates = {
       phone: phone || '',

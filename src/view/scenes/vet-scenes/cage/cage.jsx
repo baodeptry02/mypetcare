@@ -237,12 +237,12 @@ const Booking = () => {
       ),
       flex: 1.3,
       editable: false,
-      renderCell: ({ value }) =>
-        (value || [])
+      renderCell: ({ row }) =>
+        (row.pets || [])
           .filter((pet) => pet.inCage)
           .map((pet) => (
             <div key={pet.petId} style={{ fontSize: "16px" }}>
-              {pet.petOwner}
+              {pet?.petOwner}
             </div>
           )),
     },

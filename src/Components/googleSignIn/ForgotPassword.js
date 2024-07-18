@@ -1,58 +1,45 @@
-import { sendPasswordResetEmail } from "firebase/auth";
-import React from "react";
-import { auth } from "../firebase/firebase"; 
-import { useNavigate } from "react-router-dom";
-import { toast } from "react-toastify";
-import useForceUpdate from "../../hooks/useForceUpdate";
+import React, { useState } from 'react';
+import { toast } from 'react-toastify';
+import axios from 'axios';
+
+const BASE_URL = 'http://localhost:5000';
 
 function ForgotPassword() {
-    const navigate = useNavigate();
-    const forceUpdate = useForceUpdate()
-
-    const signUp = () => {
-      navigate("/signIn")
-    }
+  const [email, setEmail] = useState('');
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    const emailVal = e.target.email.value;
-    sendPasswordResetEmail(auth, emailVal)
-      .then(() => {
-        toast.success('Check your email to complete change password!', {
-          autoClose: 2000,
-          onClose: () => {
-            setTimeout(() => {
-              forceUpdate();
-              navigate('/');
-            }, 2000); // Wait for 2 seconds after the toast closes
-          }
-        });
-        
-      })
-      .catch((err) => {
-        toast.error(err.message); 
-      });   
+    try {
+      const response = await axios.post(`${BASE_URL}/send-updatePassword-email`, {
+        user_email: email
+      });
+      toast.success("Send email successful!", { autoClose: 2000 });
+    } catch (error) {
+      console.error(error);
+      toast.error('An error occurred. Please try again.', { autoClose: 2000 });
+    }
   };
 
   return (
-    <div class="form-container-reset">
-      <div class="logo-container">
-        Forgot Password
-      </div>
-
-      <form class="form" onSubmit={handleSubmit}>
-        <div class="form-group">
-          <label for="email">Email</label>
-          <input type="text" id="email" name="email" placeholder="Enter your email" required=""/>
+    <div className="form-container-reset">
+      <div className="logo-container">Forgot Password</div>
+      <form className="form" onSubmit={handleSubmit}>
+        <div className="form-group">
+          <label htmlFor="email">Email</label>
+          <input
+            type="email"
+            id="email"
+            name="email"
+            placeholder="Enter your email"
+            required
+            value={email}
+            onChange={(e) => setEmail(e.target.value)}
+          />
         </div>
-
-        <button class="form-submit-btn" type="submit">Send Email</button>
+        <button className="form-submit-btn" type="submit">
+          Send Email
+        </button>
       </form>
-
-      <p class="signup-link">
-        Don't have an account?
-        <a onClick={signUp} class="signup-link link"> Sign up now</a>
-      </p>
     </div>
   );
 }

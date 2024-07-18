@@ -6,10 +6,18 @@ import "react-pro-sidebar/dist/css/styles.css";
 import { tokens } from "../../../../theme";
 import HomeOutlinedIcon from "@mui/icons-material/HomeOutlined";
 import PeopleOutlinedIcon from "@mui/icons-material/PeopleOutlined";
+import ContactsOutlinedIcon from "@mui/icons-material/ContactsOutlined";
+import ReceiptOutlinedIcon from "@mui/icons-material/ReceiptOutlined";
+import PersonOutlinedIcon from "@mui/icons-material/PersonOutlined";
 import CalendarTodayOutlinedIcon from "@mui/icons-material/CalendarTodayOutlined";
+import HelpOutlineOutlinedIcon from "@mui/icons-material/HelpOutlineOutlined";
+import BarChartOutlinedIcon from "@mui/icons-material/BarChartOutlined";
+import PieChartOutlineOutlinedIcon from "@mui/icons-material/PieChartOutlineOutlined";
+import TimelineOutlinedIcon from "@mui/icons-material/TimelineOutlined";
 import MenuOutlinedIcon from "@mui/icons-material/MenuOutlined";
 import { onAuthStateChanged } from "firebase/auth";
 import { auth } from "../../../../Components/firebase/firebase";
+import userProfileImage from "../../../../public/assets/user.png";
 
 const Item = ({ title, to, icon, selected, setSelected, isCollapsed }) => {
   const theme = useTheme();
@@ -46,7 +54,6 @@ const Sidebar = () => {
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, (user) => {
       if (user) {
-        console.log(user);
         setUsername(user.displayName || user.email);
         setEmail(user.email);
       } else {
@@ -65,9 +72,6 @@ const Sidebar = () => {
         break;
       case "/vet/schedule":
         setSelected("Schedule");
-        break;
-      case "/vet/manageSchedule":
-        setSelected("Manage Schedule");
         break;
       case "/vet/cage":
         setSelected("Pet In Cage");
@@ -138,7 +142,7 @@ const Sidebar = () => {
                   alt="profile-user"
                   width="120px"
                   height="120px"
-                  src={`../../assets/user.png`}
+                  src={userProfileImage}
                   style={{
                     cursor: "pointer",
                     borderRadius: "100%",

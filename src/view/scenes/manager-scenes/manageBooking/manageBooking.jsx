@@ -13,7 +13,7 @@ import {
   createTheme,
   ThemeProvider,
 } from "@mui/material";
-import { tokens, darkTheme  } from "../../../../theme";
+import { tokens, darkTheme } from "../../../../theme";
 import Header from "../../../../Components/dashboardChart/Header";
 import "react-datepicker/dist/react-datepicker.css";
 import Alert from "@mui/material/Alert";
@@ -22,8 +22,7 @@ import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
 import { DatePicker } from "@mui/x-date-pickers/DatePicker";
 import TextField from "@mui/material/TextField";
 import dayjs from "dayjs";
-import axios from 'axios';
-
+import axios from "axios";
 
 const ManageBooking = () => {
   const theme = useTheme();
@@ -46,11 +45,12 @@ const ManageBooking = () => {
 
     if (usersData) {
       Object.keys(usersData).forEach((userId) => {
+        console.log(userId);
         const userData = usersData[userId];
         if (userData.username && userData.bookings) {
           Object.keys(userData.bookings).forEach((bookingId) => {
             const booking = userData.bookings[bookingId];
-            if (booking.status === "Paid") {
+            if (["Paid", "Checked-in", "Rated"].includes(booking.status)) {
               const services = booking.services.join(", ");
               allBookings.push({
                 id: bookingId,
@@ -114,35 +114,40 @@ const ManageBooking = () => {
 
   const handleCancelBooking = async (row) => {
     setLoading(true);
-  
+
     try {
       const db = getDatabase();
-  
+
       // Update booking status in Firebase
       await update(ref(db, `users/${row.userId}/bookings/${row.id}`), {
         status: "Cancelled",
       });
       await update(ref(db, `users/${row.userId}`), {
-        accountBalance: row.accountBalance + row.totalPaid
-      })
-  
+        accountBalance: row.accountBalance + row.totalPaid,
+      });
+
       // Send cancellation email
       try {
-        const response = await axios.post("http://localhost:5000/send-cancellation-email", {
-          user_email: row.email,
-          user_name: row.username,
-          booking_id: row.bookingId,
-          cancel_date: new Date().toLocaleDateString(), // Use appropriate date format
-        });
-  
+        const response = await axios.post(
+          "http://localhost:5000/send-cancellation-email",
+          {
+            user_email: row.email,
+            user_name: row.username,
+            booking_id: row.bookingId,
+            cancel_date: new Date().toLocaleDateString(), // Use appropriate date format
+          }
+        );
+
         console.log(response.data); // Log the success message
       } catch (emailError) {
         console.error("Error sending cancellation email:", emailError.message);
       }
-  
+
       // Update local bookings state
       setBookings((bookings) =>
-        bookings.map((item) => (item.id === row.id ? { ...item, status: "Cancelled" } : item))
+        bookings.map((item) =>
+          item.id === row.id ? { ...item, status: "Cancelled" } : item
+        )
       );
     } catch (error) {
       console.error("Error cancelling booking:", error.message);
@@ -150,8 +155,6 @@ const ManageBooking = () => {
       setLoading(false);
     }
   };
-  
-  
 
   const handleCheckinBooking = async (row) => {
     setLoading(true);
@@ -302,6 +305,7 @@ const ManageBooking = () => {
               fontSize: "16px",
               backgroundColor: "green",
             }}
+            disabled={["Checked-in", "Rated"].includes(params.row.status)}
             onClick={() => handleCheckinBooking(params.row)}
           >
             Check-in

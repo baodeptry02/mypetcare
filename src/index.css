@@ -4965,6 +4965,8 @@ span.text {
 
 .hotline-text {
     flex: 1;
+    text-decoration: none;
+    color: white;
 }
 
 @keyframes vibrate {
@@ -5138,7 +5140,7 @@ span.text {
   border-radius: 5px 5px 5px 5px;
   align-content: center;
     align-items: center;
-    background-color: #fff;
+    background-color: rgb(235, 239, 242);
     position: relative;
     overflow: hidden;
 }
@@ -5200,9 +5202,9 @@ span.text {
 .services-card:hover .services-btn {
   background-color:#2475fb;
   color: #fff;
-  -webkit-transition: background-color 500ms linear;
-    -ms-transition: background-color 500ms linear;
-    transition: background-color 500ms linear;
+  -webkit-transition: background-color 1200ms linear;
+    -ms-transition: background-color 1200ms linear;
+    transition: background-color 1200ms linear;
 }
 .services-card:hover h2 {
   color: #2475fb;

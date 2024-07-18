@@ -6,6 +6,9 @@ const {
   uploadBytes,
   getDownloadURL,
 } = require("firebase/storage");
+const admin = require('firebase-admin');
+const { auth } = require('firebase-admin');
+
 
 const getUserById = async (req, res) => {
   const { userId } = req.params;
@@ -121,6 +124,52 @@ const updateRefundMoneyByUserId = async (req, res) => {
   }
 };
 
+const updatePassword = async (req, res) => {
+  const { token, newPassword } = req.body;
+
+  if (!token || !newPassword) {
+    return res.status(400).send('Error: Missing token or newPassword');
+  }
+
+  try {
+    // Tìm token trong Realtime Database dựa trên token được cung cấp
+    const tokenSnapshot = await admin.database().ref('passwordResetTokens')
+      .orderByChild('token')
+      .equalTo(token)
+      .once('value');
+
+    if (!tokenSnapshot.exists()) {
+      return res.status(400).send('Error: Invalid or expired token');
+    }
+
+    const resetToken = Object.values(tokenSnapshot.val())[0];
+
+    // Check token expired
+    if (resetToken.expires <= Date.now()) {
+      return res.status(400).send('Error: Token has expired');
+    }
+
+    const userEmail = resetToken.email;
+
+    // Get user info
+    const userRecord = await admin.auth().getUserByEmail(userEmail);
+
+    await admin.auth().updateUser(userRecord.uid, {
+      password: newPassword
+    });
+
+    // Xóa token sau khi cập nhật mật khẩu thành công
+    const tokenKey = Object.keys(tokenSnapshot.val())[0];
+    await admin.database().ref(`passwordResetTokens/${tokenKey}`).remove();
+
+    res.send('Password updated successfully');
+  } catch (error) {
+    console.error(error);
+    res.status(500).send(`Error: ${error.message}`);
+  }
+};
+
+
 module.exports = {
   getUserById,
   updateUserById,
@@ -128,4 +177,5 @@ module.exports = {
   getAllUsers,
   getRefundMoneyByUserId,
   updateRefundMoneyByUserId,
+  updatePassword
 };
