@@ -1,4 +1,5 @@
 const { getDatabase, ref, get, update, set, runTransaction } = require('firebase/database');
+const { differenceInDays } = require('date-fns');
 
 const cancelBooking = async (req, res) => {
   const { bookingKey, userId, vetId, date, time, totalPaid, cancellationDate } = req.body;
@@ -9,19 +10,35 @@ const cancelBooking = async (req, res) => {
     const vetScheduleRef = ref(db, `users/${vetId}/schedule/${date}`);
     const userRef = ref(db, `users/${userId}`);
 
+    // Tính số ngày giữa ngày hủy và ngày khám
+    const daysUntilAppointment = differenceInDays(new Date(date), new Date(cancellationDate));
+
+    // Áp dụng quy tắc hoàn tiền
+    let feeOfCancellation = 0;
+    let refundAmount = totalPaid;
+    if (daysUntilAppointment >= 7) {
+      refundAmount = totalPaid;
+    } else if (daysUntilAppointment >= 3 && daysUntilAppointment <= 6) {
+      refundAmount = totalPaid * 0.75;
+      feeOfCancellation = totalPaid * 0.25;
+    } else {
+      refundAmount = 0;
+      feeOfCancellation = totalPaid;
+    }
+
     // Sử dụng giao dịch để đảm bảo cập nhật nguyên tử
     await runTransaction(bookingRef, (currentBooking) => {
       if (currentBooking) {
         currentBooking.status = "Cancelled";
         currentBooking.cancellationDate = cancellationDate;
-        currentBooking.feeOfCancellation = totalPaid * 0.25;
+        currentBooking.feeOfCancellation = feeOfCancellation;
       }
       return currentBooking;
     });
 
     await runTransaction(userRef, (currentUser) => {
       if (currentUser) {
-        currentUser.accountBalance += totalPaid * 0.75;
+        currentUser.accountBalance += refundAmount;
       }
       return currentUser;
     });

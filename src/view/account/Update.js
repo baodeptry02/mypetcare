@@ -5,7 +5,7 @@ import { ToastContainer, toast } from "react-toastify";
 import useForceUpdate from "../../hooks/useForceUpdate";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faPenToSquare, faCamera } from "@fortawesome/free-solid-svg-icons";
-import RefundModal from './RefundModal';
+import RefundModal from "./RefundModal";
 import { fetchUserById, updateUserById, uploadAvatar } from "./getUserData";
 import moment from "moment";
 import LoadingAnimation from "../../animation/loading-animation";
@@ -33,7 +33,6 @@ function Update() {
   const [showModal, setShowModal] = useState(false);
   const [error, setError] = useState(null);
   const [isCustomAvatar, setIsCustomAvatar] = useState(false);
-
 
   const timestamp = parseInt(user?.metadata?.lastLoginAt, 10);
   const date = new Date(timestamp);
@@ -86,11 +85,10 @@ function Update() {
     }
   }, [userId1]);
 
-  
   const handleGenderChange = (e) => {
     const newGender = e.target.value;
     setGender(newGender);
-    if (!isCustomAvatar) { 
+    if (!isCustomAvatar) {
       setAvatar(
         newGender === "Female"
           ? "https://static.vecteezy.com/system/resources/previews/004/899/833/non_2x/beautiful-girl-with-blue-hair-avatar-of-woman-for-social-network-vector.jpg"
@@ -106,17 +104,22 @@ function Update() {
 
   const handleSubmit = async (event) => {
     event.preventDefault();
-    if (!validatePhoneNumber(phone)) {
-      toast.error("Invalid phone number. Please type correct form (Ex: 09xxxx)!", { autoClose: 2000 });
+    if (phone) {
+      if (!validatePhoneNumber(phone)) {
+        toast.error(
+        "Invalid phone number. Please type correct form (Ex: 09xxxx)!",
+        { autoClose: 2000 }
+      );
       return;
     }
+  }
     setLoading(true);
     const updates = {
-      phone: phone || '',
-      address: address || '',
-      fullname: fullname || '',
-      gender: gender || 'Male',
-      dob: dob || '',
+      phone: phone || "",
+      address: address || "",
+      fullname: fullname || "",
+      gender: gender || "Male",
+      dob: dob || "",
       avatar: avatar,
     };
     if (Object.keys(updates).length > 0) {
@@ -135,7 +138,6 @@ function Update() {
       setLoading(false);
     }
   };
-  
 
   const handleImageUpload = async (event) => {
     const file = event.target.files[0];
@@ -145,30 +147,29 @@ function Update() {
         const result = await uploadAvatar(userId1, file);
         const downloadURL = result.avatar;
         setAvatar(downloadURL);
-  
+
         toast.success("Avatar updated successfully!", { autoClose: 2000 });
       } catch (error) {
         console.error("Error uploading avatar:", error);
         toast.error("Failed to upload avatar. Please try again.");
       } finally {
-        setLoading(false); 
+        setLoading(false);
       }
     }
   };
 
-
   return (
     <div
-    style={{
-      height: "100%",
-      minHeight: "100vh",
-      position: "relative",
-      width: "100%",
-      backgroundColor: "#EBEFF2",
-      overflowY: "auto",
-    }}
+      style={{
+        height: "100%",
+        minHeight: "100vh",
+        position: "relative",
+        width: "100%",
+        backgroundColor: "#EBEFF2",
+        overflowY: "auto",
+      }}
     >
-              {loading && <LoadingAnimation />}
+      {loading && <LoadingAnimation />}
       <div className="pet-profile-wrapper user-profile-wrapper">
         <div className="left-panel">
           <div className="avatar-container" style={{ position: "relative" }}>
@@ -181,7 +182,7 @@ function Update() {
                 top: "120px",
                 left: "0",
                 cursor: "pointer",
-                zIndex: "1000"
+                zIndex: "1000",
               }}
             >
               <FontAwesomeIcon
@@ -190,10 +191,9 @@ function Update() {
               />
             </label>
             <input
-            
               id="file-input"
-                          type="file"
-            accept="image/*"
+              type="file"
+              accept="image/*"
               style={{ display: "none" }}
               onChange={handleImageUpload}
             />
@@ -333,6 +333,7 @@ function Update() {
                   value={dob}
                   placeholder="Enter your full name"
                   onChange={(e) => setDob(e.target.value)}
+                  max='2024-1-1'
                 />
               </div>
               <div className="form-group">
@@ -374,14 +375,14 @@ function Update() {
         </div>
       </div>
       <RefundModal
-            showModal={showModal}
-            setShowModal={setShowModal}
-            userId={userId1}
-          />
-     <img
+        showModal={showModal}
+        setShowModal={setShowModal}
+        userId={userId1}
+      />
+      <img
         className="pet-image-left"
         src="https://cdn.prod.website-files.com/6139cf517cd6d26ff1548b86/6352491844284352957c5405_dog%20(1).png"
- alt="a dog looking up"
+        alt="a dog looking up"
       />
       <img
         className="pet-image-right"

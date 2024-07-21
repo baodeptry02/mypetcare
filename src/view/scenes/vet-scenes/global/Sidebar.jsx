@@ -73,6 +73,9 @@ const Sidebar = () => {
       case "/vet/schedule":
         setSelected("Schedule");
         break;
+      case "/vet/manageSchedule":
+        setSelected("Manage Schedule");
+        break;
       case "/vet/cage":
         setSelected("Pet In Cage");
         break;

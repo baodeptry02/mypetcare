@@ -25,7 +25,7 @@ function ResetPassword() {
         newPassword: password,
       });
       toast.success("Update password successful!", { autoClose: 2000 });
-      navigate('/login');
+      navigate('/');
     } catch (error) {
       toast.error("Token invalid or expired!", { autoClose: 2000 });
     }

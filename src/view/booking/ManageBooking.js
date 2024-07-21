@@ -52,6 +52,7 @@ const ManageBookings = () => {
   const classes = useStyles();
   const forceUpdate = useForceUpdate();
   const [currentTab, setCurrentTab] = useState("Paid");
+  const [showTerms, setShowTerms] = useState(false);
 
   useEffect(() => {
     if (!user) {
@@ -198,6 +199,10 @@ const ManageBookings = () => {
     setCurrentTab(status);
     setCurrentPage(1); // Reset to the first page when changing tabs
   };
+
+
+  const openTermsModal = () => setShowTerms(true);
+  const closeTermsModal = () => setShowTerms(false);
 
   return (
     <div className="manage-bookings-page">
@@ -412,11 +417,8 @@ const ManageBookings = () => {
                 &times;
               </span>
             </div>
-            <p
-              style={{ fontSize: "2rem", padding: "12px", lineHeight: "3rem" }}
-            >
-              This booking will be cancelled and we will return you 75% amount
-              of this booking
+            <p style={{ fontSize: "1.5rem", padding: "16px 44px", lineHeight: "2.6rem" }}>
+              This booking will be cancelled and you will lose the amount of fee. To make clear, please read our <span onClick={openTermsModal} style={{ color: "blue", cursor: "pointer" }}>terms and conditions</span>.
             </p>
             <div className="modal-actions">
               <button className="confirm" onClick={confirmCancellation}>
@@ -428,6 +430,30 @@ const ManageBookings = () => {
             </div>
           </div>
         </div>
+      )}
+      {showTerms && (
+        <div className="modal-overlay" onClick={closeTermsModal}>
+  <div className="modal-content" onClick={(e) => e.stopPropagation()}>
+    <div className="modal-header">
+      <h3>Terms and Conditions</h3>
+      <span className="modal-close" onClick={closeTermsModal}>
+        &times;
+      </span>
+    </div>
+    <div className="modal-body">
+      <h4>In case of cancel booking:</h4>
+      <ul>
+        <li>For appointments canceled between three and six days prior to the scheduled time, you receive 75% of prepaid fee refunded.</li>
+        <li>In other cases, prepayment refunds are not available.</li>
+      </ul>
+    </div>
+    <div className="modal-actions">
+      <button className="close" onClick={closeTermsModal}>
+        Close
+      </button>
+    </div>
+  </div>
+</div>
       )}
     </div>
   );

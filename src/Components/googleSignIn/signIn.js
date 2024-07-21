@@ -20,8 +20,9 @@ import useForceUpdate from "../../hooks/useForceUpdate";
 import ReCAPTCHA from "react-google-recaptcha";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faEye, faEyeSlash } from "@fortawesome/free-solid-svg-icons";
-import { googleLogin, registerUser, emailLogin } from "./utils";
+import { googleLogin, registerUser, emailLogin, sendOtpToEmail } from "./utils";
 import LoadingAnimation from "../../animation/loading-animation";
+import OtpModal from "./OtpModal";
 
 function SignIn() {
   const [email, setEmail] = useState("");
@@ -45,6 +46,7 @@ function SignIn() {
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [loading, setLoading] = useState(false);
+  const [showOtpModal, setShowOtpModal] = useState(false);
 
   const onChange = (value) => {
     setIsCaptchaVerified(!!value);
@@ -157,36 +159,20 @@ function SignIn() {
       setconfirmPassword(value);
     }
   };
-
-  const handleEmailLogin = async (event) => {
-    event.preventDefault();
-    setError(null);
-    if (!isValidEmail(email)) {
-      toast.error("Invalid email format. Please enter a valid email.", { autoClose: 2000 });
-      return;
-    }
-    if (!validatePassword(password)) {
-      toast.error("Password must be cotained at least one digit, one special symbol, one uppercase letter.", { autoClose: 2000 });
-      return;
-    }
-
-    if (!isCaptchaVerified) {
-      toast.error("Please complete the captcha before submitting the form.");
-      return;
-    }
-
+  const onOtpSuccess = async () => {
     try {
+      console.log("Email: ", email);
+      console.log("Password: ", password);
+      
       setLoading(true); // Show spinner
-
-      const response = await emailLogin(email, password);
-
+      const response = await emailLogin(email, password); // Perform the final login
+  
       const userEmail = email;
       setUserEmail(userEmail);
       localStorage.setItem("email", userEmail);
-
-      // Set avatar state here
+  
       setAvatar(response.avatar);
-
+  
       toast.success("Login successfully. Wish you enjoy our best experience!", {
         autoClose: 2000,
         onClose: () => {
@@ -207,32 +193,40 @@ function SignIn() {
         },
       });
     } catch (error) {
-      console.error("Error during login:", error);
+      console.error("Error during login after OTP verification:", error);
+      toast.error("Failed to login after OTP verification. Please try again.", { autoClose: 2000 });
+      setLoading(false); // Hide spinner
+    }
+  };
 
-      if (
-        error.response &&
-        error.response.data.message ===
-          "Email not verified. Verification email has been resent."
-      ) {
-        toast.error(
-          "Please verify your email before logging in. A verification email has been sent to your email address.",
-          {
-            autoClose: 2000,
-            onClose: () => {
-              setLoading(false); // Hide spinner
-              forceUpdate();
-            },
-          }
-        );
-      } else {
-        toast.error("Failed to login. Please check your email and password.", {
-          autoClose: 2000,
-          onClose: () => {
-            setLoading(false); // Hide spinner
-            forceUpdate();
-          },
-        });
-      }
+  const handleEmailLogin = async (event) => {
+    event.preventDefault();
+    setError(null);
+
+    if (!isValidEmail(email)) {
+      toast.error("Invalid email format. Please enter a valid email.", { autoClose: 2000 });
+      return;
+    }
+    if (!validatePassword(password)) {
+      toast.error("Password must contain at least one digit, one special symbol, and one uppercase letter.", { autoClose: 2000 });
+      return;
+    }
+
+    if (!isCaptchaVerified) {
+      toast.error("Please complete the captcha before submitting the form.");
+      return;
+    }
+
+    try {
+      setLoading(true); // Show spinner
+      await sendOtpToEmail(email);
+      toast.info("OTP sent to your email. Please verify to continue.", { autoClose: 2000 });
+      setLoading(false); // Hide spinner
+      setShowOtpModal(true); // Show OTP modal
+    } catch (error) {
+      console.error("Error sending OTP:", error);
+      toast.error("Failed to send OTP. Please try again.", { autoClose: 2000 });
+      setLoading(false); // Hide spinner
     }
   };
 
@@ -471,6 +465,7 @@ function SignIn() {
           </div>
         </div>
       )}
+       {showOtpModal && <OtpModal isOpen={showOtpModal} onClose={() => setShowOtpModal(false)} email={email} onOtpSuccess={onOtpSuccess} />}
       <ToastContainer />
       {userEmail && <Home />}
     </div>

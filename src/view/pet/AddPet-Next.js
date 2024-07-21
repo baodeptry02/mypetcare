@@ -26,6 +26,7 @@ const AddPetNext = () => {
   const navigate = useNavigate();
   const auth = getAuth();
 
+    console.log(petData)
   const handleSubmit = async (e) => {
     e.preventDefault();
     setLoading(true);

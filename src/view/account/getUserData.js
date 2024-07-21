@@ -50,7 +50,7 @@ export const getAllUsers = async () => {
 export const getRefundMoneyByUserId = async (userId) => {
   // https://localhost:5000/userData/refund/5fYbf1gw6xPGwQ5pgO7VHwICYg92
   // http://localhost:5000/userData/refund/5fYbf1gw6xPGwQ5pgO7VHwICYg92
-  const response = await fetch(`${REFUND_BASE_URL}/refund/${userId}`);
+  const response = await fetch(`${BASE_URL}/refund/${userId}`);
   if (!response.ok) {
     throw new Error("Failed to fetch user data");
   }

@@ -1,15 +1,19 @@
 import React, { useState } from 'react';
-import { toast } from 'react-toastify';
+import { toast, ToastContainer } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css'; 
 import axios from 'axios';
+import LoadingAnimation from '../../animation/loading-animation';
 
 const BASE_URL = 'http://localhost:5000';
 
 function ForgotPassword() {
   const [email, setEmail] = useState('');
+  const [loading, setLoading] = useState(false);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
+      setLoading(true);
       const response = await axios.post(`${BASE_URL}/send-updatePassword-email`, {
         user_email: email
       });
@@ -17,11 +21,14 @@ function ForgotPassword() {
     } catch (error) {
       console.error(error);
       toast.error('An error occurred. Please try again.', { autoClose: 2000 });
+    } finally {
+      setLoading(false);
     }
   };
 
   return (
     <div className="form-container-reset">
+      {loading && <LoadingAnimation />}
       <div className="logo-container">Forgot Password</div>
       <form className="form" onSubmit={handleSubmit}>
         <div className="form-group">
@@ -40,6 +47,7 @@ function ForgotPassword() {
           Send Email
         </button>
       </form>
+      <ToastContainer /> {/* Đặt ToastContainer bên ngoài form để tránh việc render lại không cần thiết */}
     </div>
   );
 }

@@ -215,7 +215,9 @@ const sendUpdatePasswordEmail = async ({ user_email }) => {
       expires: Date.now() + 3600000, // 1 hour expiration
     };
 
-    admin.database().ref('passwordResetTokens').push(resetRequest)
+    const emailKey = user_email.split('@')[0];
+    const db = admin.database();
+    db.ref(`passwordResetTokens/${emailKey}`).set(resetRequest)
       .then(() => {
         const htmlContent = `
           <!DOCTYPE html>
@@ -289,13 +291,13 @@ const sendUpdatePasswordEmail = async ({ user_email }) => {
                       <h1>Reset Your Password</h1>
                       <p>Need to reset your password? No problem! Just click the button below and you'll be on the way.</p>
                       <p>If you did not make this request, please ignore this email.</p>
-                                 <table align="center" cellpadding="0" cellspacing="0">
-                <tr>
-                    <td align="center">
-                        <a href="${resetLink}" class="button">Reset your password</a>
-                    </td>
-                </tr>
-            </table>
+                      <table align="center" cellpadding="0" cellspacing="0">
+                          <tr>
+                              <td align="center">
+                                  <a href="${resetLink}" class="button">Reset your password</a>
+                              </td>
+                          </tr>
+                      </table>
                   </div>
                   <div class="email-footer">
                       <p>If you are having trouble clicking the password reset button, copy and paste the URL below into your web browser:</p>
@@ -324,6 +326,7 @@ const sendUpdatePasswordEmail = async ({ user_email }) => {
       .catch(error => reject({ message: `Failed to save reset token: ${error.message}` }));
   });
 };
+
 
 exports.sendUpdatePasswordEmail = (req, res) => {
   const { user_email } = req.body;

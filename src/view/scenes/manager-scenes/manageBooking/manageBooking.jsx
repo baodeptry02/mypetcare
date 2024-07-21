@@ -23,6 +23,11 @@ import { DatePicker } from "@mui/x-date-pickers/DatePicker";
 import TextField from "@mui/material/TextField";
 import dayjs from "dayjs";
 import axios from "axios";
+import { getAllUsers } from "../../../account/getUserData";
+import {
+  updateAccountBalance,
+  updateBookingStatus,
+} from "../../../booking/fetchAddBooking";
 
 const ManageBooking = () => {
   const theme = useTheme();
@@ -37,10 +42,7 @@ const ManageBooking = () => {
   const [cleared, setCleared] = React.useState(false);
 
   const fetchAllBookings = async () => {
-    const db = getDatabase();
-    const usersRef = ref(db, "users");
-    const snapshot = await get(usersRef);
-    const usersData = snapshot.val();
+    const usersData = await getAllUsers();
     let allBookings = [];
 
     if (usersData) {
@@ -116,13 +118,11 @@ const ManageBooking = () => {
     setLoading(true);
 
     try {
-      const db = getDatabase();
-
-      // Update booking status in Firebase
-      await update(ref(db, `users/${row.userId}/bookings/${row.id}`), {
+      await updateBookingStatus(`${row.userId}`, `${row.id}`, {
         status: "Cancelled",
       });
-      await update(ref(db, `users/${row.userId}`), {
+
+      await updateAccountBalance(`${row.userId}`, {
         accountBalance: row.accountBalance + row.totalPaid,
       });
 
@@ -160,12 +160,9 @@ const ManageBooking = () => {
     setLoading(true);
 
     try {
-      await update(
-        ref(getDatabase(), `users/${row.userId}/bookings/${row.id}`),
-        {
-          status: "Checked-in",
-        }
-      );
+      await updateBookingStatus(`${row.userId}`, `${row.id}`, {
+        status: "Checked-in",
+      });
 
       setBookings(
         bookings.map((item) =>
@@ -353,51 +350,51 @@ const ManageBooking = () => {
         </IconButton>
       </Box>
       <ThemeProvider theme={darkTheme}>
-      <LocalizationProvider dateAdapter={AdapterDayjs}>
-        <Box
-          sx={{
-            width: "100%",
-            height: "100%",
-            display: "flex",
-            justifyContent: "center",
-            position: "relative",
-          }}
-        >
-          <DatePicker
-            value={selectedDate}
-            onChange={handleDateChange}
-            inputFormat="DD/MM/YYYY" // Định dạng hiển thị ngày
-            clearable
-            onClear={handleClear}
-            sx={{ width: 320 }}
-            renderInput={(params) => (
-              <TextField
-                {...params}
-                InputProps={{
-                  style: { fontSize: "16px", color: "#ffffff" }, // Tùy chỉnh kích thước font và màu chữ cho input
-                }}
-                sx={{
-                  "& .MuiInputBase-root": {
-                    backgroundColor: "#424242", // Nền tối cho input
-                  },
-                  "& .MuiInputBase-input": {
-                    fontSize: "24px", // Tùy chỉnh kích thước font cho input
-                  },
-                }}
-              />
+        <LocalizationProvider dateAdapter={AdapterDayjs}>
+          <Box
+            sx={{
+              width: "100%",
+              height: "100%",
+              display: "flex",
+              justifyContent: "center",
+              position: "relative",
+            }}
+          >
+            <DatePicker
+              value={selectedDate}
+              onChange={handleDateChange}
+              inputFormat="DD/MM/YYYY" // Định dạng hiển thị ngày
+              clearable
+              onClear={handleClear}
+              sx={{ width: 320 }}
+              renderInput={(params) => (
+                <TextField
+                  {...params}
+                  InputProps={{
+                    style: { fontSize: "16px", color: "#ffffff" }, // Tùy chỉnh kích thước font và màu chữ cho input
+                  }}
+                  sx={{
+                    "& .MuiInputBase-root": {
+                      backgroundColor: "#424242", // Nền tối cho input
+                    },
+                    "& .MuiInputBase-input": {
+                      fontSize: "24px", // Tùy chỉnh kích thước font cho input
+                    },
+                  }}
+                />
+              )}
+            />
+            {cleared && (
+              <Alert
+                sx={{ position: "absolute", bottom: 0, right: 0 }}
+                severity="success"
+              >
+                Field cleared!
+              </Alert>
             )}
-          />
-          {cleared && (
-            <Alert
-              sx={{ position: "absolute", bottom: 0, right: 0 }}
-              severity="success"
-            >
-              Field cleared!
-            </Alert>
-          )}
-        </Box>
-      </LocalizationProvider>
-    </ThemeProvider>
+          </Box>
+        </LocalizationProvider>
+      </ThemeProvider>
 
       <Box
         m="40px 0 0 0"

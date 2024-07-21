@@ -16,6 +16,14 @@ import {
 import { DataGrid } from "@mui/x-data-grid";
 import { tokens } from "../../../../theme";
 import Header from "../../../../Components/dashboardChart/Header";
+import {
+  getCages,
+  addNewCage,
+  addNewService,
+  getCageByKey,
+  updateCageByKey,
+} from "../../admin-scenes/services and cages/getServiceNCageData";
+import { getAllUsers } from "../../../account/getUserData";
 
 const RoleEditCell = ({ id, value, api, vets, handleVetChange }) => {
   const [selectedVetId, setSelectedVetId] = useState(value ? value.id : "");
@@ -54,35 +62,39 @@ const Cage = () => {
   const colors = tokens(theme.palette.mode);
   const [searchQuery, setSearchQuery] = useState("");
   const [currentPage, setCurrentPage] = useState(1);
-  const rowsPerPage = 4;
+  const rowsPerPage = 5;
 
   useEffect(() => {
-    const db = getDatabase();
-    const cagesRef = ref(db, "cages");
-    onValue(cagesRef, (snapshot) => {
-      const data = snapshot.val();
-      if (data) {
-        const cageList = Object.keys(data).map((key) => ({
-          key: key, // store the key here
-          ...data[key],
-        }));
-        setCages(cageList);
-      }
-    });
+    const fetchData = async () => {
+      try {
+        const cagesData = await getCages();
+        // console.log(cagesData);
 
-    const usersRef = ref(db, "users");
-    onValue(usersRef, (snapshot) => {
-      const data = snapshot.val();
-      if (data) {
-        const vetList = Object.keys(data)
-          .filter((key) => data[key].role === "veterinarian")
-          .map((key) => ({
-            id: key,
-            fullname: data[key].fullname,
+        if (cagesData) {
+          const cageList = Object.keys(cagesData).map((key) => ({
+            key: key, // store the key here
+            ...cagesData[key],
           }));
-        setVets(vetList);
+          setCages(cageList);
+        }
+
+        const userData = await getAllUsers();
+
+        if (userData) {
+          const vetList = Object.keys(userData)
+            .filter((key) => userData[key].role === "veterinarian")
+            .map((key) => ({
+              id: key,
+              fullname: userData[key].fullname,
+            }));
+          setVets(vetList);
+        }
+      } catch (error) {
+        console.error("Error fetching data:", error);
       }
-    });
+    };
+
+    fetchData();
   }, []);
 
   const handleVetChange = (cageKey, vet) => {
@@ -92,51 +104,44 @@ const Cage = () => {
     }));
   };
 
-  const handleUpdate = (cageKey, vetId) => {
-    const db = getDatabase();
-    const cageRef = ref(db, `cages/${cageKey}`);
-    
+  const handleUpdate = async (cageKey, vetId) => {
     const vet = selectedVets[vetId];
     if (!vet) {
       console.error(`No veterinarian found for id: ${vetId}`);
       return;
     }
-  
-    get(cageRef).then(snapshot => {
-      if (!snapshot.exists()) {
-        console.error(`No cage found with key: ${cageKey}`);
-        return;
+
+    const cageData = await getCageByKey(cageKey);
+    if (!cageData) {
+      console.error(`No cage found with key: ${cageKey}`);
+      return;
+    }
+    console.log("Current Cage Data:", cageData);
+
+    const updatedPets = cageData.pets.map((pet) => {
+      if (pet.inCage) {
+        return {
+          ...pet,
+          veterinarian: { id: vet.id, fullname: vet.fullname },
+        };
       }
-  
-      const cageData = snapshot.val();
-      console.log("Current Cage Data:", cageData);
-
-      const updatedPets = cageData.pets.map(pet => {
-        if (pet.inCage) {
-          return { ...pet, veterinarian: { id: vet.id, fullname: vet.fullname } };
-        }
-        return pet;
-      });
-
-      update(cageRef, { ...cageData, pets: updatedPets })
-        .then(() => {
-          console.log(`Cage ${cageKey} updated successfully.`);
-        })
-        .catch(error => {
-          console.error(`Error updating cage ${cageKey}:`, error);
-        });
-  
-    }).catch(error => {
-      console.error(`Error getting cage data for key ${cageKey}:`, error);
+      return pet;
     });
+    const updatedCageData = { ...cageData, pets: updatedPets };
+    await updateCageByKey(cageKey, updatedCageData)
+      .then(() => {
+        console.log(`Cage ${cageKey} updated successfully.`);
+      })
+      .catch((error) => {
+        console.error(`Error updating cage ${cageKey}:`, error);
+      });
   };
-  const handleRelease = (cageKey) => {
-    const db = getDatabase();
-    const cageRef = ref(db, `cages/${cageKey}`);
-    
-    get(cageRef).then((snapshot) => {
-      if (snapshot.exists()) {
-        const cageData = snapshot.val();
+
+  const handleRelease = async (cageKey) => {
+    try {
+      const cageData = await getCageByKey(cageKey);
+
+      if (cageData) {
         const pets = cageData.pets || [];
 
         // Find the pet that is currently in the cage
@@ -144,51 +149,59 @@ const Cage = () => {
         if (petIndex !== -1) {
           pets[petIndex].inCage = false; // Set inCage to false
 
-          update(cageRef, { pets, status: "Available" })
-            .then(() => {
-              console.log(`Cage ${cageKey} released successfully.`);
-            })
-            .catch((error) => {
-              console.error(`Error releasing cage ${cageKey}:`, error);
-            });
+          const updatedCageData = { ...cageData, pets, status: "Available" };
+
+          await updateCageByKey(cageKey, updatedCageData);
+          console.log(`Cage ${cageKey} released successfully.`);
         } else {
-          console.error('No pet currently in the cage.');
+          console.error("No pet currently in the cage.");
         }
       }
-    }).catch((error) => {
-      console.error(`Error getting cage data for key ${cageKey}:`, error);
-    });
+    } catch (error) {
+      console.error(`Error releasing cage ${cageKey}:`, error);
+    }
   };
-  
 
   const columns = [
     {
       field: "id",
       headerName: (
-        <Typography sx={{ fontSize: 18, fontWeight: "bold" }}>Cage ID</Typography>
+        <Typography sx={{ fontSize: 18, fontWeight: "bold" }}>
+          Cage ID
+        </Typography>
       ),
       width: 150,
       editable: false,
-      renderCell: ({ value }) => <div style={{ fontSize: "16px" }}>{value}</div>,
+      renderCell: ({ value }) => (
+        <div style={{ fontSize: "16px" }}>{value}</div>
+      ),
     },
     {
       field: "name",
       headerName: (
-        <Typography sx={{ fontSize: 18, fontWeight: "bold" }}>Cage name</Typography>
+        <Typography sx={{ fontSize: 18, fontWeight: "bold" }}>
+          Cage name
+        </Typography>
       ),
       flex: 0.5,
       editable: false,
       width: 150,
-      renderCell: ({ value }) => <div style={{ fontSize: "16px" }}>{value}</div>,
+      renderCell: ({ value }) => (
+        <div style={{ fontSize: "16px" }}>{value}</div>
+      ),
     },
     {
       field: "status",
       headerName: (
-        <Typography sx={{ fontSize: 18, fontWeight: "bold" }}>Status</Typography>
+        <Typography sx={{ fontSize: 18, fontWeight: "bold" }}>
+          Status
+        </Typography>
       ),
       flex: 0.5,
       editable: false,
-      renderCell: ({ value }) => <div style={{ fontSize: "16px" }}>{value}</div>,
+      renderCell: ({ value }) => (
+        <div style={{ fontSize: "16px" }}>{value}</div>
+      ),
     },
     {
       field: "veterinarian",
@@ -198,7 +211,8 @@ const Cage = () => {
       flex: 0.7,
       editable: true,
       renderCell: ({ row }) => {
-        const vet = row.pets && row.pets.find(pet => pet.inCage)?.veterinarian;
+        const vet =
+          row.pets && row.pets.find((pet) => pet.inCage)?.veterinarian;
         return (
           <div style={{ fontSize: "16px" }}>
             {vet ? vet.fullname : "No Vet Assigned"}
@@ -207,7 +221,11 @@ const Cage = () => {
       },
       renderEditCell: (params) => (
         <Typography sx={{ ml: "5px", fontSize: "20px" }}>
-          <RoleEditCell {...params} vets={vets} handleVetChange={handleVetChange} />
+          <RoleEditCell
+            {...params}
+            vets={vets}
+            handleVetChange={handleVetChange}
+          />
         </Typography>
       ),
     },
@@ -219,50 +237,59 @@ const Cage = () => {
       flex: 0.7,
       editable: false,
       renderCell: ({ value }) =>
-        (value || []).filter(pet => pet.inCage).map((pet) => (
-          <div key={pet.petId} style={{ fontSize: "16px" }}>
-            {pet.petId}
-          </div>
-        )),
+        (value || [])
+          .filter((pet) => pet.inCage)
+          .map((pet) => (
+            <div key={pet.petId} style={{ fontSize: "16px" }}>
+              {pet.petId}
+            </div>
+          )),
     },
     {
       field: "update",
       headerName: (
-        <Typography sx={{ fontSize: 18, fontWeight: "bold" }}>Update</Typography>
+        <Typography sx={{ fontSize: 18, fontWeight: "bold" }}>
+          Update
+        </Typography>
       ),
       flex: 0.6,
-      renderCell: (params) => (
-        <div className="admin-update-button">
-          <Button
-            variant="contained"
-            size="small"
-            onClick={() => handleUpdate(params.row.key, params.row.id, params.row.petId)}
-            style={{
-              marginRight: "16px",
-              fontSize: "16px",
-              backgroundColor: "green",
-            }}
-          >
-            Update
-          </Button>
-          <Button
-            variant="contained"
-            size="small"
-            onClick={() => handleRelease(params.row.key, params.row.id, params.row.petId)}
-            style={{
-              marginLeft: "16px",
-              fontSize: "16px",
-              backgroundColor: "green",
-            }}
-          >
-            Release
-          </Button>
-        </div>
-      ),
+
+      renderCell: (params) => {
+        const hasPetInCage = params.row.pets?.some((pet) => pet.inCage);
+        const hasVetAssigned = params.row.pets?.some((pet) => pet.veterinarian);
+        return (
+          <div className="admin-update-button">
+            <Button
+              variant="contained"
+              size="small"
+              onClick={() => handleUpdate(params.row.key, params.row.id)}
+              style={{
+                marginRight: "16px",
+                fontSize: "16px",
+                backgroundColor: "green",
+              }}
+            >
+              Update
+            </Button>
+            <Button
+              variant="contained"
+              size="small"
+              onClick={() => handleRelease(params.row.key)}
+              style={{
+                marginLeft: "16px",
+                fontSize: "16px",
+                backgroundColor: "green",
+              }}
+              disabled={!(hasPetInCage && hasVetAssigned)}
+            >
+              Release
+            </Button>
+          </div>
+        );
+      },
     },
   ];
 
-  
   const handleSearch = (event) => {
     setSearchQuery(event.target.value);
   };
@@ -337,6 +364,9 @@ const Cage = () => {
           },
           "& .MuiInputBase-root": {
             width: "209px",
+          },
+          "& .MuiDataGrid-overlay": {
+            fontSize: "18px",
           },
         }}
       >

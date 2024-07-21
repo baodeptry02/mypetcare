@@ -116,7 +116,7 @@ const moment = require('moment-timezone');
 
 const taikhoanmb = "DUYBAO0312";
 const deviceIdCommon = "f1wegonh-mbib-0000-0000-2024052023591852";
-const sessionId = "520a60f2-23c3-445b-9397-266497717a8e";
+const sessionId = "7a78ab82-ef33-47de-9d1f-c60bb3823753";
 const sotaikhoanmb = "0000418530364";
 
 exports.getTransactionHistory = async (req, res) => {

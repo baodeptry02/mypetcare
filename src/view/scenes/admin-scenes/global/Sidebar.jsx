@@ -216,14 +216,6 @@ const Sidebar = () => {
               selected={selected}
               setSelected={setSelected}
             />
-
-            <Item
-              title="Services Data"
-              to="/admin/addService"
-              icon={<MedicalServicesIcon sx={{ fontSize: "22px" }} />}
-              selected={selected}
-              setSelected={setSelected}
-            />
             <Item
               title="Refund Data"
               to="/admin/refundData"

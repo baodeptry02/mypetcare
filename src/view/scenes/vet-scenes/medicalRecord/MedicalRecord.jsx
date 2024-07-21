@@ -176,7 +176,7 @@ const MedicalRecord = () => {
           inCage: true,
           bookingId: booking.bookingId,
           petName: booking.pet.name,
-          petOwner: user?.username,
+          petOwner: user?.username
         };
 
         await saveMedicalRecord(userId, bookingId, {
@@ -194,7 +194,6 @@ const MedicalRecord = () => {
         const cageData = cageSnapshot.val();
         const updatedCagePets = [...(cageData?.pets || []), petDetails];
         await update(cageRef, { status: "Occupied", pets: updatedCagePets });
-        toast.success("Medical record saved successfully!");
       } catch (error) {
         console.error("Error saving medical record:", error);
         toast.error("Error saving medical record. Please try again.");
@@ -210,7 +209,7 @@ const MedicalRecord = () => {
           bookingId: booking.bookingId,
         });
         toast.success("Medical record saved successfully!");
-        // navigate(-1);
+        navigate(-1);
       } catch (error) {
         console.error("Error saving medical record:", error);
         toast.error("Error saving medical record. Please try again.");
@@ -244,7 +243,7 @@ const MedicalRecord = () => {
           ...record,
         },
       };
-      // await update(bookingRef, updatedBookingData);
+      await update(bookingRef, updatedBookingData);
 
       // Cập nhật dữ liệu lịch trình của bác sĩ thú y
       const vetScheduleRef = ref(
@@ -259,7 +258,7 @@ const MedicalRecord = () => {
           if (item.bookingId === booking.bookingId) {
             return {
               ...item,
-              isChecked: false,
+              isChecked: true,
             };
           }
           return item;
@@ -283,7 +282,7 @@ const MedicalRecord = () => {
         bookingId: booking.bookingId,
         ...record,
       });
-      // await update(petRef, { medicalHistory: updatedMedicalHistory });
+      await update(petRef, { medicalHistory: updatedMedicalHistory });
 
       console.log("Updated pet medical history:", updatedMedicalHistory);
 
@@ -454,8 +453,13 @@ const MedicalRecord = () => {
         </Grid>
       </Grid>
 
-      <button onClick={toggleMedicalHistory}>Medical History</button>
-
+      <Typography
+        variant="h4"
+        onClick={toggleMedicalHistory}
+        style={{ cursor: "pointer" }}
+      >
+        Medical History
+      </Typography>
       {showMedicalHistory && (
         <Box mt={2} height={180} overflow={"auto"} border={"solid 1px black"}>
           <Grid container spacing={3} padding={2}>
@@ -747,9 +751,7 @@ const MedicalRecord = () => {
                   <Radio sx={{ "& .MuiSvgIcon-root": { fontSize: 28 } }} />
                 }
                 label={
-                  <Typography style={{ fontSize: "1.5rem", color: "black" }}>
-                    Yes
-                  </Typography>
+                  <Typography style={{ fontSize: "1.5rem", color: "black" }}>Yes</Typography>
                 }
                 sx={{ marginRight: "24px" }}
               />
@@ -759,9 +761,7 @@ const MedicalRecord = () => {
                   <Radio sx={{ "& .MuiSvgIcon-root": { fontSize: 28 } }} />
                 }
                 label={
-                  <Typography style={{ fontSize: "1.5rem", color: "black" }}>
-                    No
-                  </Typography>
+                  <Typography style={{ fontSize: "1.5rem", color: "black" }}>No</Typography>
                 }
               />
             </RadioGroup>
