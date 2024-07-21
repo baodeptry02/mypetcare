@@ -32,12 +32,23 @@ const OtpModal = ({ isOpen, onClose, email, onOtpSuccess }) => {
     }
   };
 
+  const closeModal = (e) => {
+    if (e.target === e.currentTarget || e.target.className === 'modal-close') {
+      onClose();
+    }
+  };
+
   return (
     isOpen && (
-      <div className="modal-overlay modal-overlay-otp">
-        <div className="modal-content modal-content-otp">
-          <h1>Verify</h1>
-          <p>Your code was sent to you via email</p>
+      <div className="modal-overlay modal-overlay-otp" onClick={closeModal}>
+        <div className="modal-content modal-content-otp" onClick={(e) => e.stopPropagation()}>
+        <div className="modal-header">
+          <h3 style={{ fontSize: "22px", color: "#007bff" }}>Verify</h3>
+          <span className="modal-close" onClick={closeModal}>
+            &times;
+          </span>
+          </div>
+          <p style={{ fontSize: "14px" }}>Your code was sent to you via email</p>
           <div className="otp-inputs" onPaste={handlePaste}>
             {otp.map((data, index) => (
               <input
@@ -52,7 +63,7 @@ const OtpModal = ({ isOpen, onClose, email, onOtpSuccess }) => {
             ))}
           </div>
           <button onClick={handleVerify} className="verify-button">Verify</button>
-          <p>
+          <p style={{ marginTop: "20px", fontSize: "14px" }}>
             Didn't receive code? <span onClick={() => sendOtpToEmail(email)} className="request-again">Request again</span>
           </p>
         </div>

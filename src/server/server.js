@@ -48,7 +48,6 @@ app.use(express.json());
 
 // Use routes
 app.use("/userData", userRoutes);
-// http://localhost:5000/userData/19qwWXzlPmVqZURrYzxjxTx1PO63
 app.use('/bookings', bookingRoutes);
 app.use('/cancel-booking', cancelBookingRoutes);
 app.use('/pets', petRoutes);

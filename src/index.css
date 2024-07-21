@@ -5322,3 +5322,6 @@ p {
   cursor: pointer;
   text-decoration: underline;
 }
+.verify-button:hover {
+  background-color: #1358a2;
+}
