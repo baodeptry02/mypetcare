@@ -82,7 +82,7 @@ const [vetName, setVetName] = useState("");
   
       for (const uid in usersData) {
         const userData = usersData[uid];
-        
+  
         if (userData.username === username) {
           console.log(`Checking user ${uid} (username: ${username}) for booking ID ${bookingId}`); // Log quá trình tìm kiếm
           if (userData.bookings) {
@@ -96,7 +96,7 @@ const [vetName, setVetName] = useState("");
             }
           }
         }
-        
+  
         if (userId && booking) {
           break; // Thoát vòng lặp khi tìm thấy booking
         }
@@ -104,6 +104,11 @@ const [vetName, setVetName] = useState("");
   
       if (!userId || !booking) {
         throw new Error(`Booking with ID ${bookingId} not found for user ${username}.`);
+      }
+  
+      // Kiểm tra trạng thái của booking
+      if (booking.status !== 'Rated' && booking.status !== 'Checked-in') {
+        throw new Error(`Booking status must be 'Rated' or 'Checked-in' to add pet to cage.`);
       }
   
       const cageRef = ref(db, `cages/${cageKey}`);
@@ -140,20 +145,19 @@ const [vetName, setVetName] = useState("");
           ...booking.medicalRecord,
           inCage: true,
         },
-        status: 'in progress',
       };
       console.log("Updated Booking Data:", updatedBookingData); // Log thông tin booking sau khi cập nhật
   
       await update(bookingRef, updatedBookingData);
   
-      toast.success("Cage assigned and booking updated successfully!");
+      toast.success("Assign pet to cage successfully!");
   
     } catch (error) {
       console.error("Error assigning cage to pending booking:", error);
       toast.error(`Error assigning cage: ${error.message}`);
     }
   };
-   
+  
   const handleConfirmAddPet = async () => {
     if (!bookingIdInput || !usernameInput) {
       toast.error("Please enter both booking ID and username");
@@ -172,7 +176,6 @@ const [vetName, setVetName] = useState("");
       console.log("Selected Cage:", selectedCage.key); // Log cage được chọn
   
       await addPetToCage(bookingId, selectedCage.key, username);
-      toast.success("Pet added to cage successfully!");
       closeModal();
     } catch (error) {
       console.error("Error adding pet to cage:", error);
