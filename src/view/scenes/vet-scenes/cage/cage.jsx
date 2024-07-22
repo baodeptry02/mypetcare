@@ -76,11 +76,12 @@ const Booking = () => {
     };
     fetchData();
   }, [userData.fullname]);
+
   const handleOpenModal = (cageKey, bookingId) => {
     setSelectedCageKey(cageKey);
     setIsModalOpen(true);
     setSelectedBookingId(bookingId);
-    // console.log(bookingId);
+    console.log(bookingId);
   };
 
   const handleCloseModal = () => {
@@ -92,7 +93,7 @@ const Booking = () => {
     if (!selectedCageKey) return;
 
     const currentDate = new Date();
-    currentDate.setDate(currentDate.getDate() + 1);
+    currentDate.setDate(currentDate.getDate());
     const formattedDate = currentDate.toLocaleDateString();
 
     try {
@@ -267,7 +268,7 @@ const Booking = () => {
             variant="contained"
             size="small"
             onClick={() =>
-              handleOpenModal(params.row.key, params.row.bookingId)
+              handleOpenModal(params.row.key, params.row?.bookingId)
             }
             style={{
               marginRight: "10px",

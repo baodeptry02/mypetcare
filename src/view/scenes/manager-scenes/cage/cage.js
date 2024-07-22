@@ -26,7 +26,7 @@ import {
   updateCageByKey,
 } from "../../admin-scenes/services and cages/getServiceNCageData";
 import { getAllUsers } from "../../../account/getUserData";
-import { toast } from "react-toastify";
+import { toast, ToastContainer } from "react-toastify";
 import moment from "moment";
 
 const RoleEditCell = ({ id, value, api, vets, handleVetChange }) => {
@@ -78,6 +78,7 @@ const [vetName, setVetName] = useState("");
       console.log("Users Data:", usersData); // Log dữ liệu người dùng
   
       let userId = null;
+      let bookingKey = null;
       let booking = null;
   
       for (const uid in usersData) {
@@ -89,6 +90,7 @@ const [vetName, setVetName] = useState("");
             for (const bid in userData.bookings) {
               if (userData.bookings[bid].bookingId === bookingId) {
                 userId = uid;
+                bookingKey = bid;
                 booking = userData.bookings[bid];
                 console.log("Found booking:", booking); // Log thông tin booking
                 break;
@@ -97,12 +99,12 @@ const [vetName, setVetName] = useState("");
           }
         }
   
-        if (userId && booking) {
+        if (userId && bookingKey && booking) {
           break; // Thoát vòng lặp khi tìm thấy booking
         }
       }
   
-      if (!userId || !booking) {
+      if (!userId || !bookingKey || !booking) {
         throw new Error(`Booking with ID ${bookingId} not found for user ${username}.`);
       }
   
@@ -127,7 +129,7 @@ const [vetName, setVetName] = useState("");
         date: moment().tz("Asia/Ho_Chi_Minh").format("DD/MM/YYYY"),
         petId: booking.pet.key,
         inCage: true,
-        bookingId: bookingId,
+        bookingId: booking.bookingId, // Sử dụng giá trị bookingId thực sự từ booking
         petName: booking.pet.name,
         petOwner: usersData[userId].username,
       };
@@ -138,7 +140,7 @@ const [vetName, setVetName] = useState("");
   
       await update(cageRef, { status: "Occupied", pets: updatedCagePets });
   
-      const bookingRef = ref(db, `users/${userId}/bookings/${bookingId}`);
+      const bookingRef = ref(db, `users/${userId}/bookings/${bookingKey}`);
       const updatedBookingData = {
         ...booking,
         medicalRecord: {
@@ -281,7 +283,7 @@ const [vetName, setVetName] = useState("");
     const updatedCageData = { ...cageData, pets: updatedPets };
     await updateCageByKey(cageKey, updatedCageData)
       .then(() => {
-        console.log(`Cage ${cageKey} updated successfully.`);
+        toast.success(`Cage ${cageKey} updated successfully.`);
       })
       .catch((error) => {
         console.error(`Error updating cage ${cageKey}:`, error);
@@ -303,7 +305,7 @@ const [vetName, setVetName] = useState("");
           const updatedCageData = { ...cageData, pets, status: "Available" };
 
           await updateCageByKey(cageKey, updatedCageData);
-          console.log(`Cage ${cageKey} released successfully.`);
+          toast.success(`Cage ${cageKey} released successfully.`);
         } else {
           console.error("No pet currently in the cage.");
         }
@@ -410,8 +412,8 @@ const [vetName, setVetName] = useState("");
         (value || [])
           .filter((pet) => pet.inCage)
           .map((pet) => (
-            <div key={pet.petId} style={{ fontSize: "16px" }}>
-              {pet.petId}
+            <div key={pet.petName} style={{ fontSize: "16px" }}>
+              {pet.petName}
             </div>
           )),
     },
@@ -611,6 +613,7 @@ const [vetName, setVetName] = useState("");
     </div>
   </div>
 )}
+    <ToastContainer />
     </Box>
   );
 };
