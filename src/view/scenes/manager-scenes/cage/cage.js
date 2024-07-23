@@ -125,6 +125,7 @@ const [vetName, setVetName] = useState("");
         throw new Error(`Cage with key ${cageKey} is not available.`);
       }
   
+      // Thêm hoặc cập nhật petDetails
       const petDetails = {
         date: moment().tz("Asia/Ho_Chi_Minh").format("DD/MM/YYYY"),
         petId: booking.pet.key,
@@ -135,7 +136,19 @@ const [vetName, setVetName] = useState("");
       };
       console.log("Pet Details:", petDetails); // Log thông tin pet
   
-      const updatedCagePets = [...(cageData.pets || []), petDetails];
+      let updatedCagePets = cageData.pets || [];
+  
+      // Kiểm tra xem pet này đã tồn tại trong cage chưa
+      const petIndex = updatedCagePets.findIndex(pet => pet.petId === petDetails.petId);
+  
+      if (petIndex !== -1) {
+        // Nếu đã tồn tại, cập nhật thông tin pet
+        updatedCagePets[petIndex] = petDetails;
+      } else {
+        // Nếu chưa tồn tại, thêm pet mới vào danh sách
+        updatedCagePets.push(petDetails);
+      }
+  
       console.log("Updated Cage Pets:", updatedCagePets); // Log danh sách pet trong cage
   
       await update(cageRef, { status: "Occupied", pets: updatedCagePets });
@@ -282,12 +295,19 @@ const [vetName, setVetName] = useState("");
     });
     const updatedCageData = { ...cageData, pets: updatedPets };
     await updateCageByKey(cageKey, updatedCageData)
-      .then(() => {
-        toast.success(`Cage ${cageKey} updated successfully.`);
-      })
-      .catch((error) => {
-        console.error(`Error updating cage ${cageKey}:`, error);
-      });
+    .then(() => {
+      // Update the cages state to reflect changes
+      setCages((prevCages) =>
+        prevCages.map((cage) =>
+          cage.key === cageKey ? { ...cage, pets: updatedPets } : cage
+        )
+      );
+
+      toast.success(`Cage ${cageKey} updated successfully.`, {autoClose: 2000});
+    })
+    .catch((error) => {
+      console.error(`Error updating cage ${cageKey}:`, error);
+    });
   };
 
   const handleRelease = async (cageKey) => {

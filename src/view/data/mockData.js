@@ -11,7 +11,7 @@ export let mockWithdrawData = [];
 export let mockTransactions = [];
 export let mockLineData = [
   {
-    id: "User",
+    id: "Revenue",
     color: tokens("dark").greenAccent[500],
     data: Array.from({ length: 12 }, (_, i) => ({
       x: (i + 1).toString(),
@@ -217,6 +217,10 @@ const getMockBarData = () => {
       Vaccination: 0,
       Pet_Veterinary: 0,
       Check_up: 0,
+      Hotel: 0,
+      Bathing: 0,
+      Inpatient_treatment: 0,
+      Teeth_Care: 0,
     };
 
     updatedDataTeam.forEach((user) => {
@@ -235,6 +239,9 @@ const getMockBarData = () => {
               if (serviceName === "Pet Veterinary")
                 serviceName = "Pet_Veterinary";
               if (serviceName === "Check-up") serviceName = "Check_up";
+              if (serviceName === "Inpatient treatment")
+                serviceName = "Inpatient_treatment";
+              if (serviceName === "Teeth Care") serviceName = "Teeth_Care";
               monthData[serviceName]++;
             });
           }

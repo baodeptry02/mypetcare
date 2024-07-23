@@ -17,6 +17,7 @@ import {
   getCages,
   updateCageByKey,
 } from "../../admin-scenes/services and cages/getServiceNCageData";
+import { toast, ToastContainer } from "react-toastify";
 const Booking = () => {
   const [cages, setCages] = useState([]);
   const [currentPage, setCurrentPage] = useState(1);
@@ -141,6 +142,7 @@ const Booking = () => {
           }
           // console.log(bookingCageHistory);
           await updateCageHistory(booking.bookingId, bookingCageHistory);
+          toast.success("Update pet status successfully!", { autoClose: 2000 })
           handleCloseModal();
         } else {
           console.error(`Booking with ID ${selectedBookingId} not found.`);
@@ -365,6 +367,7 @@ const Booking = () => {
         onClose={handleCloseModal}
         onConfirm={handleConfirmReport}
       />
+      <ToastContainer />
     </Box>
   );
 };

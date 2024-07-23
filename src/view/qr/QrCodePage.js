@@ -90,7 +90,7 @@ const QrCodePage = () => {
   
     const intervalId = setInterval(async () => {
       try {
-        const { descriptions, amounts } = await mockFetchTransactions();
+        const { descriptions, amounts } = await fetchTransactions();
         const contentTransfer = `thanhtoan ${bookingId}`;
   
         const paymentIndex = descriptions.findIndex((description) =>

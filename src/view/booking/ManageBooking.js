@@ -444,6 +444,7 @@ const ManageBookings = () => {
       <h4>In case of cancel booking:</h4>
       <ul>
         <li>For appointments canceled between three and six days prior to the scheduled time, you receive 75% of prepaid fee refunded.</li>
+        <li>For appointments canceled before 7 days prior to the scheduled time, you receive 100% of prepaid fee refunded.</li>
         <li>In other cases, prepayment refunds are not available.</li>
       </ul>
     </div>

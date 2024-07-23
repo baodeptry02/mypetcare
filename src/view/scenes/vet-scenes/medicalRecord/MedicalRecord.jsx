@@ -13,7 +13,7 @@ import {
   FormControl,
   FormLabel,
 } from "@mui/material";
-import { toast } from "react-toastify";
+import { toast, ToastContainer } from "react-toastify";
 import { getAuth } from "firebase/auth";
 import moment from "moment-timezone";
 import { fetchBookings } from "../../../booking/fetchBooking";
@@ -286,7 +286,7 @@ const MedicalRecord = () => {
 
       console.log("Updated pet medical history:", updatedMedicalHistory);
 
-      toast.success("Medical history updated successfully!");
+      toast.success("Medical history updated successfully!", {autoClose: 2000});
     } catch (error) {
       console.error("Error saving medical record:", error);
       toast.error("Error saving medical record. Please try again.");
@@ -453,13 +453,13 @@ const MedicalRecord = () => {
         </Grid>
       </Grid>
 
-      <Typography
+      <button
         variant="h4"
         onClick={toggleMedicalHistory}
         style={{ cursor: "pointer" }}
       >
         Medical History
-      </Typography>
+      </button>
       {showMedicalHistory && (
         <Box mt={2} height={180} overflow={"auto"} border={"solid 1px black"}>
           <Grid container spacing={3} padding={2}>
@@ -801,6 +801,7 @@ const MedicalRecord = () => {
           Save
         </Button>
       </Box>
+      <ToastContainer />
     </Box>
   );
 };
